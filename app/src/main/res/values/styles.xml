@@ -1,0 +1,58 @@
+<resources>
+
+    <style name="NotedTheme.Base" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowBackground">@color/windowBackground</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="textColorPrimary">@color/textColorPrimary</item>
+        <item name="textColorSecondary">@color/textColorSecondary</item>
+    </style>
+
+    <style name="NotedTheme" parent="NotedTheme.Base">
+
+    </style>
+
+
+
+
+    <style name="card" parent="CardView">
+        <item name="cardPreventCornerOverlap">false</item>
+        <item name="cardUseCompatPadding">true</item>
+        <item name="cardCornerRadius">@dimen/size_small</item>
+    </style>
+
+    <style name="text">
+        <item name="android:textColor">?attr/textColorSecondary</item>
+    </style>
+
+    <style name="text.tiny">
+        <item name="android:textSize">@dimen/text_tiny</item>
+    </style>
+
+    <style name="text.small">
+        <item name="android:textSize">@dimen/text_small</item>
+    </style>
+
+    <style name="text.medium">
+        <item name="android:textSize">@dimen/text_medium</item>
+    </style>
+
+    <style name="text.large">
+        <item name="android:textSize">@dimen/text_large</item>
+    </style>
+
+    <style name="edit_text">
+        <item name="android:imeOptions">normal</item>
+        <item name="android:textColor">?attr/textColorSecondary</item>
+        <item name="android:gravity">left</item>
+    </style>
+
+    <style name="edit_text.small">
+        <item name="android:textSize">@dimen/text_tiny</item>
+    </style>
+
+
+</resources>
