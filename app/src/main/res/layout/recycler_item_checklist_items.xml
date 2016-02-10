@@ -1,0 +1,42 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/recycler_item_checklist_items_frame"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/size_large"
+    android:padding="@dimen/size_tiny"
+    android:orientation="horizontal"
+    android:background="?attr/editTextBackgroundDrawable"
+    >
+
+    <CheckBox
+        android:id="@+id/recycler_item_checklist_items_completed"
+        android:layout_width="0dp"
+        android:layout_weight="0.1"
+        android:layout_height="match_parent"
+        />
+
+    <EditText
+        android:id="@+id/recycler_item_checklist_items_content"
+        android:layout_width="0dp"
+        android:layout_weight="0.8"
+        android:layout_height="match_parent"
+        android:hint="@string/edit_text_content_new_item"
+        android:background="?attr/editTextBackgroundDrawable"
+        android:imeOptions="actionDone"
+        android:singleLine="true"
+        android:textColor="?attr/textColorTertiary"
+        android:textSize="@dimen/text_medium"
+        />
+
+    <TextView
+        android:id="@+id/recycler_item_checklist_items_remove"
+        android:layout_width="0dp"
+        android:layout_weight="0.1"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textColor="?attr/textColorTertiary"
+        android:text="X"
+        style="@style/text.medium"
+        />
+
+</LinearLayout>

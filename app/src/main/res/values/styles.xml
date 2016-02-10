@@ -3,16 +3,42 @@
     <style name="NotedTheme.Base" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
-        <item name="windowBackground">@color/windowBackground</item>
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="textColorPrimary">@color/textColorPrimary</item>
-        <item name="textColorSecondary">@color/textColorSecondary</item>
+
+        <item name="textColorPrimary">@color/md_white_1000</item>
     </style>
 
-    <style name="NotedTheme" parent="NotedTheme.Base">
+    <style name="NotedTheme.Default" parent="NotedTheme.Base">
+        <item name="floatingActionMenuColorFirst">@color/default_floatingActionMenuColorFirst</item>
+        <item name="floatingActionMenuColorSecond">@color/default_floatingActionMenuColorSecond</item>
+        <item name="floatingActionMenuColorThird">@color/default_floatingActionMenuColorThird</item>
+        <item name="colorPrimary">@color/default_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/default_colorPrimaryDark</item>
+        <item name="colorAccent">@color/default_colorAccent</item>
+        <item name="windowBackground">@color/default_windowBackground</item>
+        <item name="colorCardBackground">@color/default_colorCardBackground</item>
+        <item name="colorUrgent">@color/default_colorUrgent</item>
+        <item name="textColorSecondary">@color/default_textColorSecondary</item>
+        <item name="textColorTertiary">@color/default_textColorTertiary</item>
 
+        <item name="floatingActionMenuLabelBackground">@drawable/default_fab_label_background</item>
+        <item name="editTextBackgroundDrawable">@drawable/default_edit_text_background</item>
+    </style>
+
+    <style name="NotedTheme.Dark" parent="NotedTheme.Base">
+        <item name="floatingActionMenuColorFirst">@color/dark_floatingActionMenuColorFirst</item>
+        <item name="floatingActionMenuColorSecond">@color/dark_floatingActionMenuColorSecond</item>
+        <item name="floatingActionMenuColorThird">@color/dark_floatingActionMenuColorThird</item>
+        <item name="colorPrimary">@color/dark_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/dark_colorPrimaryDark</item>
+        <item name="colorAccent">@color/dark_colorAccent</item>
+        <item name="windowBackground">@color/dark_windowBackground</item>
+        <item name="colorCardBackground">@color/dark_colorCardBackground</item>
+        <item name="colorUrgent">@color/dark_colorUrgent</item>
+        <item name="textColorSecondary">@color/dark_textColorSecondary</item>
+        <item name="textColorTertiary">@color/dark_textColorTertiary</item>
+
+        <item name="floatingActionMenuLabelBackground">@drawable/dark_fab_label_background</item>
+        <item name="editTextBackgroundDrawable">@drawable/dark_edit_text_background</item>
     </style>
 
 
@@ -21,7 +47,7 @@
     <style name="card" parent="CardView">
         <item name="cardPreventCornerOverlap">false</item>
         <item name="cardUseCompatPadding">true</item>
-        <item name="cardCornerRadius">@dimen/size_small</item>
+        <item name="cardCornerRadius">@dimen/corner_radius</item>
     </style>
 
     <style name="text">
@@ -44,15 +70,44 @@
         <item name="android:textSize">@dimen/text_large</item>
     </style>
 
+    <style name="text.huge">
+        <item name="android:textSize">@dimen/text_huge</item>
+    </style>
+
     <style name="edit_text">
         <item name="android:imeOptions">normal</item>
-        <item name="android:textColor">?attr/textColorSecondary</item>
         <item name="android:gravity">left</item>
     </style>
 
-    <style name="edit_text.small">
-        <item name="android:textSize">@dimen/text_tiny</item>
+    <style name="edit_text.medium">
+        <item name="android:textSize">@dimen/text_medium</item>
     </style>
 
+    <style name="edit_text.large">
+        <item name="android:textSize">@dimen/text_large</item>
+    </style>
+
+    <style name="edit_text.huge">
+        <item name="android:textSize">@dimen/text_huge</item>
+    </style>
+
+    <style name="fab_label">
+        <item name="android:background">@drawable/default_fab_label_background</item>
+        <item name="android:textSize">@dimen/text_small</item>
+        <item name="android:padding">@dimen/size_small</item>
+        <item name="android:textColor">?attr/textColorPrimary</item>
+    </style>
+
+    <style name="divider_across">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">?attr/windowBackground</item>
+    </style>
+
+    <style name="divider_up">
+        <item name="android:layout_width">1dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">?attr/textColorSecondary</item>
+    </style>
 
 </resources>

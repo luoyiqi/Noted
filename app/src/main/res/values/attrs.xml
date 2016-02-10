@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <attr name="floatingActionMenuColorFirst" format="color"/>
+    <attr name="floatingActionMenuColorSecond" format="color"/>
+    <attr name="floatingActionMenuColorThird" format="color"/>
+    <attr name="colorCardBackground" format="color"/>
     <attr name="navigationBarColor" format="color"/>
     <attr name="windowBackground" format="color"/>
     <attr name="textColorPrimary" format="color"/>
     <attr name="textColorSecondary" format="color"/>
+    <attr name="textColorTertiary" format="color"/>
+    <attr name="colorUrgent" format="color"/>
 
+    <attr name="floatingActionMenuLabelBackground" format="reference"/>
+    <attr name="editTextBackgroundDrawable" format="reference"/>
 </resources>

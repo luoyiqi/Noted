@@ -1,0 +1,7 @@
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/recycler_item_colour_selection_colour"
+    android:layout_width="@dimen/size_small"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/size_small"
+    />

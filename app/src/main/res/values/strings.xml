@@ -5,7 +5,13 @@
 
     <string name="edit_text_title_hint">Title</string>
     <string name="edit_text_content_hint">Content</string>
+    <string name="edit_text_content_new_item">New item</string>
+
+    <string name="fab_new_note">New note</string>
+    <string name="fab_new_checklist">New checklist</string>
 
     <string name="date_last_modified">Last modified:</string>
+
+    <string name="empty_recycler">:( \n Nothing to show</string>
 
 </resources>

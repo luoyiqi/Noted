@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:met="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/windowBackground"
+    android:padding="@dimen/size_medium"
+    >
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/editTextBackgroundDrawable"
+        android:layout_margin="@dimen/size_small"
+        android:padding="@dimen/size_small"
+        >
+
+        <com.rengwuxian.materialedittext.MaterialEditText
+            android:id="@+id/fragment_add_edit_note_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:singleLine="true"
+            android:hint="@string/edit_text_title_hint"
+            met:met_textColor="?attr/textColorTertiary"
+            met:met_baseColor="?attr/textColorTertiary"
+            met:met_floatingLabel="highlight"
+            met:met_floatingLabelAlwaysShown="true"
+            style="@style/edit_text.huge"
+            />
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/editTextBackgroundDrawable"
+        android:layout_margin="@dimen/size_small"
+        android:padding="@dimen/size_small"
+        >
+
+        <com.rengwuxian.materialedittext.MaterialEditText
+            android:id="@+id/fragment_add_edit_note_content"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/content_max_height"
+            android:hint="@string/edit_text_content_hint"
+            android:background="?attr/editTextBackgroundDrawable"
+            met:met_textColor="?attr/textColorTertiary"
+            met:met_baseColor="?attr/textColorTertiary"
+            met:met_floatingLabel="highlight"
+            met:met_floatingLabelAlwaysShown="true"
+            style="@style/edit_text.medium"
+            />
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/editTextBackgroundDrawable"
+        android:layout_margin="@dimen/size_small"
+        android:padding="@dimen/size_small"
+        >
+
+        <FrameLayout
+            android:id="@+id/fragment_add_edit_note_colour_selection_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+
+    </FrameLayout>
+
+</LinearLayout>

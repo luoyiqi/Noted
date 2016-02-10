@@ -7,20 +7,58 @@
      android:background="?attr/windowBackground"
     >
 
+    <TextView
+        android:id="@+id/fragment_show_notes_empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/empty_recycler"
+        android:textColor="?attr/textColorTertiary"
+        android:gravity="center"
+        style="@style/text.huge"
+        />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/fragment_show_notes_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:visibility="gone"
         />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fragment_show_notes_add"
-        android:layout_width="@dimen/fab_size_normal"
-        android:layout_height="@dimen/fab_size_normal"
+    <com.getbase.floatingactionbutton.FloatingActionsMenu
+        xmlns:fab="http://schemas.android.com/apk/res-auto"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/fragment_show_notes_floating_action_menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/size_medium"
-        android:layout_gravity="bottom|right"
-        android:clickable="true"
-        android:src="@drawable/ic_add"
-        />
+        fab:fab_labelsPosition="left"
+        fab:fab_labelStyle="@style/fab_label"
+        fab:fab_addButtonColorNormal="?attr/colorAccent"
+        fab:fab_addButtonColorPressed="?attr/colorAccent"
+        fab:fab_addButtonSize="normal"
+        >
+
+       <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fragnent_show_notes_floating_actions_menu_new_checklist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_new_checklist"
+            fab:fab_colorNormal="?attr/floatingActionMenuColorSecond"
+            fab:fab_title="@string/fab_new_checklist"
+            fab:fab_size="mini"
+            />
+
+       <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fragnent_show_notes_floating_actions_menu_new_note"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_new_note"
+            fab:fab_colorNormal="?attr/floatingActionMenuColorFirst"
+            fab:fab_title="@string/fab_new_note"
+            fab:fab_size="mini"
+            />
+
+    </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
 </FrameLayout>
