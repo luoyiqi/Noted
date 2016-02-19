@@ -35,7 +35,19 @@ public class FragmentColourSelection extends Fragment {
 
     private static final int NUM_COLUMNS = 8;
 
+    private boolean mIsBarNeeded = true;
+
     private IOnColourSelectedListener mIOnColourSelectedListener;
+    private ColourSelectionAdapter mColourSelectionAdapter;
+
+    public FragmentColourSelection() {
+        List<Integer> colours = new ArrayList<>();
+        for (Integer colour : Constants.COLOURS) {
+            colours.add(colour);
+        }
+
+        mColourSelectionAdapter = new ColourSelectionAdapter(colours);
+    }
 
 
     @Nullable
@@ -45,60 +57,17 @@ public class FragmentColourSelection extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_colour_selection, container, false);
         ButterKnife.inject(this, rootView);
 
+        mIsBarNeeded = getArguments().getBoolean(Constants.BUNDLE_COLOUR_SELECTION_NEEDS_BAR, true);
+
+        if (!mIsBarNeeded) {
+            mSelectionBar.setVisibility(View.GONE);
+            mRecyclerView.setVisibility(View.VISIBLE);
+        }
+
         mSelectionBar.setBackgroundColor(getArguments().getInt(Constants.BUNDLE_CURRENT_COLOUR));
 
-        List<Integer> colours = new ArrayList<>();
-
-        colours.add(0xFFF44336);
-        colours.add(0xFFD32F2F);
-
-        colours.add(0xFFE91E63);
-        colours.add(0xFFC2185B);
-
-        colours.add(0xFF9C27B0);
-        colours.add(0xFF7B1FA2);
-
-        colours.add(0xFF3F51B5);
-        colours.add(0xFF303F9F);
-
-        colours.add(0xFF2196F3);
-        colours.add(0xFF1976D2);
-
-        colours.add(0xFF03A9F4);
-        colours.add(0xFF0288D1);
-
-        colours.add(0xFF00BCD4);
-        colours.add(0xFF0097A7);
-
-        colours.add(0xFF009688);
-        colours.add(0xFF00796B);
-
-        colours.add(0xFF8BC34A);
-        colours.add(0xFF689F38);
-
-        colours.add(0xFFCDDC39);
-        colours.add(0xFFA4B42B);
-
-        colours.add(0xFFCDDC39);
-        colours.add(0xFFFBC02D);
-
-        colours.add(0xFFFFC107);
-        colours.add(0xFFFFA000);
-
-        colours.add(0xFFFF9800);
-        colours.add(0xFFF57C00);
-
-        colours.add(0xFFFF5722);
-        colours.add(0xFFE64A19);
-
-        colours.add(0xFF795548);
-        colours.add(0xFF5D4037);
-
-        colours.add(0xFF607D8B);
-        colours.add(0xFF455A64);
-
         UtilityFunctions.setUpGridRecycler(getActivity(), mRecyclerView,
-                new ColourSelectionAdapter(colours), NUM_COLUMNS);
+                mColourSelectionAdapter, NUM_COLUMNS);
 
         mSelectionBar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -137,9 +106,15 @@ public class FragmentColourSelection extends Fragment {
     @Subscribe
     public void receiveColour(Integer colour) {
         mIOnColourSelectedListener.onColourSelected(colour);
-        mSelectionBar.setVisibility(View.VISIBLE);
-        mRecyclerView.setVisibility(View.GONE);
+        if (mIsBarNeeded) {
+            mSelectionBar.setVisibility(View.VISIBLE);
+            mRecyclerView.setVisibility(View.GONE);
+        }
         mSelectionBar.setBackgroundColor(colour);
+    }
+
+    public void alphaChanged(int newAlpha) {
+        mColourSelectionAdapter.alphaChanged(newAlpha);
     }
 
 }
