@@ -9,9 +9,14 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.cerebellio.noted.models.CheckList;
 import com.cerebellio.noted.models.CheckListItem;
 import com.cerebellio.noted.models.Item;
+import com.cerebellio.noted.models.NavDrawerItem;
 import com.cerebellio.noted.models.Note;
+import com.cerebellio.noted.models.Sketch;
+import com.cerebellio.noted.utils.Constants;
+import com.cerebellio.noted.utils.UtilityFunctions;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -23,46 +28,49 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
     private static final String COLUMN_ID = "_id";
+    private static final String COLUMN_COLOUR = "colour";
+    private static final String COLUMN_STATUS = "status";
+    private static final String COLUMN_IMPORTANT = "important";
+    private static final String COLUMN_CREATED_DATE = "created_date";
+    private static final String COLUMN_EDITED_DATE = "edited_date";
 
     private static final String TABLE_NOTES = "notes";
-    private static final String COLUMN_NOTES_LAST_MODIFIED_DATE = "last_modified_date";
     private static final String COLUMN_NOTES_TITLE = "title";
-    private static final String COLUMN_NOTES_COLOUR = "colour";
     private static final String COLUMN_NOTES_CONTENT = "content";
-    private static final String COLUMN_NOTES_TRASHED = "trashed";
-    private static final String COLUMN_NOTES_URGENT = "urgent";
 
     private static final String TABLE_CHECKLIST = "checklist";
-    private static final String COLUMN_CHECKLIST_TITLE = "name";
-    private static final String COLUMN_CHECKLIST_LAST_MODIFIED_DATE = "last_modified_date";
-    private static final String COLUMN_CHECKLIST_COLOUR = "colour";
-    private static final String COLUMN_CHECKLIST_TRASHED = "trashed";
+    private static final String COLUMN_CHECKLIST_TITLE = "title";
 
     private static final String TABLE_CHECKLIST_ITEM = "checklist_item";
     private static final String COLUMN_CHECKLIST_ITEM_CHECKLIST_ID = "checklist_id";
     private static final String COLUMN_CHECKLIST_ITEM_CONTENT = "content";
     private static final String COLUMN_CHECKLIST_ITEM_COMPLETED = "completed";
-    private static final String COLUMN_CHECKLIST_ITEM_TRASHED = "trashed";
 
+    private static final String TABLE_SKETCH = "sketch";
+    private static final String COLUMN_SKETCH_TITLE = "title";
+    private static final String COLUMN_SKETCH_IMAGE = "image";
 
 
     private static final String NOTES_CREATION_STRING = "CREATE TABLE "
             + TABLE_NOTES + " ("
             + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-            + COLUMN_NOTES_LAST_MODIFIED_DATE + " INTEGER,"
             + COLUMN_NOTES_TITLE + " TEXT,"
-            + COLUMN_NOTES_COLOUR + " INTEGER,"
+            + COLUMN_COLOUR + " INTEGER,"
             + COLUMN_NOTES_CONTENT + " TEXT,"
-            + COLUMN_NOTES_TRASHED + " INTEGER DEFAULT 0,"
-            + COLUMN_NOTES_URGENT + " INTEGER DEFAULT 0)";
+            + COLUMN_CREATED_DATE + " INTEGER,"
+            + COLUMN_EDITED_DATE + " INTEGER,"
+            + COLUMN_IMPORTANT + " INTEGER DEFAULT 0,"
+            + COLUMN_STATUS + " TEXT DEFAULT '" + Item.Status.NONE.toString() + "')";
 
     private static final String CHECKLIST_CREATION_STRING = "CREATE TABLE "
             + TABLE_CHECKLIST + " ("
             + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + COLUMN_CHECKLIST_TITLE + " TEXT,"
-            + COLUMN_CHECKLIST_LAST_MODIFIED_DATE + " INTEGER,"
-            + COLUMN_CHECKLIST_COLOUR + " INTEGER,"
-            + COLUMN_CHECKLIST_TRASHED + " INTEGER DEFAULT 0)";
+            + COLUMN_COLOUR + " INTEGER,"
+            + COLUMN_CREATED_DATE + " INTEGER,"
+            + COLUMN_EDITED_DATE + " INTEGER,"
+            + COLUMN_IMPORTANT + " INTEGER DEFAULT 0,"
+            + COLUMN_STATUS + " TEXT DEFAULT '" + Item.Status.NONE.toString() + "')";
 
     private static final String CHECKLIST_ITEM_CREATION_STRING = "CREATE TABLE "
             + TABLE_CHECKLIST_ITEM + " ("
@@ -70,7 +78,18 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
             + COLUMN_CHECKLIST_ITEM_CHECKLIST_ID + " INTEGER,"
             + COLUMN_CHECKLIST_ITEM_CONTENT + " TEXT,"
             + COLUMN_CHECKLIST_ITEM_COMPLETED + " INTEGER DEFAULT 0,"
-            + COLUMN_CHECKLIST_ITEM_TRASHED + " INTEGER DEFAULT 0)";
+            + COLUMN_STATUS + " TEXT DEFAULT '" + Item.Status.NONE.toString() + "')";
+
+    private static final String SKETCH_CREATION_STRING = "CREATE TABLE "
+            + TABLE_SKETCH + " ("
+            + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + COLUMN_SKETCH_TITLE + " TEXT,"
+            + COLUMN_COLOUR + " INTEGER,"
+            + COLUMN_SKETCH_IMAGE + " BLOB,"
+            + COLUMN_CREATED_DATE + " INTEGER,"
+            + COLUMN_EDITED_DATE + " INTEGER,"
+            + COLUMN_IMPORTANT + " INTEGER DEFAULT 0,"
+            + COLUMN_STATUS + " TEXT DEFAULT '" + Item.Status.NONE.toString() + "')";
 
 
     private Context mContext;
@@ -85,6 +104,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(NOTES_CREATION_STRING);
         sqLiteDatabase.execSQL(CHECKLIST_CREATION_STRING);
         sqLiteDatabase.execSQL(CHECKLIST_ITEM_CREATION_STRING);
+        sqLiteDatabase.execSQL(SKETCH_CREATION_STRING);
     }
 
     @Override
@@ -92,23 +112,35 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         //TODO write onUpgrade for db
     }
 
-    /**
-     * Get the {@link CheckList} referred to by the given ID
-     * @param checkListId       ID of the {@link CheckList} to retrieve
-     * @return                  {@link Note} retrieved
-     */
-    public CheckList getChecklist(long checkListId) {
+
+
+    public Item getItemById(long id, Item.Type type) {
         String where = " WHERE "
                 + COLUMN_ID
                 + " = "
-                + checkListId;
-        List<CheckList> checkLists = getCheckLists(where);
-        if (checkLists.size() > 0) {
-            return checkLists.get(0);
-        } else {
-            return null;
+                + id;
+
+        switch (type) {
+            default:
+            case NOTE:
+                return getNotes(where).get(0);
+            case CHECKLIST:
+                return getCheckLists(where).get(0);
+            case SKETCH:
+                return getSketches(where).get(0);
+            case CHECKLIST_ITEM:
+                return getChecklistItems(where).get(0);
         }
     }
+
+    public List<Item> getAllItems(NavDrawerItem.NavDrawerItemType type) {
+        List<Item> items = new ArrayList<>();
+        items.addAll(getAllNotes(type));
+        items.addAll(getAllChecklists(type));
+        items.addAll(getAllSketches(type));
+        return items;
+    }
+
 
     /**
      * Retrieves a List of {@link CheckList} from the database
@@ -131,14 +163,18 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
 
                 checkList.setId(cursor.getLong(cursor.getColumnIndex(COLUMN_ID)));
                 checkList.setTitle(cursor.getString(cursor.getColumnIndex(COLUMN_CHECKLIST_TITLE)));
-                checkList.setLastModifiedDate(cursor.getLong(cursor.getColumnIndex(COLUMN_CHECKLIST_LAST_MODIFIED_DATE)));
-                checkList.setColour(cursor.getInt(cursor.getColumnIndex(COLUMN_CHECKLIST_COLOUR)));
+                checkList.setColour(cursor.getInt(cursor.getColumnIndex(COLUMN_COLOUR)));
+                checkList.setCreatedDate(cursor.getLong(cursor.getColumnIndex(COLUMN_CREATED_DATE)));
+                checkList.setLastModifiedDate(cursor.getLong(cursor.getColumnIndex(COLUMN_EDITED_DATE)));
+                checkList.setIsImportant(cursor.getInt(cursor.getColumnIndex(COLUMN_IMPORTANT)) == 1);
+                checkList.setStatus(Item.Status.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_STATUS))));
+
                 checkList.setItems(getChecklistItems(" WHERE "
                         + COLUMN_CHECKLIST_ITEM_CHECKLIST_ID
                         + " = "
                         + checkList.getId()
-                        + " AND " + COLUMN_CHECKLIST_ITEM_TRASHED
-                        + " = 0"));
+                        + " AND " + COLUMN_STATUS
+                        + " = '" + Item.Status.NONE.toString() + "'"));
 
                 checkLists.add(checkList);
 
@@ -151,11 +187,11 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Get all {@link Note} in the database
-     * @return          List of all {@link Note}
+     * Get all {@link CheckList} in the database
+     * @return          List of all {@link CheckList}
      */
-    public List<CheckList> getAllChecklists() {
-        return getCheckLists(" WHERE " + COLUMN_CHECKLIST_TRASHED + " = 0");
+    public List<CheckList> getAllChecklists(NavDrawerItem.NavDrawerItemType type) {
+        return getCheckLists(getItemTypeWhereString(type));
     }
 
     /**
@@ -180,7 +216,8 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
                 item.setChecklistId(cursor.getLong(cursor.getColumnIndex(COLUMN_CHECKLIST_ITEM_CHECKLIST_ID)));
                 item.setContent(cursor.getString(cursor.getColumnIndex(COLUMN_CHECKLIST_ITEM_CONTENT)));
                 item.setIsCompleted(cursor.getInt(cursor.getColumnIndex(COLUMN_CHECKLIST_ITEM_COMPLETED)) == 1);
-                item.setIsTrashed(cursor.getInt(cursor.getColumnIndex(COLUMN_CHECKLIST_ITEM_TRASHED)) == 1);
+                item.setStatus(Item.Status.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_STATUS))));
+
 
                 checkListItems.add(item);
             } while (cursor.moveToNext());
@@ -191,23 +228,48 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         return checkListItems;
     }
 
-    public long getLatestChecklistId() {
+    /**
+     * Retrieves a List of {@link Sketch} from the database
+     * @param whereCondition        WHERE condition to supply to query
+     * @return                      List of retrieved {@link Sketch}
+     */
+    public List<Sketch> getSketches(String whereCondition) {
         SQLiteDatabase db = getReadableDatabase();
-        long id = 0;
-        String query = "SELECT * FROM " + TABLE_CHECKLIST
-                + " ORDER BY " + COLUMN_ID
-                + " DESC LIMIT 1";
+        List<Sketch> sketches = new ArrayList<>();
+        String query = "SELECT * FROM " + TABLE_SKETCH
+                + whereCondition;
         Cursor cursor = db.rawQuery(query, null);
 
         if (cursor.getCount() > 0) {
             cursor.moveToFirst();
 
-            id = cursor.getLong(cursor.getColumnIndex(COLUMN_ID));
+            do {
+                Sketch sketch = new Sketch();
+
+                sketch.setId(cursor.getLong(cursor.getColumnIndex(COLUMN_ID)));
+                sketch.setTitle(cursor.getString(cursor.getColumnIndex(COLUMN_SKETCH_TITLE)));
+                sketch.setColour(cursor.getInt(cursor.getColumnIndex(COLUMN_COLOUR)));
+                sketch.setBitmapAsByteArray(cursor.getBlob(cursor.getColumnIndex(COLUMN_SKETCH_IMAGE)));
+                sketch.setCreatedDate(cursor.getLong(cursor.getColumnIndex(COLUMN_CREATED_DATE)));
+                sketch.setLastModifiedDate(cursor.getLong(cursor.getColumnIndex(COLUMN_EDITED_DATE)));
+                sketch.setIsImportant(cursor.getInt(cursor.getColumnIndex(COLUMN_IMPORTANT)) == 1);
+                sketch.setStatus(Item.Status.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_STATUS))));
+
+                sketches.add(sketch);
+            } while (cursor.moveToNext());
         }
 
         cursor.close();
 
-        return id;
+        return sketches;
+    }
+
+    /**
+     * Get all {@link Sketch} in the database
+     * @return          List of all {@link Sketch}
+     */
+    public List<Sketch> getAllSketches(NavDrawerItem.NavDrawerItemType type) {
+        return getSketches(getItemTypeWhereString(type));
     }
 
     /**
@@ -221,7 +283,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         String query = "SELECT * FROM " + TABLE_NOTES
                 + whereCondition
                 + " ORDER BY "
-                + COLUMN_NOTES_LAST_MODIFIED_DATE
+                + COLUMN_EDITED_DATE
                 + " DESC";
         Cursor cursor = db.rawQuery(query, null);
 
@@ -235,10 +297,11 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
                 note.setId(cursor.getLong(cursor.getColumnIndex(COLUMN_ID)));
                 note.setTitle(cursor.getString(cursor.getColumnIndex(COLUMN_NOTES_TITLE)));
                 note.setContent(cursor.getString(cursor.getColumnIndex(COLUMN_NOTES_CONTENT)));
-                note.setColour(cursor.getInt(cursor.getColumnIndex(COLUMN_NOTES_COLOUR)));
-                note.setIsTrashed(cursor.getInt(cursor.getColumnIndex(COLUMN_NOTES_TRASHED)) == 1);
-                note.setIsUrgent(cursor.getInt(cursor.getColumnIndex(COLUMN_NOTES_URGENT)) == 1);
-                note.setLastModifiedDate(cursor.getLong(cursor.getColumnIndex(COLUMN_NOTES_LAST_MODIFIED_DATE)));
+                note.setColour(cursor.getInt(cursor.getColumnIndex(COLUMN_COLOUR)));
+                note.setCreatedDate(cursor.getLong(cursor.getColumnIndex(COLUMN_CREATED_DATE)));
+                note.setLastModifiedDate(cursor.getLong(cursor.getColumnIndex(COLUMN_EDITED_DATE)));
+                note.setIsImportant(cursor.getInt(cursor.getColumnIndex(COLUMN_IMPORTANT)) == 1);
+                note.setStatus(Item.Status.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_STATUS))));
 
                 notes.add(note);
 
@@ -251,36 +314,100 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Get the {@link Note} referred to by the given ID
-     * @param noteId            ID of the {@link Note} to retrieve
-     * @return                  {@link Note} retrieved
-     */
-    public Note getNote(long noteId) {
-        String where = " WHERE "
-                + COLUMN_ID
-                + " = "
-                + noteId;
-        List<Note> notes = getNotes(where);
-        if (notes.size() > 0) {
-            return notes.get(0);
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * Get all {@link Note} in the database
      * @return          List of all {@link Note}
      */
-    public List<Note> getAllNotes() {
-        return getNotes(" WHERE " + COLUMN_NOTES_TRASHED + " = 0");
+    public List<Note> getAllNotes(NavDrawerItem.NavDrawerItemType type) {
+        return getNotes(getItemTypeWhereString(type));
+    }
+
+    private String getItemTypeWhereString(NavDrawerItem.NavDrawerItemType type) {
+        String where;
+
+        switch (type) {
+            default:
+            case PINBOARD:
+                where = " WHERE " + COLUMN_STATUS + " = '" + Item.Status.NONE.toString() + "'";
+                break;
+            case ARCHIVE:
+                where = " WHERE " + COLUMN_STATUS + " = '" + Item.Status.ARCHIVED.toString() + "'";
+                break;
+            case TRASH:
+                where = " WHERE " + COLUMN_STATUS + " = '" + Item.Status.TRASHED.toString() + "'";
+                break;
+        }
+
+        return where;
+    }
+
+    public long addBlankChecklist() {
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_CHECKLIST_TITLE, "");
+        contentValues.put(COLUMN_COLOUR,
+                UtilityFunctions.getRandomIntegerFromArray(Constants.COLOURS));
+        contentValues.put(COLUMN_IMPORTANT, 0);
+        contentValues.put(COLUMN_CREATED_DATE, new Date().getTime());
+        contentValues.put(COLUMN_EDITED_DATE, 0);
+        contentValues.put(COLUMN_STATUS, Item.Status.NONE.toString());
+
+        long id = db.insert(TABLE_CHECKLIST, null, contentValues);
+
+        addBlankChecklistItem(id);
+
+        return id;
+    }
+
+    public long addBlankChecklistItem(long checklistId) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_CHECKLIST_ITEM_CHECKLIST_ID, checklistId);
+        contentValues.put(COLUMN_CHECKLIST_ITEM_CONTENT, "");
+        contentValues.put(COLUMN_CHECKLIST_ITEM_COMPLETED, 0);
+        contentValues.put(COLUMN_STATUS, Item.Status.NONE.toString());
+
+        return db.insert(TABLE_CHECKLIST_ITEM, null, contentValues);
+    }
+
+    public long addBlankNote() {
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_NOTES_TITLE, "");
+        contentValues.put(COLUMN_COLOUR,
+                UtilityFunctions.getRandomIntegerFromArray(Constants.COLOURS));
+        contentValues.put(COLUMN_NOTES_CONTENT, "");
+        contentValues.put(COLUMN_CREATED_DATE, new Date().getTime());
+        contentValues.put(COLUMN_EDITED_DATE, 0);
+        contentValues.put(COLUMN_IMPORTANT, 0);
+        contentValues.put(COLUMN_STATUS, Item.Status.NONE.toString());
+
+        return db.insert(TABLE_NOTES, null, contentValues);
+    }
+
+    public long addBlankSketch() {
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_SKETCH_TITLE, "");
+        contentValues.put(COLUMN_SKETCH_IMAGE, new byte[0]);
+        contentValues.put(COLUMN_COLOUR,
+                UtilityFunctions.getRandomIntegerFromArray(Constants.COLOURS));
+        contentValues.put(COLUMN_CREATED_DATE, new Date().getTime());
+        contentValues.put(COLUMN_EDITED_DATE, 0);
+        contentValues.put(COLUMN_IMPORTANT, 0);
+        contentValues.put(COLUMN_STATUS, Item.Status.NONE.toString());
+
+        return db.insert(TABLE_SKETCH, null, contentValues);
     }
 
     /**
      * Check if {@link Note} exists.
      * If not, insert into database.
      * If so, update  database.
-      * @param note             {@link Note} to insert/update
+     * @param note             {@link Note} to insert/update
      */
     public void addOrEditNote(Note note) {
         SQLiteDatabase db = getWritableDatabase();
@@ -288,14 +415,16 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_NOTES_TITLE, note.getTitle());
         contentValues.put(COLUMN_NOTES_CONTENT, note.getContent());
-        contentValues.put(COLUMN_NOTES_COLOUR, note.getColour());
-        contentValues.put(COLUMN_NOTES_LAST_MODIFIED_DATE, note.getLastModifiedDate());
-        contentValues.put(COLUMN_NOTES_TRASHED, note.isTrashed() ? 1 : 0);
-        contentValues.put(COLUMN_NOTES_URGENT, note.isUrgent() ? 1 : 0);
+        contentValues.put(COLUMN_COLOUR, note.getColour());
+        contentValues.put(COLUMN_CREATED_DATE, note.getCreatedDate());
+        contentValues.put(COLUMN_EDITED_DATE, note.getLastModifiedDate());
+        contentValues.put(COLUMN_IMPORTANT, note.isImportant());
+        contentValues.put(COLUMN_STATUS, note.getStatus().toString());
+
 
         //check to see if this note is already in db
         //if so edit, if not insert
-        if (getNote(note.getId()) == null) {
+        if (getItemById(note.getId(), Item.Type.NOTE) == null) {
             db.insert(TABLE_NOTES, null, contentValues);
         } else {
             db.update(TABLE_NOTES, contentValues, COLUMN_ID + " = ?",
@@ -307,36 +436,28 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
      * Check if {@link CheckList} exists.
      * If not, insert into database.
      * If so, update  database.
-      * @param checkList             {@link CheckList} to insert/update
+     * @param checkList             {@link CheckList} to insert/update
      */
-    public void updateChecklist(CheckList checkList) {
+    public void addOrEditChecklist(CheckList checkList) {
         SQLiteDatabase db = getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_CHECKLIST_TITLE, checkList.getTitle());
-        contentValues.put(COLUMN_CHECKLIST_COLOUR, checkList.getColour());
-        contentValues.put(COLUMN_CHECKLIST_LAST_MODIFIED_DATE, checkList.getLastModifiedDate());
-        contentValues.put(COLUMN_NOTES_TRASHED, checkList.isTrashed() ? 1 : 0);
+        contentValues.put(COLUMN_COLOUR, checkList.getColour());
+        contentValues.put(COLUMN_CREATED_DATE, checkList.getCreatedDate());
+        contentValues.put(COLUMN_EDITED_DATE, checkList.getLastModifiedDate());
+        contentValues.put(COLUMN_IMPORTANT, checkList.isImportant());
+        contentValues.put(COLUMN_STATUS, checkList.getStatus().toString());
 
         for (CheckListItem item : checkList.getItems()) {
             addOrEditChecklistItem(item);
         }
-
-        db.update(TABLE_CHECKLIST, contentValues, COLUMN_ID + " = ?",
-                new String[]{String.valueOf(checkList.getId())});
-    }
-
-    public void addBlankChecklist() {
-        SQLiteDatabase db = getWritableDatabase();
-        CheckList checkList = new CheckList();
-
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(COLUMN_CHECKLIST_TITLE, checkList.getTitle());
-        contentValues.put(COLUMN_CHECKLIST_LAST_MODIFIED_DATE, checkList.getLastModifiedDate());
-        contentValues.put(COLUMN_CHECKLIST_COLOUR, checkList.getColour());
-        contentValues.put(COLUMN_NOTES_TRASHED, checkList.isTrashed() ? 1 : 0);
-
-        db.insert(TABLE_CHECKLIST, null, contentValues);
+        if (getItemById(checkList.getId(), Item.Type.CHECKLIST) == null) {
+            db.insert(TABLE_CHECKLIST, null, contentValues);
+        } else {
+            db.update(TABLE_CHECKLIST, contentValues, COLUMN_ID + " = ?",
+                    new String[]{String.valueOf(checkList.getId())});
+        }
     }
 
     /**
@@ -352,7 +473,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_CHECKLIST_ITEM_CHECKLIST_ID, checkListItem.getChecklistId());
         contentValues.put(COLUMN_CHECKLIST_ITEM_CONTENT, checkListItem.getContent());
         contentValues.put(COLUMN_CHECKLIST_ITEM_COMPLETED, checkListItem.isCompleted() ? 1 : 0);
-        contentValues.put(COLUMN_CHECKLIST_ITEM_TRASHED, checkListItem.isTrashed() ? 1 : 0);
+        contentValues.put(COLUMN_STATUS, checkListItem.getStatus().toString());
 
         if (checkListItem.getId() == 0) {
             db.insert(TABLE_CHECKLIST_ITEM, null, contentValues);
@@ -361,7 +482,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
 
         //check to see if this checklistItem is already in db
         //if so edit, if not insert
-        if (getChecklistItems(" WHERE " + COLUMN_ID + " = " + checkListItem.getId()) == null) {
+        if (getItemById(checkListItem.getId(), Item.Type.CHECKLIST_ITEM) == null) {
             db.insert(TABLE_CHECKLIST_ITEM, null, contentValues);
         } else {
             db.update(TABLE_CHECKLIST_ITEM, contentValues, COLUMN_ID + " = ?",
@@ -369,18 +490,48 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void deleteItem(Item item) {
-        item.setIsTrashed(true);
-        addOrEditItem(item);
+    /**
+     * Check if {@link Sketch} exists.
+     * If not, insert into database.
+     * If so, update  database.
+      * @param sketch             {@link Sketch} to insert/update
+     */
+    public void addOrEditSketch(Sketch sketch) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_SKETCH_TITLE, sketch.getTitle());
+        contentValues.put(COLUMN_COLOUR, sketch.getColour());
+        contentValues.put(COLUMN_SKETCH_IMAGE, sketch.getBitmapAsByteArray());
+        contentValues.put(COLUMN_CREATED_DATE, sketch.getCreatedDate());
+        contentValues.put(COLUMN_EDITED_DATE, sketch.getLastModifiedDate());
+        contentValues.put(COLUMN_IMPORTANT, sketch.isImportant());
+        contentValues.put(COLUMN_STATUS, sketch.getStatus().toString());
+
+        if (sketch.getId() == 0) {
+            db.insert(TABLE_SKETCH, null, contentValues);
+            return;
+        }
+
+        //check to see if this sketch is already in db
+        //if so edit, if not insert
+        if (getItemById(sketch.getId(), Item.Type.SKETCH) == null) {
+            db.insert(TABLE_SKETCH, null, contentValues);
+        } else {
+            db.update(TABLE_SKETCH, contentValues, COLUMN_ID + " = ?",
+                    new String[] {String.valueOf(sketch.getId())});
+        }
     }
 
     public void addOrEditItem(Item item) {
         if (item instanceof Note) {
             addOrEditNote((Note) item);
         } else if (item instanceof CheckList){
-            updateChecklist((CheckList) item);
-        } else {
+            addOrEditChecklist((CheckList) item);
+        } else if (item instanceof CheckListItem){
             addOrEditChecklistItem((CheckListItem) item);
+        } else {
+            addOrEditSketch((Sketch) item);
         }
     }
 
