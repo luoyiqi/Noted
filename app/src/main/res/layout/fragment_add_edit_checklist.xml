@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textStyle="bold"
-            android:singleLine="true"
+            android:inputType="textCapSentences|textAutoCorrect"
             android:hint="@string/edit_text_title_hint"
             met:met_textColor="?attr/textColorTertiary"
             met:met_baseColor="?attr/textColorTertiary"
@@ -66,5 +66,13 @@
             />
 
     </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/fragment_add_edit_checklist_dates_frame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/size_small"
+        android:padding="@dimen/size_small"
+        />
 
 </LinearLayout>

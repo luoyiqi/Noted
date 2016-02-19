@@ -11,21 +11,22 @@
     <CheckBox
         android:id="@+id/recycler_item_checklist_items_completed"
         android:layout_width="0dp"
-        android:layout_weight="0.1"
+        android:layout_weight="0.2"
         android:layout_height="match_parent"
         />
 
     <EditText
         android:id="@+id/recycler_item_checklist_items_content"
         android:layout_width="0dp"
-        android:layout_weight="0.8"
+        android:layout_weight="0.7"
         android:layout_height="match_parent"
         android:hint="@string/edit_text_content_new_item"
+        android:gravity="left|center"
+        android:inputType="textCapSentences|textAutoCorrect"
         android:background="?attr/editTextBackgroundDrawable"
-        android:imeOptions="actionDone"
         android:singleLine="true"
         android:textColor="?attr/textColorTertiary"
-        android:textSize="@dimen/text_medium"
+        style="@style/edit_text.medium"
         />
 
     <TextView

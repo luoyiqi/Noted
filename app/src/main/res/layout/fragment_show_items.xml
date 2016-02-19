@@ -7,8 +7,15 @@
      android:background="?attr/windowBackground"
     >
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/fragment_show_items_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        />
+
     <TextView
-        android:id="@+id/fragment_show_notes_empty"
+        android:id="@+id/fragment_show_items_empty"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:text="@string/empty_recycler"
@@ -17,17 +24,18 @@
         style="@style/text.huge"
         />
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/fragment_show_notes_recycler"
+    <View
+        android:id="@+id/fragment_show_items_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#EE000000"
         android:visibility="gone"
         />
 
     <com.getbase.floatingactionbutton.FloatingActionsMenu
         xmlns:fab="http://schemas.android.com/apk/res-auto"
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/fragment_show_notes_floating_action_menu"
+        android:id="@+id/fragment_show_items_floating_action_menu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
@@ -40,25 +48,36 @@
         >
 
        <com.getbase.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fragnent_show_notes_floating_actions_menu_new_checklist"
+            android:id="@+id/fragnent_show_items_floating_actions_menu_create_sketch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_new_checklist"
-            fab:fab_colorNormal="?attr/floatingActionMenuColorSecond"
-            fab:fab_title="@string/fab_new_checklist"
+            android:src="@drawable/ic_sketch"
+            fab:fab_colorNormal="?attr/floatingActionMenuColorThird"
+            fab:fab_title="@string/fab_create_sketch"
             fab:fab_size="mini"
             />
 
        <com.getbase.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fragnent_show_notes_floating_actions_menu_new_note"
+            android:id="@+id/fragnent_show_items_floating_actions_menu_create_checklist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_new_note"
+            android:src="@drawable/ic_checklist"
+            fab:fab_colorNormal="?attr/floatingActionMenuColorSecond"
+            fab:fab_title="@string/fab_create_checklist"
+            fab:fab_size="mini"
+            />
+
+       <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fragnent_show_items_floating_actions_menu_create_note"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_note"
             fab:fab_colorNormal="?attr/floatingActionMenuColorFirst"
-            fab:fab_title="@string/fab_new_note"
+            fab:fab_title="@string/fab_create_note"
             fab:fab_size="mini"
             />
 
     </com.getbase.floatingactionbutton.FloatingActionsMenu>
+
 
 </FrameLayout>

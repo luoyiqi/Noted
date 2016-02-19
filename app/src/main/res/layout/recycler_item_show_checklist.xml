@@ -22,33 +22,20 @@
             android:id="@+id/recycler_item_show_checklist_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/size_small"
             android:textStyle="bold"
+            android:gravity="center"
             style="@style/text.huge"
-            />
-
-        <View style="@style/divider_across"
-              android:layout_marginBottom="@dimen/size_small"
             />
 
         <TextView
             android:id="@+id/recycler_item_show_checklist_items"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/size_tiny"
+            android:gravity="center"
             style="@style/text.medium"
             />
 
-
-        <View style="@style/divider_across"
-              android:layout_marginBottom="@dimen/size_small"
-            />
-
-        <TextView
-            android:id="@+id/recycler_item_show_checklist_last_modified_date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/text.tiny"
-            />
 
     </LinearLayout>
 
