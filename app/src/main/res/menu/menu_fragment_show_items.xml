@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+
+    <item android:id="@+id/menu_action_item_filter"
+          android:title="@string/menu_action_filter"
+          android:orderInCategory="200"
+          android:icon="@drawable/ic_filter"
+          app:showAsAction="ifRoom"
+        >
+        <menu>
+            <item
+                android:id="@+id/menu_action_item_filter_submenu_none"
+                android:icon="@drawable/ic_clear_filter"
+                android:title="Clear filter"
+                />
+
+            <item
+                android:id="@+id/menu_action_item_filter_submenu_note"
+                android:icon="@drawable/ic_note"
+                android:title="Note"
+                />
+
+            <item
+                android:id="@+id/menu_action_item_filter_submenu_checklist"
+                android:icon="@drawable/ic_checklist"
+                android:title="Checklist"
+                />
+
+            <item
+                android:id="@+id/menu_action_item_filter_submenu_sketch"
+                android:icon="@drawable/ic_sketch"
+                android:title="Sketch"
+                />
+        </menu>
+    </item>
+</menu>

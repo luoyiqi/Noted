@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:background="?attr/windowBackground"
+    android:padding="@dimen/size_medium"
+    >
+
+    <LinearLayout
+        android:id="@+id/fragment_add_edit_sketch_sketchview_frame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/sketchview_background"
+        android:orientation="vertical"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/size_medium"
+            android:paddingRight="@dimen/size_medium"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:background="@color/md_white_1000"
+            >
+
+            <TextView
+                android:id="@+id/fragment_add_edit_sketch_colour"
+                android:layout_width="@dimen/size_large"
+                android:layout_height="@dimen/size_large"
+                android:layout_margin="@dimen/size_tiny"
+                />
+
+            <ImageView
+                android:id="@+id/fragment_add_edit_sketch_paintbrush"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="@dimen/size_large"
+                android:layout_margin="@dimen/size_tiny"
+                android:src="@drawable/ic_paintbrush"
+                />
+
+            <ImageView
+                android:id="@+id/fragment_add_edit_sketch_eraser"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="@dimen/size_large"
+                android:layout_margin="@dimen/size_tiny"
+                android:src="@drawable/ic_eraser"
+                />
+
+            <ImageView
+                android:id="@+id/fragment_add_edit_sketch_undo"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="@dimen/size_large"
+                android:layout_margin="@dimen/size_tiny"
+                android:src="@drawable/ic_undo"
+                />
+
+            <ImageView
+                android:id="@+id/fragment_add_edit_sketch_redo"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="@dimen/size_large"
+                android:layout_margin="@dimen/size_tiny"
+                android:src="@drawable/ic_redo"
+                />
+
+        </LinearLayout>
+
+        <View style="@style/divider_across"/>
+
+        <com.cerebellio.noted.views.SketchView
+            android:id="@+id/fragment_add_edit_sketch_sketchview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/fragment_add_edit_sketch_dates_frame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/size_small"
+        android:padding="@dimen/size_small"
+        />
+
+</LinearLayout>
