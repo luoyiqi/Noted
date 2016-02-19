@@ -8,10 +8,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import com.cerebellio.noted.database.SqlDatabaseHelper;
 import com.cerebellio.noted.models.CheckList;
+import com.cerebellio.noted.models.Item;
 import com.cerebellio.noted.models.adapters.ChecklistItemsAdapter;
 import com.cerebellio.noted.models.listeners.IOnColourSelectedListener;
 import com.cerebellio.noted.utils.Constants;
@@ -30,8 +30,6 @@ public class FragmentAddEditChecklist extends Fragment implements IOnColourSelec
 
     @InjectView(R.id.fragment_add_edit_checklist_title) MaterialEditText mEditTitle;
     @InjectView(R.id.fragment_add_edit_checklist_items_recycler) RecyclerView mRecycler;
-    @InjectView(R.id.fragment_add_edit_checklist_items_recycler_frame) FrameLayout mRecyclerContainer;
-    @InjectView(R.id.fragment_add_edit_checklist_items_colour_selection_container) FrameLayout mColourSelectionContainer;
 
     private CheckList mCheckList;
     private SqlDatabaseHelper mSqlDatabaseHelper;
@@ -54,6 +52,15 @@ public class FragmentAddEditChecklist extends Fragment implements IOnColourSelec
 
         initChecklist();
 
+        //scroll to end of list
+        mRecycler.smoothScrollToPosition(mAdapter.getItemCount());
+
+        FragmentCreationModifiedDates fragmentCreationModifiedDates = new FragmentCreationModifiedDates();
+        Bundle bundleDates = new Bundle();
+        bundleDates.putLong(Constants.BUNDLE_ITEM_ID_FOR_DATES_FRAGMENT, mCheckList.getId());
+        bundleDates.putSerializable(Constants.BUNDLE_ITEM_TYPE_FOR_DATES_FRAGMENT, Item.Type.CHECKLIST);
+        fragmentCreationModifiedDates.setArguments(bundleDates);
+
         FragmentColourSelection fragmentColourSelection = new FragmentColourSelection();
         Bundle bundle = new Bundle();
         bundle.putInt(Constants.BUNDLE_CURRENT_COLOUR, mCheckList.getColour());
@@ -62,15 +69,10 @@ public class FragmentAddEditChecklist extends Fragment implements IOnColourSelec
         getChildFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_add_edit_checklist_colour_selection_frame, fragmentColourSelection)
+                .replace(R.id.fragment_add_edit_checklist_dates_frame, fragmentCreationModifiedDates)
                 .commit();
 
         return rootView;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        mSqlDatabaseHelper = new SqlDatabaseHelper(getActivity());
     }
 
     @Override
@@ -78,13 +80,14 @@ public class FragmentAddEditChecklist extends Fragment implements IOnColourSelec
         super.onPause();
 
         mCheckList.setTitle(mEditTitle.getText().toString());
+
         mCheckList.setLastModifiedDate(new Date().getTime());
 
         if (mCheckList.isEmpty()) {
-            mCheckList.setIsTrashed(true);
+            mCheckList.setStatus(Item.Status.DELETED);
         }
 
-        mSqlDatabaseHelper.updateChecklist(mCheckList);
+        mSqlDatabaseHelper.addOrEditChecklist(mCheckList);
 
         mSqlDatabaseHelper.closeDB();
     }
@@ -98,13 +101,15 @@ public class FragmentAddEditChecklist extends Fragment implements IOnColourSelec
         mSqlDatabaseHelper = new SqlDatabaseHelper(getActivity());
 
         if (mIsInEditMode) {
-            mCheckList = mSqlDatabaseHelper.getChecklist(
-                    getArguments().getLong(Constants.BUNDLE_CHECKLIST_TO_EDIT_ID));
+            mCheckList = (CheckList) mSqlDatabaseHelper.getItemById(
+                    getArguments().getLong(Constants.BUNDLE_ITEM_TO_EDIT_ID), Item.Type.CHECKLIST);
             mEditTitle.setText(mCheckList.getTitle());
         } else {
-            mSqlDatabaseHelper.addBlankChecklist();
-            mCheckList = new CheckList(mSqlDatabaseHelper.getLatestChecklistId());
+            mCheckList = (CheckList) mSqlDatabaseHelper.getItemById(
+                    mSqlDatabaseHelper.addBlankChecklist(), Item.Type.CHECKLIST);
         }
+
+        mSqlDatabaseHelper.closeDB();
 
         mAdapter = new ChecklistItemsAdapter(mCheckList, getActivity());
         UtilityFunctions.setUpLinearRecycler(getActivity(), mRecycler,
@@ -116,7 +121,7 @@ public class FragmentAddEditChecklist extends Fragment implements IOnColourSelec
                 SqlDatabaseHelper sqlDatabaseHelper = new SqlDatabaseHelper(getActivity());
 
                 for (int i = positionStart; i < positionStart + itemCount; i++) {
-                    sqlDatabaseHelper.deleteItem(mAdapter.getItems().get(i));
+                    sqlDatabaseHelper.addOrEditItem(mAdapter.getItems().get(i));
                     mAdapter.getItems().remove(i);
                 }
 
@@ -133,7 +138,6 @@ public class FragmentAddEditChecklist extends Fragment implements IOnColourSelec
                 super.onItemRangeInserted(positionStart, itemCount);
             }
         });
-
     }
 
 

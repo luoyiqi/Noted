@@ -1,19 +1,33 @@
 package com.cerebellio.noted;
 
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
+import android.widget.PopupWindow;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.cerebellio.noted.database.SqlDatabaseHelper;
 import com.cerebellio.noted.models.Item;
 import com.cerebellio.noted.models.Sketch;
+import com.cerebellio.noted.models.listeners.IOnAlphaChangedListener;
 import com.cerebellio.noted.models.listeners.IOnColourSelectedListener;
+import com.cerebellio.noted.models.listeners.IOnSketchActionListener;
+import com.cerebellio.noted.models.listeners.IOnStrokeWidthChangedListener;
 import com.cerebellio.noted.utils.Constants;
+import com.cerebellio.noted.utils.UtilityFunctions;
 import com.cerebellio.noted.views.SketchView;
 
 import java.util.Date;
@@ -24,14 +38,20 @@ import butterknife.InjectView;
 /**
  * Created by Sam on 11/02/2016.
  */
-public class FragmentAddEditSketch extends Fragment implements IOnColourSelectedListener {
+public class FragmentAddEditSketch extends Fragment implements IOnColourSelectedListener,
+        IOnStrokeWidthChangedListener, IOnSketchActionListener, IOnAlphaChangedListener{
 
-    @InjectView(R.id.fragment_add_edit_sketch_title) TextView mEditTitle;
-    @InjectView(R.id.fragment_add_edit_sketch_drawingview) SketchView mSketchView;
+    @InjectView(R.id.fragment_add_edit_sketch_sketchview) SketchView mSketchView;
+    @InjectView(R.id.fragment_add_edit_sketch_colour) TextView mTextColour;
+    @InjectView(R.id.fragment_add_edit_sketch_paintbrush) ImageView mPaintbrush;
+    @InjectView(R.id.fragment_add_edit_sketch_eraser) ImageView mEraser;
+    @InjectView(R.id.fragment_add_edit_sketch_undo) ImageView mUndo;
+    @InjectView(R.id.fragment_add_edit_sketch_redo) ImageView mRedo;
 
     private Sketch mSketch = new Sketch();
     private SqlDatabaseHelper mSqlDatabaseHelper;
 
+    private int mAlpha;
     private boolean mIsInEditMode;
 
     @Nullable
@@ -43,7 +63,9 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
 
         mIsInEditMode = getArguments().getBoolean(Constants.BUNDLE_IS_IN_EDIT_MODE);
 
-        initDrawing();
+        initSketch();
+
+        mAlpha = Color.alpha(mSketch.getColour());
 
         FragmentCreationModifiedDates fragmentCreationModifiedDates = new FragmentCreationModifiedDates();
         Bundle bundleDates = new Bundle();
@@ -51,37 +73,80 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
         bundleDates.putSerializable(Constants.BUNDLE_ITEM_TYPE_FOR_DATES_FRAGMENT, Item.Type.SKETCH);
         fragmentCreationModifiedDates.setArguments(bundleDates);
 
-        FragmentColourSelection fragmentColourSelection = new FragmentColourSelection();
-        Bundle bundle = new Bundle();
-        bundle.putInt(Constants.BUNDLE_CURRENT_COLOUR, mSketch.getColour());
-        fragmentColourSelection.setArguments(bundle);
-
         getChildFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_add_edit_sketch_colour_selection_frame, fragmentColourSelection)
                 .replace(R.id.fragment_add_edit_sketch_dates_frame, fragmentCreationModifiedDates)
                 .commit();
 
+        mTextColour.setBackgroundColor(mSketch.getColour());
+
+        mTextColour.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DialogSketchColour dialogSketchColour = new DialogSketchColour();
+                Bundle bundle = new Bundle();
+                bundle.putInt(Constants.BUNDLE_CURRENT_COLOUR, mSketch.getColour());
+                bundle.putInt(Constants.BUNDLE_CURRENT_COLOUR_ALPHA, mAlpha);
+                dialogSketchColour.setArguments(bundle);
+                dialogSketchColour.show(getChildFragmentManager(), null);
+            }
+        });
+
+        mPaintbrush.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mSketchView.getStrokeType().equals(SketchView.StrokeType.STROKE)) {
+                    showStrokePopup(view);
+                } else {
+                    mSketchView.setStrokeType(SketchView.StrokeType.STROKE);
+                    switchStrokeTypeViews(SketchView.StrokeType.STROKE);
+                }
+            }
+        });
+
+        mEraser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mSketchView.getStrokeType().equals(SketchView.StrokeType.ERASER)) {
+                    showStrokePopup(view);
+                } else {
+                    mSketchView.setStrokeType(SketchView.StrokeType.ERASER);
+                    switchStrokeTypeViews(SketchView.StrokeType.ERASER);
+                }
+            }
+        });
+
+        mUndo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mSketchView.undoAction();
+            }
+        });
+
+        mRedo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mSketchView.redoAction();
+            }
+        });
+
+        switchStrokeTypeViews(mSketchView.getStrokeType());
+
         return rootView;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        mSqlDatabaseHelper = new SqlDatabaseHelper(getActivity());
     }
 
     @Override
     public void onPause() {
         super.onPause();
 
-        mSketch.setTitle(mEditTitle.getText().toString());
-        mSketch.setLastModifiedDate(new Date().getTime());
+        if (mSketchView.hasChangeBeenMade()) {
+            mSketch.setLastModifiedDate(new Date().getTime());
+        }
+
         mSketch.setBitmapAsByteArray(mSketchView.getBitmapAsByteArray());
 
         if (mSketch.isEmpty()) {
-            mSketch.setIsTrashed(true);
+            mSketch.setStatus(Item.Status.DELETED);
         }
 
         mSqlDatabaseHelper.addOrEditSketch(mSketch);
@@ -93,15 +158,61 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
     public void onColourSelected(Integer colour) {
         mSketch.setColour(colour);
         mSketchView.setColour(colour);
+        mTextColour.setBackgroundColor(colour);
+        mAlpha = Color.alpha(colour);
     }
 
-    private void initDrawing() {
-        SqlDatabaseHelper sqlDatabaseHelper = new SqlDatabaseHelper(getActivity());
+    @Override
+    public void onAlphaChanged(int newAlpha) {
+        int colour = UtilityFunctions.adjustAlpha(mSketch.getColour(), newAlpha);
+        mAlpha = newAlpha;
+
+        mSketch.setColour(colour);
+        mSketchView.setColour(colour);
+        mTextColour.setBackgroundColor(colour);
+    }
+
+    @Override
+    public void onStrokeWidthChanged(int width) {
+        mSketchView.setStrokeSize(width);
+    }
+
+    @Override
+    public void onChange() {
+        Animation popOut = AnimationUtils.loadAnimation(getActivity(), R.anim.pop_out);
+        Animation popIn = AnimationUtils.loadAnimation(getActivity(), R.anim.pop_in);
+
+        if (mSketchView.isUndoAvailable()) {
+            if (!mUndo.isEnabled()) {
+                mUndo.setEnabled(true);
+                mUndo.startAnimation(popOut);
+            }
+        } else {
+            if (mUndo.isEnabled()) {
+                mUndo.startAnimation(popIn);
+                mUndo.setEnabled(false);
+            }
+        }
+
+        if (mSketchView.isRedoAvailable()) {
+            if (!mRedo.isEnabled()) {
+                mRedo.setEnabled(true);
+                mRedo.startAnimation(popOut);
+            }
+        } else {
+            if (mRedo.isEnabled()) {
+                mRedo.startAnimation(popIn);
+                mRedo.setEnabled(false);
+            }
+        }
+    }
+
+    private void initSketch() {
+        mSqlDatabaseHelper = new SqlDatabaseHelper(getActivity());
 
         if (mIsInEditMode) {
-            mSketch = sqlDatabaseHelper.getSketch(
-                    getArguments().getLong(Constants.BUNDLE_DRAWING_TO_EDIT_ID));
-            mEditTitle.setText(mSketch.getTitle());
+            mSketch = (Sketch) mSqlDatabaseHelper.getItemById(
+                    getArguments().getLong(Constants.BUNDLE_ITEM_TO_EDIT_ID), Item.Type.SKETCH);
 
             mSketchView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
@@ -112,12 +223,62 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
             });
 
         } else {
-            mSketch = new Sketch();
-            mSketch.setCreatedDate(new Date().getTime());
+            mSketch = (Sketch) mSqlDatabaseHelper.getItemById(
+                    mSqlDatabaseHelper.addBlankSketch(), Item.Type.SKETCH);
         }
 
         mSketchView.setColour(mSketch.getColour());
+        mSketchView.setIOnSketchActionListener(this);
+    }
 
-        sqlDatabaseHelper.closeDB();
+    private void showStrokePopup(View anchor) {
+        LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(AppCompatActivity
+            .LAYOUT_INFLATER_SERVICE);
+        View popupLayout = inflater.inflate(R.layout.popup_stroke_width, null);
+
+        PopupWindow popup = new PopupWindow(getActivity());
+        popup.setContentView(popupLayout);
+        popup.setWidth(WindowManager.LayoutParams.WRAP_CONTENT);
+        popup.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
+        popup.setFocusable(true);
+        popup.setBackgroundDrawable(new BitmapDrawable(
+                getResources(), Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)));
+        popup.showAsDropDown(anchor);
+
+        SeekBar seekWidth = (SeekBar) popupLayout.findViewById(R.id.popup_stroke_thickness_seekbar);
+        seekWidth.setProgress(mSketchView.getStrokeSize());
+        seekWidth.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                mSketchView.setStrokeSize(seekBar.getProgress());
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+    }
+
+    private void switchStrokeTypeViews(SketchView.StrokeType strokeType) {
+        Animation popOut = AnimationUtils.loadAnimation(getActivity(), R.anim.pop_out);
+        Animation popIn = AnimationUtils.loadAnimation(getActivity(), R.anim.pop_in);
+
+        if (strokeType.equals(SketchView.StrokeType.STROKE)) {
+//            mPaintbrush.setAlpha(1f);
+//            mEraser.setAlpha(0.25f);
+            mPaintbrush.startAnimation(popOut);
+            mEraser.startAnimation(popIn);
+        } else {
+//            mEraser.setAlpha(1f);
+//            mPaintbrush.setAlpha(0.25f);
+            mPaintbrush.startAnimation(popIn);
+            mEraser.startAnimation(popOut);
+        }
     }
 }
