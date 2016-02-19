@@ -4,10 +4,13 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,11 +19,17 @@ import android.view.inputmethod.InputMethodManager;
 
 import com.cerebellio.noted.models.CheckList;
 import com.cerebellio.noted.models.Item;
+import com.cerebellio.noted.models.NavDrawerItem;
 import com.cerebellio.noted.models.Note;
+import com.cerebellio.noted.models.adapters.NavDrawerAdapter;
 import com.cerebellio.noted.models.listeners.IOnFloatingActionMenuOptionClickedListener;
 import com.cerebellio.noted.models.listeners.IOnItemSelectedToEditListener;
 import com.cerebellio.noted.utils.Constants;
-import com.google.gson.Gson;
+import com.cerebellio.noted.utils.UtilityFunctions;
+import com.squareup.otto.Subscribe;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -28,29 +37,20 @@ import butterknife.InjectView;
 public class ActivityMain extends ActivityBase
         implements IOnFloatingActionMenuOptionClickedListener, IOnItemSelectedToEditListener {
 
-    @InjectView(R.id.toolbar) Toolbar mToolbar;
-    @InjectView(R.id.activity_main_navigation_drawer) DrawerLayout mNavigationDrawer;
+    @InjectView(R.id.toolbar)
+    Toolbar mToolbar;
+    @InjectView(R.id.activity_main_nav_drawer)
+    DrawerLayout mNavDrawer;
+    @InjectView(R.id.activity_main_recycler_nav_drawer)
+    RecyclerView mNavDrawerRecycler;
 
-    private static final String FRAGMENT_SHOW_NOTES_TAG = "show_notes_tag";
-    private static final String FRAGMENT_ADD_EDIT_NOTE_TAG = "add_edit_note_tag";
-    private static final String FRAGMENT_ADD_EDIT_CHECKLIST_TAG = "add_edit_checklist_tag";
+    private static final String FRAGMENT_SHOW_ITEMS_TAG = "show_items_tag";
+    private static final String FRAGMENT_ADD_EDIT_ITEM_TAG = "add_edit_item_tag";
 
     private FragmentManager mFragmentManager;
     private ActionBarDrawerToggle mDrawerToggle;
 
-    private FragmentManager.OnBackStackChangedListener mOnBackStackChangedListener =
-            new FragmentManager.OnBackStackChangedListener() {
-                @Override
-                public void onBackStackChanged() {
-                    syncToolbarArrowState();
-                    if (mFragmentManager.getBackStackEntryCount() == 0) {
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        if (getCurrentFocus() != null) {
-                            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-                        }
-                    }
-                }
-            };
+    private NavDrawerItem.NavDrawerItemType mCurrentNavDrawerType = NavDrawerItem.NavDrawerItemType.PINBOARD;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,17 +70,19 @@ public class ActivityMain extends ActivityBase
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        mDrawerToggle = new ActionBarDrawerToggle(this, mNavigationDrawer, mToolbar, 0, 0) {
+        mDrawerToggle = new ActionBarDrawerToggle(this, mNavDrawer, mToolbar, 0, 0) {
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
                 supportInvalidateOptionsMenu();
+                syncState();
             }
 
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
                 supportInvalidateOptionsMenu();
+                syncState();
             }
 
             @Override
@@ -94,10 +96,10 @@ public class ActivityMain extends ActivityBase
                 mFragmentManager.popBackStackImmediate();
             }
         });
-
-        mNavigationDrawer.setDrawerListener(mDrawerToggle);
+        mNavDrawer.setDrawerListener(mDrawerToggle);
 
         initShowItemsFragment();
+        initNavDrawer();
     }
 
     @Override
@@ -114,22 +116,7 @@ public class ActivityMain extends ActivityBase
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            if (PreferenceManager.getDefaultSharedPreferences(this)
-                    .getInt(Constants.SHARED_PREFS_THEME_ID, Constants.DEFAULT_THEME_ID)
-                    == Constants.DEFAULT_THEME_ID) {
-                PreferenceManager.getDefaultSharedPreferences(this)
-                        .edit()
-                        .putInt(Constants.SHARED_PREFS_THEME_ID, Constants.DARK_THEME_ID)
-                        .apply();
-            } else {
-                PreferenceManager.getDefaultSharedPreferences(this)
-                        .edit()
-                        .putInt(Constants.SHARED_PREFS_THEME_ID, Constants.DEFAULT_THEME_ID)
-                        .apply();
-            }
-            recreate();
+        if (id == R.id.menu_action_settings) {
             return true;
         } else {
             return super.onOptionsItemSelected(item);
@@ -150,76 +137,165 @@ public class ActivityMain extends ActivityBase
     }
 
     @Override
-    public void OnFabNewNoteClick() {
-        FragmentTransaction ft = mFragmentManager.beginTransaction();
-        FragmentAddEditNote fragmentAddEditNote = new FragmentAddEditNote();
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(Constants.BUNDLE_IS_IN_EDIT_MODE, false);
-        fragmentAddEditNote.setArguments(bundle);
-        ft.replace(R.id.activity_main_fragment, fragmentAddEditNote, FRAGMENT_ADD_EDIT_NOTE_TAG)
-                .addToBackStack(FRAGMENT_SHOW_NOTES_TAG).commit();
+    protected void onResume() {
+        super.onResume();
+        ApplicationNoted.bus.register(this);
     }
 
     @Override
-    public void OnFabNewChecklistClick() {
+    protected void onPause() {
+        super.onPause();
+        ApplicationNoted.bus.unregister(this);
+    }
+
+    @Override
+    public void OnFabCreateItemClick(Item.Type type) {
         FragmentTransaction ft = mFragmentManager.beginTransaction();
-        FragmentAddEditChecklist fragmentAddEditChecklist = new FragmentAddEditChecklist();
+        animateFragmentTransition(ft, TRANSITION_HORIZONTAL);
+        Fragment fragment;
         Bundle bundle = new Bundle();
         bundle.putBoolean(Constants.BUNDLE_IS_IN_EDIT_MODE, false);
-        fragmentAddEditChecklist.setArguments(bundle);
-        ft.replace(R.id.activity_main_fragment, fragmentAddEditChecklist, FRAGMENT_ADD_EDIT_CHECKLIST_TAG)
-                .addToBackStack(FRAGMENT_SHOW_NOTES_TAG).commit();
+
+        switch (type) {
+            default:
+            case NOTE:
+                fragment = new FragmentAddEditNote();
+                break;
+            case CHECKLIST:
+                fragment = new FragmentAddEditChecklist();
+                break;
+            case SKETCH:
+                fragment = new FragmentAddEditSketch();
+                break;
+        }
+
+        fragment.setArguments(bundle);
+        ft.replace(R.id.activity_main_fragment, fragment, FRAGMENT_ADD_EDIT_ITEM_TAG)
+                .addToBackStack(FRAGMENT_SHOW_ITEMS_TAG).commit();
     }
 
     @Override
     public void onItemSelected(Item item) {
+        FragmentTransaction ft = mFragmentManager.beginTransaction();
+        animateFragmentTransition(ft, TRANSITION_HORIZONTAL);
+        Fragment fragment;
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(Constants.BUNDLE_IS_IN_EDIT_MODE, true);
+        bundle.putLong(Constants.BUNDLE_ITEM_TO_EDIT_ID, item.getId());
+
         if (item instanceof Note) {
-            onNoteSelected((Note) item);
+            fragment = new FragmentAddEditNote();
         } else if (item instanceof CheckList) {
-            onChecklistSelected((CheckList) item);
+            fragment = new FragmentAddEditChecklist();
+        } else {
+            fragment = new FragmentAddEditSketch();
+        }
+
+        fragment.setArguments(bundle);
+        ft.replace(R.id.activity_main_fragment, fragment, FRAGMENT_ADD_EDIT_ITEM_TAG)
+                .addToBackStack(FRAGMENT_SHOW_ITEMS_TAG).commit();
+    }
+
+    @Subscribe
+    public void onNavDrawerItemSelected(NavDrawerItem.NavDrawerItemType type) {
+        switch (type) {
+            case PINBOARD:
+                setItemType(NavDrawerItem.NavDrawerItemType.PINBOARD);
+                break;
+            case ARCHIVE:
+                setItemType(NavDrawerItem.NavDrawerItemType.ARCHIVE);
+                break;
+            case TRASH:
+                setItemType(NavDrawerItem.NavDrawerItemType.TRASH);
+                break;
+            default:
+            case SETTINGS:
+                if (PreferenceManager.getDefaultSharedPreferences(this)
+                        .getInt(Constants.SHARED_PREFS_THEME_ID, Constants.DEFAULT_THEME_ID)
+                        == Constants.DEFAULT_THEME_ID) {
+                    PreferenceManager.getDefaultSharedPreferences(this)
+                            .edit()
+                            .putInt(Constants.SHARED_PREFS_THEME_ID, Constants.DARK_THEME_ID)
+                            .apply();
+                } else {
+                    PreferenceManager.getDefaultSharedPreferences(this)
+                            .edit()
+                            .putInt(Constants.SHARED_PREFS_THEME_ID, Constants.DEFAULT_THEME_ID)
+                            .apply();
+                }
+                recreate();
+                break;
         }
     }
 
-    private void onNoteSelected(Note note) {
-        FragmentTransaction ft = mFragmentManager.beginTransaction();
-        FragmentAddEditNote fragmentAddEditNote = new FragmentAddEditNote();
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(Constants.BUNDLE_IS_IN_EDIT_MODE, true);
-        bundle.putString(Constants.BUNDLE_NOTE_TO_EDIT_JSON, new Gson().toJson(note));
-        fragmentAddEditNote.setArguments(bundle);
-        ft.replace(R.id.activity_main_fragment, fragmentAddEditNote, FRAGMENT_ADD_EDIT_NOTE_TAG)
-                .addToBackStack(FRAGMENT_SHOW_NOTES_TAG).commit();
-    }
+    private void setItemType(NavDrawerItem.NavDrawerItemType type) {
+        mCurrentNavDrawerType = type;
 
-    private void onChecklistSelected(CheckList checkList) {
-        FragmentTransaction ft = mFragmentManager.beginTransaction();
-        FragmentAddEditChecklist fragmentAddEditChecklist = new FragmentAddEditChecklist();
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(Constants.BUNDLE_IS_IN_EDIT_MODE, true);
-        bundle.putLong(Constants.BUNDLE_CHECKLIST_TO_EDIT_ID, checkList.getId());
-        fragmentAddEditChecklist.setArguments(bundle);
-        ft.replace(R.id.activity_main_fragment, fragmentAddEditChecklist, FRAGMENT_ADD_EDIT_CHECKLIST_TAG)
-                .addToBackStack(FRAGMENT_SHOW_NOTES_TAG).commit();
+        FragmentShowItems fragmentShowItems =
+                (FragmentShowItems) mFragmentManager.findFragmentByTag(FRAGMENT_SHOW_ITEMS_TAG);
+
+        if (fragmentShowItems != null && fragmentShowItems.isVisible()) {
+            fragmentShowItems.setItemType(type);
+        }
+
     }
 
     private void initShowItemsFragment() {
         FragmentTransaction ft;
         FragmentShowItems fragmentShowItems =
-                (FragmentShowItems) mFragmentManager.findFragmentById(R.id.activity_main_fragment);
-
+                (FragmentShowItems) mFragmentManager.findFragmentByTag(FRAGMENT_SHOW_ITEMS_TAG);
         if (fragmentShowItems == null) {
+            fragmentShowItems = new FragmentShowItems();
+            fragmentShowItems.setHasOptionsMenu(true);
+
             ft = mFragmentManager.beginTransaction();
             ft.replace(R.id.activity_main_fragment,
-                    new FragmentShowItems(), FRAGMENT_SHOW_NOTES_TAG).commit();
+                    fragmentShowItems, FRAGMENT_SHOW_ITEMS_TAG).commit();
+
         }
+    }
+
+    private void initNavDrawer() {
+        List<NavDrawerItem> items = new ArrayList<>();
+
+        items.add(new NavDrawerItem(getString(R.string.nav_drawer_pinboard), R.drawable.ic_pinboard, NavDrawerItem.NavDrawerItemType.PINBOARD));
+        items.add(new NavDrawerItem(getString(R.string.nav_drawer_archive), R.drawable.ic_archive, NavDrawerItem.NavDrawerItemType.ARCHIVE));
+        items.add(new NavDrawerItem(getString(R.string.nav_drawer_trash), R.drawable.ic_trash, NavDrawerItem.NavDrawerItemType.TRASH));
+        items.add(new NavDrawerItem(getString(R.string.nav_drawer_settings), R.drawable.ic_settings, NavDrawerItem.NavDrawerItemType.SETTINGS));
+
+        UtilityFunctions.setUpLinearRecycler(this, mNavDrawerRecycler,
+                new NavDrawerAdapter(items, this), LinearLayoutManager.VERTICAL);
     }
 
     private void syncToolbarArrowState() {
         if (mFragmentManager.getBackStackEntryCount() == 0) {
+            mNavDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             mDrawerToggle.setDrawerIndicatorEnabled(true);
         } else {
+            mNavDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             mDrawerToggle.setDrawerIndicatorEnabled(false);
         }
     }
+
+    private FragmentManager.OnBackStackChangedListener mOnBackStackChangedListener =
+            new FragmentManager.OnBackStackChangedListener() {
+                @Override
+                public void onBackStackChanged() {
+                    syncToolbarArrowState();
+                    if (mFragmentManager.getBackStackEntryCount() == 0) {
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        if (getCurrentFocus() != null) {
+                            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                        }
+                    }
+
+                    FragmentShowItems fragmentShowItems =
+                            (FragmentShowItems) mFragmentManager.findFragmentByTag(FRAGMENT_SHOW_ITEMS_TAG);
+                    if (fragmentShowItems != null) {
+                        fragmentShowItems.setItemType(mCurrentNavDrawerType);
+                    }
+
+                }
+            };
 
 }
