@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="default_colorPrimary">@color/md_blue_500</color>
-    <color name="default_colorPrimaryDark">@color/md_blue_700</color>
+    <color name="default_colorPrimary">@color/md_cyan_500</color>
+    <color name="default_colorPrimaryDark">@color/md_cyan_700</color>
     <color name="default_colorAccent">@color/md_deep_orange_500</color>
     <color name="default_colorUrgent">@color/md_red_500</color>
     <color name="default_floatingActionMenuColorFirst">@color/md_yellow_500</color>

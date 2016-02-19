@@ -1,8 +1,11 @@
 <resources>
 
-    <style name="NotedTheme.Base" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="NotedTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
+
+        <item name="android:itemTextAppearance">@style/menu_item_text_appearance</item>
+        <item name="android:itemBackground">?attr/colorPrimary</item>
 
         <item name="textColorPrimary">@color/md_white_1000</item>
     </style>
@@ -22,6 +25,7 @@
 
         <item name="floatingActionMenuLabelBackground">@drawable/default_fab_label_background</item>
         <item name="editTextBackgroundDrawable">@drawable/default_edit_text_background</item>
+        <item name="seekbar">@drawable/default_seekbar</item>
     </style>
 
     <style name="NotedTheme.Dark" parent="NotedTheme.Base">
@@ -39,10 +43,18 @@
 
         <item name="floatingActionMenuLabelBackground">@drawable/dark_fab_label_background</item>
         <item name="editTextBackgroundDrawable">@drawable/dark_edit_text_background</item>
+        <item name="seekbar">@drawable/dark_seekbar</item>
     </style>
 
+    <style name="seekbar" parent="android:Widget.ProgressBar.Horizontal">
+        <item name="android:progressDrawable">?attr/seekbar</item>
+        <item name="android:maxHeight">1dp</item>
+    </style>
 
-
+    <style name="menu_item_text_appearance" parent="style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">?attr/textColorPrimary</item>
+        <item name="android:textSize">@dimen/text_medium</item>
+    </style>
 
     <style name="card" parent="CardView">
         <item name="cardPreventCornerOverlap">false</item>
@@ -75,7 +87,6 @@
     </style>
 
     <style name="edit_text">
-        <item name="android:imeOptions">normal</item>
         <item name="android:gravity">left</item>
     </style>
 
