@@ -11,6 +11,10 @@ public class Note extends Item {
     public Note() {
     }
 
+    public Note(long id) {
+        mId = id;
+    }
+
     @Override
     public boolean isEmpty() {
         return mTitle.equals("") && mContent.equals("");
