@@ -1,6 +1,5 @@
 package com.cerebellio.noted.models.adapters;
 
-import android.content.Context;
 import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -15,8 +14,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.cerebellio.noted.R;
-import com.cerebellio.noted.models.CheckList;
-import com.cerebellio.noted.models.CheckListItem;
+import com.cerebellio.noted.models.Checklist;
+import com.cerebellio.noted.models.ChecklistItem;
+import com.cerebellio.noted.models.Item;
 
 import java.util.List;
 
@@ -25,14 +25,12 @@ import java.util.List;
  */
 public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private CheckList mCheckList;
-    private List<CheckListItem> mItems;
-    private Context mContext;
+    private Checklist mChecklist;
+    private List<ChecklistItem> mItems;
 
-    public ChecklistItemsAdapter(CheckList checkList, Context context) {
-        mCheckList = checkList;
-        mItems = checkList.getItems();
-        mContext = context;
+    public ChecklistItemsAdapter(Checklist checklist) {
+        mChecklist = checklist;
+        mItems = checklist.getItems();
     }
 
     @Override
@@ -42,7 +40,7 @@ public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        CheckListItem item = mItems.get(position);
+        ChecklistItem item = mItems.get(position);
 
         ((ChecklistItemsAdapterViewHolder) holder).mEditContent.setText(item.getContent());
         ((ChecklistItemsAdapterViewHolder) holder).mCheckCompleted.setChecked(item.isCompleted());
@@ -64,7 +62,7 @@ public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     }
 
-    public List<CheckListItem> getItems() {
+    public List<ChecklistItem> getItems() {
         return mItems;
     }
 
@@ -92,6 +90,7 @@ public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             mTextRemove.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    mItems.get(getAdapterPosition()).setStatus(Item.Status.DELETED);
                     notifyItemRemoved(getAdapterPosition());
                 }
             });
@@ -111,7 +110,7 @@ public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 public void afterTextChanged(Editable editable) {
                     mItems.get(getAdapterPosition()).setContent(mEditContent.getText().toString());
 
-                    //remove item if it becomes emoty and is not last in list
+                    //remove item if it becomes empty and is not last in list
                     //posting from Handler to circumvent binding issues
                     Handler handler = new Handler();
                     final Runnable r = new Runnable() {
@@ -120,8 +119,8 @@ public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                                 notifyItemRemoved(getAdapterPosition());
                             }
 
-                            if (mCheckList.isNewItemNeeded()) {
-                                mCheckList.addItem();
+                            if (mChecklist.isNewItemNeeded()) {
+                                mChecklist.addItem();
                                 notifyItemInserted(getAdapterPosition() + 1);
                             }
                         }
