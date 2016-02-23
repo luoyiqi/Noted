@@ -603,6 +603,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
 
         items.addAll(getNotes(" WHERE (" + COLUMN_NOTES_CONTENT + " LIKE '%" + query + "%' OR " + COLUMN_NOTES_TITLE + " LIKE '%" + query + "%') AND " + COLUMN_STATUS + " = '" + convertItemType(type) + "'"));
         items.addAll(getCheckLists(" WHERE " + COLUMN_CHECKLIST_TITLE + " LIKE '%" + query + "%' AND " + COLUMN_STATUS + " = '" + convertItemType(type) + "'"));
+        items.addAll(getSketches(" WHERE " + COLUMN_SKETCH_TITLE + " LIKE '%" + query + "%' AND " + COLUMN_STATUS + " = '" + convertItemType(type) + "'"));
 
         List<CheckListItem> checkListItems = new ArrayList<>();
         checkListItems.addAll(getChecklistItems(" WHERE " + COLUMN_CHECKLIST_ITEM_CONTENT + " LIKE '%" + query + "%'"));
