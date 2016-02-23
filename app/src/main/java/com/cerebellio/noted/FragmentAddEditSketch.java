@@ -48,6 +48,9 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
     @InjectView(R.id.fragment_add_edit_sketch_undo) ImageView mUndo;
     @InjectView(R.id.fragment_add_edit_sketch_redo) ImageView mRedo;
 
+    private static final int POPUP_PAINT = 0;
+    private static final int POPUP_ERASER = 1;
+
     private Sketch mSketch = new Sketch();
     private SqlDatabaseHelper mSqlDatabaseHelper;
 
@@ -83,12 +86,7 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
         mTextColour.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DialogSketchColour dialogSketchColour = new DialogSketchColour();
-                Bundle bundle = new Bundle();
-                bundle.putInt(Constants.BUNDLE_CURRENT_COLOUR, mSketch.getColour());
-                bundle.putInt(Constants.BUNDLE_CURRENT_COLOUR_ALPHA, mAlpha);
-                dialogSketchColour.setArguments(bundle);
-                dialogSketchColour.show(getChildFragmentManager(), null);
+                new DialogSketchColour().show(getChildFragmentManager(), null);
             }
         });
 
@@ -96,7 +94,7 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
             @Override
             public void onClick(View view) {
                 if (mSketchView.getStrokeType().equals(SketchView.StrokeType.STROKE)) {
-                    showStrokePopup(view);
+                    showPopup(view, POPUP_PAINT);
                 } else {
                     mSketchView.setStrokeType(SketchView.StrokeType.STROKE);
                     switchStrokeTypeViews(SketchView.StrokeType.STROKE);
@@ -108,7 +106,7 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
             @Override
             public void onClick(View view) {
                 if (mSketchView.getStrokeType().equals(SketchView.StrokeType.ERASER)) {
-                    showStrokePopup(view);
+                    showPopup(view, POPUP_ERASER);
                 } else {
                     mSketchView.setStrokeType(SketchView.StrokeType.ERASER);
                     switchStrokeTypeViews(SketchView.StrokeType.ERASER);
@@ -156,10 +154,9 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
 
     @Override
     public void onColourSelected(Integer colour) {
-        mSketch.setColour(colour);
-        mSketchView.setColour(colour);
-        mTextColour.setBackgroundColor(colour);
-        mAlpha = Color.alpha(colour);
+        mSketch.setColour(UtilityFunctions.adjustAlpha(colour, mAlpha));
+        mSketchView.setColour(UtilityFunctions.adjustAlpha(colour, mAlpha));
+        mTextColour.setBackgroundColor(UtilityFunctions.adjustAlpha(colour, mAlpha));
     }
 
     @Override
@@ -231,10 +228,10 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
         mSketchView.setIOnSketchActionListener(this);
     }
 
-    private void showStrokePopup(View anchor) {
+    private void showPopup(final View anchor, int type) {
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(AppCompatActivity
             .LAYOUT_INFLATER_SERVICE);
-        View popupLayout = inflater.inflate(R.layout.popup_stroke_width, null);
+        View popupLayout = inflater.inflate(R.layout.popup_stroke, null);
 
         PopupWindow popup = new PopupWindow(getActivity());
         popup.setContentView(popupLayout);
@@ -263,6 +260,31 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
 
             }
         });
+
+        SeekBar seekAlpha = (SeekBar) popupLayout.findViewById(R.id.popup_stroke_alpha_seekbar);
+        TextView textAlpha = (TextView) popupLayout.findViewById(R.id.popup_stroke_alpha_seekbar_label);
+        seekAlpha.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
+                mAlpha = progress;
+                onColourSelected(mSketch.getColour());
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        seekAlpha.setProgress(mAlpha);
+
+        seekAlpha.setVisibility(type == POPUP_PAINT ? View.VISIBLE : View.GONE);
+        textAlpha.setVisibility(type == POPUP_PAINT ? View.VISIBLE : View.GONE);
+
     }
 
     private void switchStrokeTypeViews(SketchView.StrokeType strokeType) {
