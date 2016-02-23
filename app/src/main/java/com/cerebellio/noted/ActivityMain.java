@@ -3,7 +3,6 @@ package com.cerebellio.noted;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -45,6 +44,7 @@ public class ActivityMain extends ActivityBase
     RecyclerView mNavDrawerRecycler;
 
     private static final String FRAGMENT_SHOW_ITEMS_TAG = "show_items_tag";
+    private static final String FRAGMENT_SETTINGS = "settings_tag";
     private static final String FRAGMENT_ADD_EDIT_ITEM_TAG = "add_edit_item_tag";
 
     private FragmentManager mFragmentManager;
@@ -210,22 +210,9 @@ public class ActivityMain extends ActivityBase
                 break;
             default:
             case SETTINGS:
-                if (PreferenceManager.getDefaultSharedPreferences(this)
-                        .getInt(Constants.SHARED_PREFS_THEME_ID, Constants.DEFAULT_THEME_ID)
-                        == Constants.DEFAULT_THEME_ID) {
-                    PreferenceManager.getDefaultSharedPreferences(this)
-                            .edit()
-                            .putInt(Constants.SHARED_PREFS_THEME_ID, Constants.DARK_THEME_ID)
-                            .apply();
-                } else {
-                    PreferenceManager.getDefaultSharedPreferences(this)
-                            .edit()
-                            .putInt(Constants.SHARED_PREFS_THEME_ID, Constants.DEFAULT_THEME_ID)
-                            .apply();
-                }
-                recreate();
                 break;
         }
+        mNavDrawer.closeDrawers();
     }
 
     private void setItemType(NavDrawerItem.NavDrawerItemType type) {
