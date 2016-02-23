@@ -13,11 +13,10 @@ import android.view.View;
 
 import com.cerebellio.noted.models.listeners.IOnSketchActionListener;
 
-import java.io.ByteArrayOutputStream;
 import java.util.Stack;
 
 /**
- * Created by Sam on 11/02/2016.
+ * Custom View which allows user to draw on a canvas
  */
 public class SketchView extends View {
 
@@ -171,14 +170,9 @@ public class SketchView extends View {
         mDrawPaint.setColor(mPaintColour);
     }
 
-    public byte[] getBitmapAsByteArray() {
+    public Bitmap getSketch() {
         setDrawingCacheEnabled(true);
-
-        Bitmap bitmap = getDrawingCache();
-        ByteArrayOutputStream byteArrayOutputStream =  new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 0, byteArrayOutputStream);
-
-        return byteArrayOutputStream.toByteArray();
+        return getDrawingCache();
     }
 
     public int getStrokeSize() {
