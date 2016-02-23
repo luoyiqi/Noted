@@ -69,7 +69,27 @@ public class ActivityMain extends ActivityBase
         ButterKnife.inject(this);
 
         mFragmentManager = getSupportFragmentManager();
-        mFragmentManager.addOnBackStackChangedListener(mOnBackStackChangedListener);
+        //region OnBackStackChangedListener
+        mFragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                syncToolbarArrowState();
+                if (mFragmentManager.getBackStackEntryCount() == 0) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (getCurrentFocus() != null) {
+                        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                    }
+                }
+
+                FragmentShowItems fragmentShowItems =
+                        (FragmentShowItems) mFragmentManager.findFragmentByTag(FRAGMENT_SHOW_ITEMS_TAG);
+                if (fragmentShowItems != null) {
+                    fragmentShowItems.setItemType(mCurrentNavDrawerType);
+                }
+
+            }
+        });
+        //endregion
 
         setSupportActionBar(mToolbar);
         if (getSupportActionBar() != null) {
@@ -228,6 +248,10 @@ public class ActivityMain extends ActivityBase
         mNavDrawer.closeDrawers();
     }
 
+    /**
+     * Parses intent to check if it is a search. If so, passes to child fragment.
+     * @param intent        Intent to check
+     */
     private void handleIntent(Intent intent) {
         if (intent.getAction().equals(Intent.ACTION_SEARCH)) {
             Log.d(LOG_TAG, intent.getStringExtra(SearchManager.QUERY));
@@ -241,6 +265,11 @@ public class ActivityMain extends ActivityBase
         }
     }
 
+    /**
+     * Passes the selected {@link com.cerebellio.noted.models.NavDrawerItem.NavDrawerItemType}
+     * from the navigation drawer to child fragments
+     * @param type      {@link com.cerebellio.noted.models.NavDrawerItem.NavDrawerItemType} to pass
+     */
     private void setItemType(NavDrawerItem.NavDrawerItemType type) {
         mCurrentNavDrawerType = type;
 
@@ -252,6 +281,9 @@ public class ActivityMain extends ActivityBase
         }
     }
 
+    /**
+     * Adds a new {@link FragmentShowItems} to the {@link #mFragmentManager} if one doesn't exist
+     */
     private void initShowItemsFragment() {
         FragmentTransaction ft;
         FragmentShowItems fragmentShowItems =
@@ -267,6 +299,9 @@ public class ActivityMain extends ActivityBase
         }
     }
 
+    /**
+     * Initialises the navigation drawer RecyclerView
+     */
     private void initNavDrawer() {
         List<NavDrawerItem> items = new ArrayList<>();
 
@@ -279,6 +314,9 @@ public class ActivityMain extends ActivityBase
                 new NavDrawerAdapter(items, this), LinearLayoutManager.VERTICAL);
     }
 
+    /**
+     * Toggles Toolbar arrow to appropriate home/back icon
+     */
     private void syncToolbarArrowState() {
         if (mFragmentManager.getBackStackEntryCount() == 0) {
             mNavDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
@@ -288,26 +326,4 @@ public class ActivityMain extends ActivityBase
             mDrawerToggle.setDrawerIndicatorEnabled(false);
         }
     }
-
-    private FragmentManager.OnBackStackChangedListener mOnBackStackChangedListener =
-            new FragmentManager.OnBackStackChangedListener() {
-                @Override
-                public void onBackStackChanged() {
-                    syncToolbarArrowState();
-                    if (mFragmentManager.getBackStackEntryCount() == 0) {
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        if (getCurrentFocus() != null) {
-                            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-                        }
-                    }
-
-                    FragmentShowItems fragmentShowItems =
-                            (FragmentShowItems) mFragmentManager.findFragmentByTag(FRAGMENT_SHOW_ITEMS_TAG);
-                    if (fragmentShowItems != null) {
-                        fragmentShowItems.setItemType(mCurrentNavDrawerType);
-                    }
-
-                }
-            };
-
 }
