@@ -1,5 +1,6 @@
 package com.cerebellio.noted;
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.support.annotation.UiThread;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -60,6 +62,7 @@ public class FragmentShowItems extends Fragment {
     private NavDrawerItem.NavDrawerItemType mCurrentType = NavDrawerItem.NavDrawerItemType.PINBOARD;
 
     private boolean mIsFabMenuVisible = true;
+    private SqlDatabaseHelper mSqlDatabaseHelper;
 
     @Nullable
     @Override
@@ -85,12 +88,10 @@ public class FragmentShowItems extends Fragment {
         mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeRemoved(int positionStart, int itemCount) {
-                SqlDatabaseHelper sqlDatabaseHelper = new SqlDatabaseHelper(getActivity());
-
                 for (int i = positionStart; i < positionStart + itemCount; i++) {
                     Item item = mAdapter.getItems().get(i);
 
-                    sqlDatabaseHelper.addOrEditItem(item);
+                    mSqlDatabaseHelper.addOrEditItem(item);
 
                     mAdapter.getItems().remove(i);
                 }
@@ -99,8 +100,6 @@ public class FragmentShowItems extends Fragment {
                 if (mAdapter.getItems().size() == 0) {
                     mItemsRecycler.smoothScrollToPosition(0);
                 }
-
-                sqlDatabaseHelper.closeDB();
 
                 toggleEmptyText();
 
@@ -246,22 +245,53 @@ public class FragmentShowItems extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         getActivity().getMenuInflater().inflate(R.menu.menu_fragment_show_items, menu);
+
+        SearchManager searchManager =
+                (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+        android.support.v7.widget.SearchView searchView =
+                (android.support.v7.widget.SearchView) menu.findItem(R.id.menu_action_search).getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getActivity().getComponentName()));
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (newText.equals("")) {
+                    setListToCurrentType();
+                } else {
+                    searchChanged(newText);
+                    toggleEmptyText();
+                    mItemsRecycler.smoothScrollToPosition(0);
+                }
+
+                return false;
+            }
+        });
+
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                setListToCurrentType();
+                return false;
+            }
+        });
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_action_item_filter_submenu_none) {
             mAdapter.swapFilter(ShowItemsAdapter.FilterType.NONE, mCurrentType);
-            return true;
         } else if (item.getItemId() == R.id.menu_action_item_filter_submenu_note) {
             mAdapter.swapFilter(ShowItemsAdapter.FilterType.NOTE, mCurrentType);
-            return true;
         }  else if (item.getItemId() == R.id.menu_action_item_filter_submenu_checklist) {
             mAdapter.swapFilter(ShowItemsAdapter.FilterType.CHECKLIST, mCurrentType);
-            return true;
         }  else if (item.getItemId() == R.id.menu_action_item_filter_submenu_sketch) {
             mAdapter.swapFilter(ShowItemsAdapter.FilterType.SKETCH, mCurrentType);
-            return true;
         }
 
         toggleEmptyText();
@@ -273,6 +303,7 @@ public class FragmentShowItems extends Fragment {
     public void onResume() {
         super.onResume();
         ApplicationNoted.bus.register(this);
+        mSqlDatabaseHelper = new SqlDatabaseHelper(getActivity());
         mFloatingActionsMenu.collapse();
         mFloatingActionsMenu.startAnimation(AnimationUtils.loadAnimation(
                 getActivity(), R.anim.fab_grow));
@@ -282,6 +313,7 @@ public class FragmentShowItems extends Fragment {
     public void onPause() {
         super.onPause();
         ApplicationNoted.bus.unregister(this);
+        mSqlDatabaseHelper.closeDB();
     }
 
     @Override
@@ -325,9 +357,17 @@ public class FragmentShowItems extends Fragment {
         }
     }
 
+    public void searchChanged(String searchQuery) {
+        mAdapter.replaceItems(mSqlDatabaseHelper.searchItems(searchQuery, mCurrentType));
+    }
+
     public void setItemType(NavDrawerItem.NavDrawerItemType type) {
         mCurrentType = type;
-        mAdapter.setItemType(type);
+        setListToCurrentType();
+    }
+
+    private void setListToCurrentType() {
+        mAdapter.setItemType(mCurrentType);
         toggleEmptyText();
         mItemsRecycler.smoothScrollToPosition(0);
     }
