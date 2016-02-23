@@ -9,8 +9,6 @@ public abstract class Constants {
 
     public static final String SHARED_PREFS_THEME_ID = "theme_id";
 
-    public static final String SHARED_PREFS_FILTER_TYPE = "filter_type";
-
     public static final int DEFAULT_THEME_ID = R.style.NotedTheme_Default;
     public static final int DARK_THEME_ID = R.style.NotedTheme_Dark;
 
@@ -19,7 +17,6 @@ public abstract class Constants {
     public static final String BUNDLE_ITEM_TYPE_FOR_DATES_FRAGMENT = "item_type_for_dates_fragment";
     public static final String BUNDLE_ITEM_TO_EDIT_ID = "item_to_edit_id";
     public static final String BUNDLE_CURRENT_COLOUR = "current_colour";
-    public static final String BUNDLE_CURRENT_COLOUR_ALPHA = "current_colour_alpha";
     public static final String BUNDLE_COLOUR_SELECTION_NEEDS_BAR = "colour_selection_needs_bar";
 
     public static final Integer[] COLOURS = new Integer[]{
