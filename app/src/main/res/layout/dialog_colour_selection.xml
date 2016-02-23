@@ -1,0 +1,18 @@
+ <LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/size_small"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:background="?attr/windowBackground"
+    >
+
+    <FrameLayout
+        android:id="@+id/dialog_stroke_colour_selection"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/colour_selection_height"
+        android:padding="@dimen/size_medium"
+        />
+
+ </LinearLayout>
