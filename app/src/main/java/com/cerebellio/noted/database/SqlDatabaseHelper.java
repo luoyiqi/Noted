@@ -340,21 +340,41 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
      */
     private String getItemTypeWhereString(NavDrawerItem.NavDrawerItemType type) {
         String where;
+        String itemStatus = convertItemType(type);
 
         switch (type) {
             default:
             case PINBOARD:
-                where = " WHERE " + COLUMN_STATUS + " = '" + Item.Status.NONE.toString() + "'";
+                where = " WHERE " + COLUMN_STATUS + " = '" + itemStatus + "'";
                 break;
             case ARCHIVE:
-                where = " WHERE " + COLUMN_STATUS + " = '" + Item.Status.ARCHIVED.toString() + "'";
+                where = " WHERE " + COLUMN_STATUS + " = '" + itemStatus + "'";
                 break;
             case TRASH:
-                where = " WHERE " + COLUMN_STATUS + " = '" + Item.Status.TRASHED.toString() + "'";
+                where = " WHERE " + COLUMN_STATUS + " = '" + itemStatus + "'";
                 break;
         }
 
         return where;
+    }
+
+    /**
+     * Converts {@link com.cerebellio.noted.models.NavDrawerItem.NavDrawerItemType} to equivalent
+     * {@link com.cerebellio.noted.models.Item.Status}
+     * @param type      {@link com.cerebellio.noted.models.NavDrawerItem.NavDrawerItemType} to convert
+     * @return          equivalent String
+     */
+    private String convertItemType(NavDrawerItem.NavDrawerItemType type) {
+        switch (type) {
+            case PINBOARD:
+                return Item.Status.NONE.toString();
+            case ARCHIVE:
+                return Item.Status.ARCHIVED.toString();
+            case TRASH:
+                return Item.Status.TRASHED.toString();
+            default:
+                return Item.Status.DELETED.toString();
+        }
     }
 
     /**
@@ -569,6 +589,50 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         } else {
             addOrEditSketch((Sketch) item);
         }
+    }
+
+    /**
+     * Search the database for {@link Item} containg a given query,
+     * with a {@link Item#mStatus} equivalent to type
+     * @param query         term to search for
+     * @param type          equivalent to {@link com.cerebellio.noted.models.Item.Status}
+     * @return              List of {@link Item} matching search terms
+     */
+    public List<Item> searchItems(String query, NavDrawerItem.NavDrawerItemType type) {
+        List<Item> items = new ArrayList<>();
+
+        items.addAll(getNotes(" WHERE (" + COLUMN_NOTES_CONTENT + " LIKE '%" + query + "%' OR " + COLUMN_NOTES_TITLE + " LIKE '%" + query + "%') AND " + COLUMN_STATUS + " = '" + convertItemType(type) + "'"));
+        items.addAll(getCheckLists(" WHERE " + COLUMN_CHECKLIST_TITLE + " LIKE '%" + query + "%' AND " + COLUMN_STATUS + " = '" + convertItemType(type) + "'"));
+
+        List<CheckListItem> checkListItems = new ArrayList<>();
+        checkListItems.addAll(getChecklistItems(" WHERE " + COLUMN_CHECKLIST_ITEM_CONTENT + " LIKE '%" + query + "%'"));
+
+        for (CheckListItem checkListItem : checkListItems) {
+            boolean isAlreadyInList = false;
+
+            CheckList checkList =
+                    (CheckList) getItemById(checkListItem.getChecklistId(), Item.Type.CHECKLIST);
+
+            if (!checkList.getStatus().equals(Item.Status.valueOf(convertItemType(type)))) {
+                continue;
+            }
+
+            for (Item item : items) {
+                if (!(item instanceof CheckList)) {
+                    continue;
+                }
+
+                if (item.getId() == checkListItem.getChecklistId()) {
+                    isAlreadyInList = true;
+                }
+            }
+
+            if (!isAlreadyInList) {
+                items.add(checkList);
+            }
+        }
+
+        return items;
     }
 
     /**
