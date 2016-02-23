@@ -1,7 +1,8 @@
 package com.cerebellio.noted.models.listeners;
 
 /**
- * Created by Sam on 13/02/2016.
+ * Interface which notifies when an action has been taken
+ * on a {@link com.cerebellio.noted.models.Sketch}
  */
 public interface IOnSketchActionListener {
     void onChange();

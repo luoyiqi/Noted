@@ -1,7 +1,7 @@
 package com.cerebellio.noted.models.listeners;
 
 /**
- * Created by Sam on 10/02/2016.
+ *Interface which allows an integer colour to be passed
  */
 public interface IOnColourSelectedListener {
     void onColourSelected(Integer colour);
