@@ -22,7 +22,6 @@ import android.widget.TextView;
 import com.cerebellio.noted.database.SqlDatabaseHelper;
 import com.cerebellio.noted.models.Item;
 import com.cerebellio.noted.models.Sketch;
-import com.cerebellio.noted.models.listeners.IOnAlphaChangedListener;
 import com.cerebellio.noted.models.listeners.IOnColourSelectedListener;
 import com.cerebellio.noted.models.listeners.IOnSketchActionListener;
 import com.cerebellio.noted.models.listeners.IOnStrokeWidthChangedListener;
@@ -39,7 +38,7 @@ import butterknife.InjectView;
  * Created by Sam on 11/02/2016.
  */
 public class FragmentAddEditSketch extends Fragment implements IOnColourSelectedListener,
-        IOnStrokeWidthChangedListener, IOnSketchActionListener, IOnAlphaChangedListener{
+        IOnStrokeWidthChangedListener, IOnSketchActionListener{
 
     @InjectView(R.id.fragment_add_edit_sketch_sketchview) SketchView mSketchView;
     @InjectView(R.id.fragment_add_edit_sketch_colour) TextView mTextColour;
@@ -157,16 +156,6 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
         mSketch.setColour(UtilityFunctions.adjustAlpha(colour, mAlpha));
         mSketchView.setColour(UtilityFunctions.adjustAlpha(colour, mAlpha));
         mTextColour.setBackgroundColor(UtilityFunctions.adjustAlpha(colour, mAlpha));
-    }
-
-    @Override
-    public void onAlphaChanged(int newAlpha) {
-        int colour = UtilityFunctions.adjustAlpha(mSketch.getColour(), newAlpha);
-        mAlpha = newAlpha;
-
-        mSketch.setColour(colour);
-        mSketchView.setColour(colour);
-        mTextColour.setBackgroundColor(colour);
     }
 
     @Override
