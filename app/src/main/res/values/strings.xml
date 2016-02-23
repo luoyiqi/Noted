@@ -23,11 +23,16 @@
     <string name="fab_create_checklist">New checklist</string>
     <string name="fab_create_sketch">New sketch</string>
 
-    <string name="popup_colour_selection_opacity">Opacity</string>
+    <string name="popup_stroke_thickness">Thickness</string>
+    <string name="popup_stroke_opacity">Opacity</string>
 
     <string name="date_created">Created:</string>
     <string name="date_last_modified">Edited:</string>
 
     <string name="empty_recycler">:( \n Nothing to show</string>
+
+    <string name="settings_title_theme">Theme</string>
+    <string name="settings_theme_summary_light">Light</string>
+    <string name="settings_theme_summary_dark">Dark</string>
 
 </resources>
