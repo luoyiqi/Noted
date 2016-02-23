@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.widget.ImageView;
 
 import com.cerebellio.noted.models.Sketch;
+import com.cerebellio.noted.utils.UtilityFunctions;
 
 /**
  * Loads a {@link Sketch} bitmap off the UI thread and inserts into the ImageView once loaded
@@ -30,11 +31,13 @@ public class LazySketchLoader extends AsyncTask<Object, Void, Bitmap> {
 
     @Override
     protected Bitmap doInBackground(Object... objects) {
-        return mSketch.getBitmap();
+        return UtilityFunctions.getBitmapFromFile(mSketch.getImagePath());
     }
 
     @Override
     protected void onPostExecute(Bitmap bitmap) {
+        final int FADE_IN_TIME = 500;
+
         if (bitmap != null) {
 
             //fade in our image over time as it is loaded
@@ -46,7 +49,7 @@ public class LazySketchLoader extends AsyncTask<Object, Void, Bitmap> {
                     });
 
             mTarget.setImageDrawable(td);
-            td.startTransition(500);
+            td.startTransition(FADE_IN_TIME);
         }
     }
 }
