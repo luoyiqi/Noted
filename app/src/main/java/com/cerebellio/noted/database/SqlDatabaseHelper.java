@@ -20,7 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created by Sam on 09/02/2016.
+ * Database helper, allows CRUD operations on database
  */
 public class SqlDatabaseHelper extends SQLiteOpenHelper {
 
@@ -48,7 +48,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String TABLE_SKETCH = "sketch";
     private static final String COLUMN_SKETCH_TITLE = "title";
-    private static final String COLUMN_SKETCH_IMAGE = "image";
+    private static final String COLUMN_SKETCH_IMAGE_PATH = "image_path";
 
 
     private static final String NOTES_CREATION_STRING = "CREATE TABLE "
@@ -85,7 +85,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
             + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + COLUMN_SKETCH_TITLE + " TEXT,"
             + COLUMN_COLOUR + " INTEGER,"
-            + COLUMN_SKETCH_IMAGE + " BLOB,"
+            + COLUMN_SKETCH_IMAGE_PATH + " TEXT,"
             + COLUMN_CREATED_DATE + " INTEGER,"
             + COLUMN_EDITED_DATE + " INTEGER,"
             + COLUMN_IMPORTANT + " INTEGER DEFAULT 0,"
@@ -260,7 +260,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
                 sketch.setId(cursor.getLong(cursor.getColumnIndex(COLUMN_ID)));
                 sketch.setTitle(cursor.getString(cursor.getColumnIndex(COLUMN_SKETCH_TITLE)));
                 sketch.setColour(cursor.getInt(cursor.getColumnIndex(COLUMN_COLOUR)));
-                sketch.setBitmapAsByteArray(cursor.getBlob(cursor.getColumnIndex(COLUMN_SKETCH_IMAGE)));
+                sketch.setImagePath(cursor.getString(cursor.getColumnIndex(COLUMN_SKETCH_IMAGE_PATH)));
                 sketch.setCreatedDate(cursor.getLong(cursor.getColumnIndex(COLUMN_CREATED_DATE)));
                 sketch.setLastModifiedDate(cursor.getLong(cursor.getColumnIndex(COLUMN_EDITED_DATE)));
                 sketch.setIsImportant(cursor.getInt(cursor.getColumnIndex(COLUMN_IMPORTANT)) == 1);
@@ -445,7 +445,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_SKETCH_TITLE, "");
-        contentValues.put(COLUMN_SKETCH_IMAGE, new byte[0]);
+        contentValues.put(COLUMN_SKETCH_IMAGE_PATH, "");
         contentValues.put(COLUMN_COLOUR,
                 UtilityFunctions.getRandomIntegerFromArray(Constants.COLOURS));
         contentValues.put(COLUMN_CREATED_DATE, new Date().getTime());
@@ -554,7 +554,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_SKETCH_TITLE, sketch.getTitle());
         contentValues.put(COLUMN_COLOUR, sketch.getColour());
-        contentValues.put(COLUMN_SKETCH_IMAGE, sketch.getBitmapAsByteArray());
+        contentValues.put(COLUMN_SKETCH_IMAGE_PATH, sketch.getImagePath());
         contentValues.put(COLUMN_CREATED_DATE, sketch.getCreatedDate());
         contentValues.put(COLUMN_EDITED_DATE, sketch.getLastModifiedDate());
         contentValues.put(COLUMN_IMPORTANT, sketch.isImportant());
