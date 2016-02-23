@@ -24,7 +24,7 @@
     <color name="dark_textColorSecondary">@color/md_white_1000</color>
     <color name="dark_textColorTertiary">@color/md_grey_300</color>
     <color name="dark_navigationBarColor">@color/md_black_1000</color>
-    <color name="dark_windowBackground">@color/md_black_1000</color>
-    <color name="dark_colorCardBackground">@color/md_grey_900</color>
+    <color name="dark_windowBackground">@color/md_grey_900</color>
+    <color name="dark_colorCardBackground">@color/md_grey_800</color>
 
 </resources>
