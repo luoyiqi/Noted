@@ -1,12 +1,10 @@
 package com.cerebellio.noted;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.view.WindowManager;
 
 import com.cerebellio.noted.utils.Constants;
 
@@ -24,9 +22,9 @@ public class ActivityBase extends AppCompatActivity {
                 .getInt(Constants.SHARED_PREFS_THEME_ID, Constants.DEFAULT_THEME_ID);
         setTheme(themeId);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+//        }
 
         super.onCreate(savedInstanceState);
     }
