@@ -30,9 +30,7 @@ public class ColourSelectionAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        Integer colour = mColours.get(position);
-
-        ((ColourSelectionAdapterViewHolder) holder).mTextColour.setBackgroundColor(colour);
+        ((ColourSelectionAdapterViewHolder) holder).mTextColour.setBackgroundColor(mColours.get(position));
     }
 
     @Override
