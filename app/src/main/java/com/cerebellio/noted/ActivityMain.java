@@ -136,12 +136,6 @@ public class ActivityMain extends ActivityBase
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_activity_main, menu);
 
-        SearchManager searchManager =
-                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        android.support.v7.widget.SearchView searchView =
-                (android.support.v7.widget.SearchView) menu.findItem(R.id.menu_action_search).getActionView();
-        searchView.setSearchableInfo(
-                searchManager.getSearchableInfo(getComponentName()));
         return true;
     }
 
@@ -252,7 +246,7 @@ public class ActivityMain extends ActivityBase
      * Parses intent to check if it is a search. If so, passes to child fragment.
      * @param intent        Intent to check
      */
-    private void handleIntent(Intent intent) {
+    public void handleIntent(Intent intent) {
         if (intent.getAction().equals(Intent.ACTION_SEARCH)) {
             Log.d(LOG_TAG, intent.getStringExtra(SearchManager.QUERY));
 
