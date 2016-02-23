@@ -113,8 +113,4 @@ public class FragmentColourSelection extends Fragment {
         mSelectionBar.setBackgroundColor(colour);
     }
 
-    public void alphaChanged(int newAlpha) {
-        mColourSelectionAdapter.alphaChanged(newAlpha);
-    }
-
 }
