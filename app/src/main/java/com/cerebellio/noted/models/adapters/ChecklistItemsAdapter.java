@@ -14,8 +14,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.cerebellio.noted.R;
-import com.cerebellio.noted.models.Checklist;
-import com.cerebellio.noted.models.ChecklistItem;
+import com.cerebellio.noted.models.CheckList;
+import com.cerebellio.noted.models.CheckListItem;
 import com.cerebellio.noted.models.Item;
 
 import java.util.List;
@@ -25,12 +25,12 @@ import java.util.List;
  */
 public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private Checklist mChecklist;
-    private List<ChecklistItem> mItems;
+    private CheckList mCheckList;
+    private List<CheckListItem> mItems;
 
-    public ChecklistItemsAdapter(Checklist checklist) {
-        mChecklist = checklist;
-        mItems = checklist.getItems();
+    public ChecklistItemsAdapter(CheckList checkList) {
+        mCheckList = checkList;
+        mItems = checkList.getItems();
     }
 
     @Override
@@ -40,7 +40,7 @@ public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        ChecklistItem item = mItems.get(position);
+        CheckListItem item = mItems.get(position);
 
         ((ChecklistItemsAdapterViewHolder) holder).mEditContent.setText(item.getContent());
         ((ChecklistItemsAdapterViewHolder) holder).mCheckCompleted.setChecked(item.isCompleted());
@@ -62,7 +62,7 @@ public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     }
 
-    public List<ChecklistItem> getItems() {
+    public List<CheckListItem> getItems() {
         return mItems;
     }
 
@@ -119,8 +119,8 @@ public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                                 notifyItemRemoved(getAdapterPosition());
                             }
 
-                            if (mChecklist.isNewItemNeeded()) {
-                                mChecklist.addItem();
+                            if (mCheckList.isNewItemNeeded()) {
+                                mCheckList.addItem();
                                 notifyItemInserted(getAdapterPosition() + 1);
                             }
                         }
