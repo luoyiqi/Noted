@@ -214,6 +214,12 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         notifyDataSetChanged();
     }
 
+    public void replaceItems(List<Item> items) {
+        mItems.clear();
+        mItems.addAll(items);
+        notifyDataSetChanged();
+    }
+
     public List<Item> getItems() {
         return mItems;
     }
