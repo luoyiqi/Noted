@@ -1,6 +1,7 @@
 package com.cerebellio.noted;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
@@ -49,7 +50,8 @@ public class FragmentShowItems extends Fragment {
     @InjectView(R.id.fragment_show_items_empty) TextView mTextEmpty;
     @InjectView(R.id.fragment_show_items_overlay) View mOverlay;
 
-    private static final int NUM_COLUMNS = 1;
+    private static final int NUM_COLUMNS_PORTRAIT = 2;
+    private static final int NUM_COLUMNS_LANDSCAPE = 4;
 
     private IOnFloatingActionMenuOptionClickedListener mIOnFloatingActionMenuOptionClickedListener;
     private IOnItemSelectedToEditListener mIOnItemSelectedToEditListener;
@@ -114,7 +116,11 @@ public class FragmentShowItems extends Fragment {
             }
         });
 
-        UtilityFunctions.setUpStaggeredGridRecycler(mItemsRecycler, mAdapter, NUM_COLUMNS);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            UtilityFunctions.setUpStaggeredGridRecycler(mItemsRecycler, mAdapter, NUM_COLUMNS_LANDSCAPE);
+        } else {
+            UtilityFunctions.setUpStaggeredGridRecycler(mItemsRecycler, mAdapter, NUM_COLUMNS_PORTRAIT);
+        }
 
         toggleEmptyText();
 
@@ -122,6 +128,7 @@ public class FragmentShowItems extends Fragment {
             @Override
             public void onClick(View view) {
                 Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fab_shrink);
+                mOverlay.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.shrink_into_bottom_right));
                 animation.setAnimationListener(new Animation.AnimationListener() {
                     @Override
                     public void onAnimationStart(Animation animation) {
@@ -146,6 +153,7 @@ public class FragmentShowItems extends Fragment {
             @Override
             public void onClick(View view) {
                 Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fab_shrink);
+                mOverlay.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.shrink_into_bottom_right));
                 animation.setAnimationListener(new Animation.AnimationListener() {
                     @Override
                     public void onAnimationStart(Animation animation) {
@@ -170,6 +178,7 @@ public class FragmentShowItems extends Fragment {
             @Override
             public void onClick(View view) {
                 Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fab_shrink);
+                mOverlay.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.shrink_into_bottom_right));
                 animation.setAnimationListener(new Animation.AnimationListener() {
                     @Override
                     public void onAnimationStart(Animation animation) {
@@ -195,6 +204,7 @@ public class FragmentShowItems extends Fragment {
                     @Override
                     public void onMenuExpanded() {
                         mOverlay.setVisibility(View.VISIBLE);
+                        mOverlay.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.grow_from_bottom_right));
                         mAdapter.setEnabled(false);
                         mItemsRecycler.setLayoutFrozen(true);
                     }
@@ -202,6 +212,7 @@ public class FragmentShowItems extends Fragment {
                     @Override
                     public void onMenuCollapsed() {
                         mOverlay.setVisibility(View.GONE);
+                        mOverlay.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.shrink_into_bottom_right));
                         mAdapter.setEnabled(true);
                         mItemsRecycler.setLayoutFrozen(false);
                     }
