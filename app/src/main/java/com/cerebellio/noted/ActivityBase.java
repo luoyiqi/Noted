@@ -3,6 +3,7 @@ package com.cerebellio.noted;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.WindowManager;
@@ -10,7 +11,7 @@ import android.view.WindowManager;
 import com.cerebellio.noted.utils.Constants;
 
 /**
- * Created by Sam on 09/02/2016.
+ * Base for Activities, contains commonly used operations
  */
 public class ActivityBase extends AppCompatActivity {
 
@@ -30,10 +31,26 @@ public class ActivityBase extends AppCompatActivity {
         super.onCreate(savedInstanceState);
     }
 
+    /**
+     * Animates a fragment transition
+     * @param transaction   {@link FragmentTransaction} to animate
+     * @param direction     {@link #TRANSITION_HORIZONTAL} or {@link #TRANSITION_VERTICAL}
+     */
     protected void animateFragmentTransition(FragmentTransaction transaction, int direction) {
         if (direction == TRANSITION_HORIZONTAL) {
             transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left,
                     R.anim.slide_in_left, R.anim.slide_out_right);
+        } else if (direction == TRANSITION_VERTICAL) {
+            //TODO animate vertical transition
         }
+    }
+
+    /**
+     * Checks if {@link Fragment} is currently in foreground
+     * @param fragment      {@link Fragment} to check
+     * @return              true if in foreground
+     */
+    protected boolean isCurrentFragment(Fragment fragment) {
+        return fragment != null && fragment.isVisible();
     }
 }
