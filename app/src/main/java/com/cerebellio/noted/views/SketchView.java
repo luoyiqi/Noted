@@ -3,24 +3,42 @@ package com.cerebellio.noted.views;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
+import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.cerebellio.noted.models.listeners.IOnSketchActionListener;
+
 import java.io.ByteArrayOutputStream;
+import java.util.Stack;
 
 /**
  * Created by Sam on 11/02/2016.
  */
 public class SketchView extends View {
 
+    private static final int INITIAL_STROKE_SIZE = 30;
+
     private Path mDrawPath;
-    private Paint mDrawPaint, mCanvasPaint;
-    private Canvas mDrawCanvas;
+    private Paint mDrawPaint;
     private Bitmap mCanvasBitmap;
-    private int mPaintColour = 0xFF660000;
+    private StrokeType mStrokeType = StrokeType.STROKE;
+    private Stack<Pair<Path, Paint>> mUndonePaths = new Stack<>();
+    private Stack<Pair<Path, Paint>> mPaths = new Stack<>();
+
+    private int mPaintColour = 0xFF000000;
+    private float mX, mY;
+
+    private IOnSketchActionListener mIOnSketchActionListener;
+
+    public enum StrokeType {
+        STROKE,
+        ERASER
+    }
 
     public SketchView(Context context, AttributeSet attrs){
         super(context, attrs);
@@ -33,12 +51,10 @@ public class SketchView extends View {
 
         mDrawPaint.setColor(mPaintColour);
         mDrawPaint.setAntiAlias(true);
-        mDrawPaint.setStrokeWidth(10);
+        mDrawPaint.setStrokeWidth(INITIAL_STROKE_SIZE);
         mDrawPaint.setStyle(Paint.Style.STROKE);
         mDrawPaint.setStrokeJoin(Paint.Join.ROUND);
         mDrawPaint.setStrokeCap(Paint.Cap.ROUND);
-
-        mCanvasPaint = new Paint(Paint.DITHER_FLAG);
     }
 
     @Override
@@ -47,14 +63,27 @@ public class SketchView extends View {
 
         if (mCanvasBitmap == null) {
             mCanvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-            mDrawCanvas = new Canvas(mCanvasBitmap);
         }
     }
 
     @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        setMeasuredDimension(getMeasuredWidth(), getMeasuredWidth());
+    }
+
+    @Override
     protected void onDraw(Canvas canvas) {
-        canvas.drawBitmap(mCanvasBitmap, 0, 0, mCanvasPaint);
-        canvas.drawPath(mDrawPath, mDrawPaint);
+
+        if (mCanvasBitmap != null) {
+            canvas.drawBitmap(mCanvasBitmap, 0, 0, null);
+        }
+
+        for (Pair<Path, Paint> path : mPaths) {
+            canvas.drawPath(path.first, path.second);
+        }
+
+        mIOnSketchActionListener.onChange();
     }
 
     @Override
@@ -62,23 +91,71 @@ public class SketchView extends View {
         float touchX = event.getX();
         float touchY = event.getY();
 
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                mDrawPath.moveTo(touchX, touchY);
-                break;
-            case MotionEvent.ACTION_MOVE:
-                mDrawPath.lineTo(touchX, touchY);
-                break;
-            case MotionEvent.ACTION_UP:
-                mDrawCanvas.drawPath(mDrawPath, mDrawPaint);
-                mDrawPath.reset();
-                break;
-            default:
-                return false;
+        if (mStrokeType.equals(StrokeType.ERASER)) {
+            mDrawPaint.setColor(Color.WHITE);
+        } else {
+            mDrawPaint.setColor(mPaintColour);
         }
 
-        invalidate();
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mDrawPath.reset();
+                Paint paint = new Paint(mDrawPaint);
+                mPaths.push(new Pair<>(mDrawPath, paint));
+                mDrawPath.reset();
+                mDrawPath.moveTo(touchX, touchY);
+                mX = touchX;
+                mY = touchY;
+                invalidate();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                mDrawPath.quadTo(mX, mY, (touchX + mX) / 2, (touchY + mY) / 2);
+                mX = touchX;
+                mY = touchY;
+                invalidate();
+                break;
+            case MotionEvent.ACTION_UP:
+                mDrawPath.lineTo(mX, mY);
+                Paint newPaint = new Paint(mDrawPaint);
+                mPaths.push(new Pair<>(mDrawPath, newPaint));
+                mDrawPath = new Path();
+                invalidate();
+                break;
+            default:
+        }
         return true;
+    }
+
+    public void undoAction() {
+        if (mPaths.size() > 1) {
+            //remove move path
+            mUndonePaths.push(mPaths.pop());
+
+            //remove lift up path
+            mUndonePaths.push(mPaths.pop());
+
+            invalidate();
+        }
+    }
+
+    public void redoAction() {
+        if (mUndonePaths.size() > 0) {
+            mPaths.push(mUndonePaths.pop());
+            mPaths.push(mUndonePaths.pop());
+            invalidate();
+        }
+    }
+
+    public boolean isUndoAvailable() {
+        return mPaths.size() > 1;
+    }
+
+    public boolean isRedoAvailable() {
+        return mUndonePaths.size() > 0;
+    }
+
+    public boolean hasChangeBeenMade() {
+        return mPaths.size() > 0;
     }
 
     public void setCanvasBitmap(Bitmap canvasBitmap) {
@@ -86,7 +163,6 @@ public class SketchView extends View {
             canvasBitmap = canvasBitmap.copy(Bitmap.Config.ARGB_8888, true);
         }
         mCanvasBitmap = canvasBitmap;
-        mDrawCanvas = new Canvas(mCanvasBitmap);
     }
 
     public void setColour(int colour) {
@@ -104,5 +180,26 @@ public class SketchView extends View {
 
         return byteArrayOutputStream.toByteArray();
     }
+
+    public int getStrokeSize() {
+        return Math.round(mDrawPaint.getStrokeWidth());
+    }
+
+    public void setStrokeSize(int strokeSize) {
+        mDrawPaint.setStrokeWidth(strokeSize);
+    }
+
+    public StrokeType getStrokeType() {
+        return mStrokeType;
+    }
+
+    public void setStrokeType(StrokeType strokeType) {
+        mStrokeType = strokeType;
+    }
+
+    public void setIOnSketchActionListener(IOnSketchActionListener IOnSketchActionListener) {
+        mIOnSketchActionListener = IOnSketchActionListener;
+    }
+
 
 }
