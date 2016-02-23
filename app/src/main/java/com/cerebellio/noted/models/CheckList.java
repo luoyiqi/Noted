@@ -14,11 +14,6 @@ public class CheckList extends Item {
         addItem();
     }
 
-    public CheckList(long id) {
-        mId = id;
-        addItem();
-    }
-
     @Override
     public boolean isEmpty() {
         return mItems.size() == 1 && mTitle.equals("");
