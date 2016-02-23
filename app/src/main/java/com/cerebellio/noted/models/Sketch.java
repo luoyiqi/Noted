@@ -12,10 +12,6 @@ public class Sketch extends Item {
 
     public Sketch() {}
 
-    public Sketch(long id) {
-        mId = id;
-    }
-
     @Override
     public boolean isEmpty() {
         Bitmap currentBitmap = getBitmap();
@@ -36,9 +32,4 @@ public class Sketch extends Item {
     public Bitmap getBitmap() {
         return BitmapFactory.decodeByteArray(mBitmapAsByteArray, 0, mBitmapAsByteArray.length);
     }
-
-    public Bitmap getReducedSizeBitmap() {
-        return Bitmap.createScaledBitmap(getBitmap(), 500, 500, false);
-    }
-
 }
