@@ -24,7 +24,6 @@ import com.cerebellio.noted.models.Item;
 import com.cerebellio.noted.models.Sketch;
 import com.cerebellio.noted.models.listeners.IOnColourSelectedListener;
 import com.cerebellio.noted.models.listeners.IOnSketchActionListener;
-import com.cerebellio.noted.models.listeners.IOnStrokeWidthChangedListener;
 import com.cerebellio.noted.utils.Constants;
 import com.cerebellio.noted.utils.UtilityFunctions;
 import com.cerebellio.noted.views.SketchView;
@@ -35,10 +34,10 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 /**
- * Created by Sam on 11/02/2016.
+ * Allows user to create a {@link Sketch} or edit an existing one
  */
 public class FragmentAddEditSketch extends Fragment implements IOnColourSelectedListener,
-        IOnStrokeWidthChangedListener, IOnSketchActionListener{
+         IOnSketchActionListener{
 
     @InjectView(R.id.fragment_add_edit_sketch_sketchview) SketchView mSketchView;
     @InjectView(R.id.fragment_add_edit_sketch_colour) TextView mTextColour;
@@ -159,11 +158,6 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
     }
 
     @Override
-    public void onStrokeWidthChanged(int width) {
-        mSketchView.setStrokeSize(width);
-    }
-
-    @Override
     public void onChange() {
         Animation popOut = AnimationUtils.loadAnimation(getActivity(), R.anim.pop_out);
         Animation popIn = AnimationUtils.loadAnimation(getActivity(), R.anim.pop_in);
@@ -193,6 +187,10 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
         }
     }
 
+    /**
+     * Performs operation after determining whether we are editing an existing {@link Sketch}
+     * or creating a new one
+     */
     private void initSketch() {
         mSqlDatabaseHelper = new SqlDatabaseHelper(getActivity());
 
@@ -217,10 +215,21 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
         mSketchView.setIOnSketchActionListener(this);
     }
 
+    /**
+     * Creates a popup which allows user to select width/opacity of the paint stroke
+     * @param anchor            View from which popup should originate
+     * @param type              either {@link #POPUP_PAINT} or {@link #POPUP_ERASER}
+     */
     private void showPopup(final View anchor, int type) {
+
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(AppCompatActivity
             .LAYOUT_INFLATER_SERVICE);
         View popupLayout = inflater.inflate(R.layout.popup_stroke, null);
+
+        //incorrect type passed, default to paint stroke
+        if (type != POPUP_PAINT && type != POPUP_ERASER) {
+            type = POPUP_PAINT;
+        }
 
         PopupWindow popup = new PopupWindow(getActivity());
         popup.setContentView(popupLayout);
@@ -273,21 +282,20 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
 
         seekAlpha.setVisibility(type == POPUP_PAINT ? View.VISIBLE : View.GONE);
         textAlpha.setVisibility(type == POPUP_PAINT ? View.VISIBLE : View.GONE);
-
     }
 
+    /**
+     * Switches the focus between Paint and Eraser views
+     * @param strokeType     {@link com.cerebellio.noted.views.SketchView.StrokeType} current type
+     */
     private void switchStrokeTypeViews(SketchView.StrokeType strokeType) {
         Animation popOut = AnimationUtils.loadAnimation(getActivity(), R.anim.pop_out);
         Animation popIn = AnimationUtils.loadAnimation(getActivity(), R.anim.pop_in);
 
         if (strokeType.equals(SketchView.StrokeType.STROKE)) {
-//            mPaintbrush.setAlpha(1f);
-//            mEraser.setAlpha(0.25f);
             mPaintbrush.startAnimation(popOut);
             mEraser.startAnimation(popIn);
         } else {
-//            mEraser.setAlpha(1f);
-//            mPaintbrush.setAlpha(0.25f);
             mPaintbrush.startAnimation(popIn);
             mEraser.startAnimation(popOut);
         }
