@@ -111,7 +111,7 @@ public class FragmentAddEditChecklist extends Fragment implements IOnColourSelec
 
         mSqlDatabaseHelper.closeDB();
 
-        mAdapter = new ChecklistItemsAdapter(mCheckList, getActivity());
+        mAdapter = new ChecklistItemsAdapter(mCheckList);
         UtilityFunctions.setUpLinearRecycler(getActivity(), mRecycler,
                 mAdapter, LinearLayoutManager.VERTICAL);
 
