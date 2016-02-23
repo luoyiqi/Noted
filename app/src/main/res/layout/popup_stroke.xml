@@ -1,0 +1,51 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:minWidth="@dimen/popup_width"
+              android:padding="@dimen/size_medium"
+              android:orientation="vertical"
+              android:background="?attr/windowBackground"
+    >
+
+    <TextView
+        android:id="@+id/popup_stroke_thickness_seekbar_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="?attr/textColorTertiary"
+        android:text="@string/popup_stroke_thickness"
+        android:padding="@dimen/size_small"
+        style="@style/text.small"
+        />
+
+    <SeekBar
+        android:id="@+id/popup_stroke_thickness_seekbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/size_small"
+        android:max="200"
+        android:layout_below="@id/popup_stroke_thickness_seekbar_label"
+        style="@style/seekbar"
+        />
+
+    <TextView
+        android:id="@+id/popup_stroke_alpha_seekbar_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="?attr/textColorTertiary"
+        android:text="@string/popup_stroke_opacity"
+        android:padding="@dimen/size_small"
+        android:layout_below="@id/popup_stroke_thickness_seekbar"
+        style="@style/text.small"
+        />
+
+    <SeekBar
+        android:id="@+id/popup_stroke_alpha_seekbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/size_small"
+        android:max="255"
+        android:layout_below="@id/popup_stroke_alpha_seekbar_label"
+        style="@style/seekbar"
+        />
+
+</RelativeLayout>
