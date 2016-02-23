@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,7 @@ import com.cerebellio.noted.utils.Constants;
 import com.cerebellio.noted.utils.UtilityFunctions;
 import com.cerebellio.noted.views.SketchView;
 
+import java.io.IOException;
 import java.util.Date;
 
 import butterknife.ButterKnife;
@@ -40,11 +42,14 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
          IOnSketchActionListener{
 
     @InjectView(R.id.fragment_add_edit_sketch_sketchview) SketchView mSketchView;
+    @InjectView(R.id.fragment_add_edit_sketch_title) TextView mTextTitle;
     @InjectView(R.id.fragment_add_edit_sketch_colour) TextView mTextColour;
     @InjectView(R.id.fragment_add_edit_sketch_paintbrush) ImageView mPaintbrush;
     @InjectView(R.id.fragment_add_edit_sketch_eraser) ImageView mEraser;
     @InjectView(R.id.fragment_add_edit_sketch_undo) ImageView mUndo;
     @InjectView(R.id.fragment_add_edit_sketch_redo) ImageView mRedo;
+
+    private static final String LOG_TAG = FragmentAddEditSketch.class.getSimpleName();
 
     private static final int POPUP_PAINT = 0;
     private static final int POPUP_ERASER = 1;
@@ -139,7 +144,13 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
             mSketch.setLastModifiedDate(new Date().getTime());
         }
 
-        mSketch.setBitmapAsByteArray(mSketchView.getBitmapAsByteArray());
+        mSketch.setTitle(mTextTitle.getText().toString());
+
+        try {
+            mSketch.setImagePath(UtilityFunctions.saveSketchToStorage(mSketchView.getSketch(), getActivity()));
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "Error saving image to file");
+        }
 
         if (mSketch.isEmpty()) {
             mSketch.setStatus(Item.Status.DELETED);
@@ -202,7 +213,9 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
                 @Override
                 public void onGlobalLayout() {
                     mSketchView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    mSketchView.setCanvasBitmap(mSketch.getBitmap());
+                    mSketchView.setCanvasBitmap(UtilityFunctions.getBitmapFromFile(mSketch.getImagePath()));
+
+                    mTextTitle.setText(mSketch.getTitle());
                 }
             });
 
