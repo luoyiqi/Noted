@@ -10,10 +10,10 @@ public class NavDrawerItem {
     private NavDrawerItemType mType;
 
     public enum NavDrawerItemType {
-        SETTINGS,
         PINBOARD,
         ARCHIVE,
-        TRASH
+        TRASH,
+        SETTINGS
     }
 
     public NavDrawerItem(String title, int iconId, NavDrawerItemType type) {
@@ -32,10 +32,6 @@ public class NavDrawerItem {
 
     public int getIconId() {
         return mIconId;
-    }
-
-    public void setIconId(int iconId) {
-        mIconId = iconId;
     }
 
     public NavDrawerItemType getType() {
