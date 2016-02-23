@@ -1,6 +1,8 @@
 package com.cerebellio.noted;
 
+import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,6 +13,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,6 +36,9 @@ import java.util.List;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
+/**
+ * Main Activity, handles numerous child Fragments
+ */
 public class ActivityMain extends ActivityBase
         implements IOnFloatingActionMenuOptionClickedListener, IOnItemSelectedToEditListener {
 
@@ -42,6 +48,8 @@ public class ActivityMain extends ActivityBase
     DrawerLayout mNavDrawer;
     @InjectView(R.id.activity_main_recycler_nav_drawer)
     RecyclerView mNavDrawerRecycler;
+
+    private static final String LOG_TAG = ActivityMain.class.getSimpleName();
 
     private static final String FRAGMENT_SHOW_ITEMS_TAG = "show_items_tag";
     private static final String FRAGMENT_SETTINGS = "settings_tag";
@@ -100,27 +108,26 @@ public class ActivityMain extends ActivityBase
 
         initShowItemsFragment();
         initNavDrawer();
+        handleIntent(getIntent());
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_activity_main, menu);
+
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        android.support.v7.widget.SearchView searchView =
+                (android.support.v7.widget.SearchView) menu.findItem(R.id.menu_action_search).getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        if (id == R.id.menu_action_settings) {
-            return true;
-        } else {
-            return super.onOptionsItemSelected(item);
-        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -146,6 +153,12 @@ public class ActivityMain extends ActivityBase
     protected void onPause() {
         super.onPause();
         ApplicationNoted.bus.unregister(this);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent(intent);
     }
 
     @Override
@@ -215,16 +228,28 @@ public class ActivityMain extends ActivityBase
         mNavDrawer.closeDrawers();
     }
 
+    private void handleIntent(Intent intent) {
+        if (intent.getAction().equals(Intent.ACTION_SEARCH)) {
+            Log.d(LOG_TAG, intent.getStringExtra(SearchManager.QUERY));
+
+            FragmentShowItems fragmentShowItems =
+                    (FragmentShowItems) mFragmentManager.findFragmentByTag(FRAGMENT_SHOW_ITEMS_TAG);
+
+            if (isCurrentFragment(fragmentShowItems)) {
+                fragmentShowItems.searchChanged(intent.getStringExtra(SearchManager.QUERY));
+            }
+        }
+    }
+
     private void setItemType(NavDrawerItem.NavDrawerItemType type) {
         mCurrentNavDrawerType = type;
 
         FragmentShowItems fragmentShowItems =
                 (FragmentShowItems) mFragmentManager.findFragmentByTag(FRAGMENT_SHOW_ITEMS_TAG);
 
-        if (fragmentShowItems != null && fragmentShowItems.isVisible()) {
+        if (isCurrentFragment(fragmentShowItems)) {
             fragmentShowItems.setItemType(type);
         }
-
     }
 
     private void initShowItemsFragment() {
