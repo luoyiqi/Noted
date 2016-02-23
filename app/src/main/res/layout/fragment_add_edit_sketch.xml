@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:met="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -9,10 +10,36 @@
     android:padding="@dimen/size_medium"
     >
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/editTextBackgroundDrawable"
+        android:layout_margin="@dimen/size_small"
+        android:padding="@dimen/size_small"
+        >
+
+        <com.rengwuxian.materialedittext.MaterialEditText
+            android:id="@+id/fragment_add_edit_sketch_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:inputType="textCapSentences|textAutoCorrect"
+            android:hint="@string/edit_text_title_hint"
+            android:imeOptions="actionNext"
+            met:met_textColor="?attr/textColorTertiary"
+            met:met_baseColor="?attr/textColorTertiary"
+            met:met_floatingLabel="highlight"
+            met:met_floatingLabelAlwaysShown="true"
+            style="@style/edit_text.huge"
+            />
+
+    </FrameLayout>
+
     <LinearLayout
         android:id="@+id/fragment_add_edit_sketch_sketchview_frame"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="@dimen/size_small"
         android:background="@drawable/sketchview_background"
         android:orientation="vertical"
         >
