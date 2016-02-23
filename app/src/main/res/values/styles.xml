@@ -5,7 +5,6 @@
         <item name="windowActionBar">false</item>
 
         <item name="android:itemTextAppearance">@style/menu_item_text_appearance</item>
-        <item name="android:itemBackground">?attr/colorPrimary</item>
 
         <item name="textColorPrimary">@color/md_white_1000</item>
     </style>
@@ -52,7 +51,7 @@
     </style>
 
     <style name="menu_item_text_appearance" parent="style/TextAppearance.AppCompat.Widget.ActionBar.Title">
-        <item name="android:textColor">?attr/textColorPrimary</item>
+        <item name="android:textColor">?attr/textColorTertiary</item>
         <item name="android:textSize">@dimen/text_medium</item>
     </style>
 
