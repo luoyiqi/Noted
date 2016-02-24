@@ -31,6 +31,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_COLOUR = "colour";
     private static final String COLUMN_STATUS = "status";
     private static final String COLUMN_IMPORTANT = "important";
+    private static final String COLUMN_TAGS = "tags";
     private static final String COLUMN_CREATED_DATE = "created_date";
     private static final String COLUMN_EDITED_DATE = "edited_date";
 
@@ -60,6 +61,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
             + COLUMN_CREATED_DATE + " INTEGER,"
             + COLUMN_EDITED_DATE + " INTEGER,"
             + COLUMN_IMPORTANT + " INTEGER DEFAULT 0,"
+            + COLUMN_TAGS + " TEXT,"
             + COLUMN_STATUS + " TEXT DEFAULT '" + Item.Status.NONE.toString() + "')";
 
     private static final String CHECKLIST_CREATION_STRING = "CREATE TABLE "
@@ -70,6 +72,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
             + COLUMN_CREATED_DATE + " INTEGER,"
             + COLUMN_EDITED_DATE + " INTEGER,"
             + COLUMN_IMPORTANT + " INTEGER DEFAULT 0,"
+            + COLUMN_TAGS + " TEXT,"
             + COLUMN_STATUS + " TEXT DEFAULT '" + Item.Status.NONE.toString() + "')";
 
     private static final String CHECKLIST_ITEM_CREATION_STRING = "CREATE TABLE "
@@ -89,6 +92,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
             + COLUMN_CREATED_DATE + " INTEGER,"
             + COLUMN_EDITED_DATE + " INTEGER,"
             + COLUMN_IMPORTANT + " INTEGER DEFAULT 0,"
+            + COLUMN_TAGS + " TEXT,"
             + COLUMN_STATUS + " TEXT DEFAULT '" + Item.Status.NONE.toString() + "')";
 
 
@@ -178,6 +182,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
                 checkList.setCreatedDate(cursor.getLong(cursor.getColumnIndex(COLUMN_CREATED_DATE)));
                 checkList.setLastModifiedDate(cursor.getLong(cursor.getColumnIndex(COLUMN_EDITED_DATE)));
                 checkList.setIsImportant(cursor.getInt(cursor.getColumnIndex(COLUMN_IMPORTANT)) == 1);
+                checkList.setTagString(cursor.getString(cursor.getColumnIndex(COLUMN_TAGS)));
                 checkList.setStatus(Item.Status.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_STATUS))));
 
                 checkList.setItems(getChecklistItems(" WHERE "
@@ -264,6 +269,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
                 sketch.setCreatedDate(cursor.getLong(cursor.getColumnIndex(COLUMN_CREATED_DATE)));
                 sketch.setLastModifiedDate(cursor.getLong(cursor.getColumnIndex(COLUMN_EDITED_DATE)));
                 sketch.setIsImportant(cursor.getInt(cursor.getColumnIndex(COLUMN_IMPORTANT)) == 1);
+                sketch.setTagString(cursor.getString(cursor.getColumnIndex(COLUMN_TAGS)));
                 sketch.setStatus(Item.Status.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_STATUS))));
 
                 sketches.add(sketch);
@@ -312,6 +318,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
                 note.setCreatedDate(cursor.getLong(cursor.getColumnIndex(COLUMN_CREATED_DATE)));
                 note.setLastModifiedDate(cursor.getLong(cursor.getColumnIndex(COLUMN_EDITED_DATE)));
                 note.setIsImportant(cursor.getInt(cursor.getColumnIndex(COLUMN_IMPORTANT)) == 1);
+                note.setTagString(cursor.getString(cursor.getColumnIndex(COLUMN_TAGS)));
                 note.setStatus(Item.Status.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_STATUS))));
 
                 notes.add(note);
@@ -391,6 +398,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_IMPORTANT, 0);
         contentValues.put(COLUMN_CREATED_DATE, new Date().getTime());
         contentValues.put(COLUMN_EDITED_DATE, 0);
+        contentValues.put(COLUMN_TAGS, "");
         contentValues.put(COLUMN_STATUS, Item.Status.NONE.toString());
 
         long id = db.insert(TABLE_CHECKLIST, null, contentValues);
@@ -431,6 +439,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_CREATED_DATE, new Date().getTime());
         contentValues.put(COLUMN_EDITED_DATE, 0);
         contentValues.put(COLUMN_IMPORTANT, 0);
+        contentValues.put(COLUMN_TAGS, "");
         contentValues.put(COLUMN_STATUS, Item.Status.NONE.toString());
 
         return db.insert(TABLE_NOTES, null, contentValues);
@@ -451,6 +460,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_CREATED_DATE, new Date().getTime());
         contentValues.put(COLUMN_EDITED_DATE, 0);
         contentValues.put(COLUMN_IMPORTANT, 0);
+        contentValues.put(COLUMN_TAGS, "");
         contentValues.put(COLUMN_STATUS, Item.Status.NONE.toString());
 
         return db.insert(TABLE_SKETCH, null, contentValues);
@@ -472,6 +482,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_CREATED_DATE, note.getCreatedDate());
         contentValues.put(COLUMN_EDITED_DATE, note.getLastModifiedDate());
         contentValues.put(COLUMN_IMPORTANT, note.isImportant());
+        contentValues.put(COLUMN_TAGS, note.getTagString());
         contentValues.put(COLUMN_STATUS, note.getStatus().toString());
 
         //check to see if this note is already in db
@@ -499,6 +510,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_CREATED_DATE, checkList.getCreatedDate());
         contentValues.put(COLUMN_EDITED_DATE, checkList.getLastModifiedDate());
         contentValues.put(COLUMN_IMPORTANT, checkList.isImportant());
+        contentValues.put(COLUMN_TAGS, checkList.getTagString());
         contentValues.put(COLUMN_STATUS, checkList.getStatus().toString());
 
         for (CheckListItem item : checkList.getItems()) {
@@ -558,6 +570,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_CREATED_DATE, sketch.getCreatedDate());
         contentValues.put(COLUMN_EDITED_DATE, sketch.getLastModifiedDate());
         contentValues.put(COLUMN_IMPORTANT, sketch.isImportant());
+        contentValues.put(COLUMN_TAGS, sketch.getTagString());
         contentValues.put(COLUMN_STATUS, sketch.getStatus().toString());
 
         if (sketch.getId() == 0) {
@@ -601,9 +614,51 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
     public List<Item> searchItems(String query, NavDrawerItem.NavDrawerItemType type) {
         List<Item> items = new ArrayList<>();
 
-        items.addAll(getNotes(" WHERE (" + COLUMN_NOTES_CONTENT + " LIKE '%" + query + "%' OR " + COLUMN_NOTES_TITLE + " LIKE '%" + query + "%') AND " + COLUMN_STATUS + " = '" + convertItemType(type) + "'"));
-        items.addAll(getCheckLists(" WHERE " + COLUMN_CHECKLIST_TITLE + " LIKE '%" + query + "%' AND " + COLUMN_STATUS + " = '" + convertItemType(type) + "'"));
-        items.addAll(getSketches(" WHERE " + COLUMN_SKETCH_TITLE + " LIKE '%" + query + "%' AND " + COLUMN_STATUS + " = '" + convertItemType(type) + "'"));
+        items.addAll(getNotes(" WHERE ("
+                + COLUMN_NOTES_CONTENT
+                + " LIKE '%"
+                + query
+                + "%' OR "
+                + COLUMN_TAGS
+                + " LIKE '%"
+                + query
+                + "%' OR "
+                + COLUMN_NOTES_TITLE
+                + " LIKE '%"
+                + query
+                + "%') AND "
+                + COLUMN_STATUS
+                + " = '"
+                + convertItemType(type)
+                + "'"));
+
+        items.addAll(getCheckLists(" WHERE "
+                + COLUMN_CHECKLIST_TITLE
+                + " LIKE '%"
+                + query
+                + "%' OR "
+                + COLUMN_TAGS
+                + " LIKE '%"
+                + query
+                + "%' AND "
+                + COLUMN_STATUS
+                + " = '"
+                + convertItemType(type)
+                + "'"));
+
+        items.addAll(getSketches(" WHERE "
+                + COLUMN_SKETCH_TITLE
+                + " LIKE '%"
+                + query
+                + "%' OR "
+                + COLUMN_TAGS
+                + " LIKE '%"
+                + query
+                + "%' AND "
+                + COLUMN_STATUS
+                + " = '"
+                + convertItemType(type)
+                + "'"));
 
         List<CheckListItem> checkListItems = new ArrayList<>();
         checkListItems.addAll(getChecklistItems(" WHERE " + COLUMN_CHECKLIST_ITEM_CONTENT + " LIKE '%" + query + "%'"));
