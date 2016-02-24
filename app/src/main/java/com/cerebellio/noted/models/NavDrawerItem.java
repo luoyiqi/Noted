@@ -5,8 +5,10 @@ package com.cerebellio.noted.models;
  */
 public class NavDrawerItem {
 
-    private String mTitle;
     private int mIconId;
+    private boolean mIsDividerNeeded;
+
+    private String mTitle;
     private NavDrawerItemType mType;
 
     public enum NavDrawerItemType {
@@ -16,9 +18,10 @@ public class NavDrawerItem {
         SETTINGS
     }
 
-    public NavDrawerItem(String title, int iconId, NavDrawerItemType type) {
+    public NavDrawerItem(String title, int iconId, boolean isDividerNeeded, NavDrawerItemType type) {
         mTitle = title;
         mIconId = iconId;
+        mIsDividerNeeded = isDividerNeeded;
         mType = type;
     }
 
@@ -32,6 +35,10 @@ public class NavDrawerItem {
 
     public int getIconId() {
         return mIconId;
+    }
+
+    public boolean isDividerNeeded() {
+        return mIsDividerNeeded;
     }
 
     public NavDrawerItemType getType() {
