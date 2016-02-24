@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:met="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minWidth="@dimen/popup_width"
+    android:padding="@dimen/size_medium"
+    android:orientation="vertical"
+    android:background="?attr/windowBackground"
+    >
+
+    <EditText
+        android:id="@+id/dialog_add_tag_add_tag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Tag"
+        android:singleLine="true"
+        android:textColor="?attr/textColorTertiary"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/size_medium"
+        android:orientation="horizontal"
+        android:gravity="right|center"
+        >
+
+        <TextView
+            android:id="@+id/dialog_add_tag_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginRight="@dimen/size_medium"
+            android:textColor="?attr/colorAccent"
+            android:textAllCaps="true"
+            android:text="@string/dialog_cancel"
+            style="@style/text.medium"
+            />
+
+
+        <TextView
+            android:id="@+id/dialog_add_tag_save"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textColor="?attr/colorAccent"
+            android:textAllCaps="true"
+            android:text="@string/dialog_save"
+            style="@style/text.medium"
+            />
+
+    </LinearLayout>
+
+</LinearLayout>
