@@ -16,6 +16,11 @@ public class Note extends Item {
         return mTitle.equals("") && mContent.equals("");
     }
 
+    @Override
+    public Type getItemType() {
+        return Type.NOTE;
+    }
+
     public String getContent() {
         return mContent;
     }

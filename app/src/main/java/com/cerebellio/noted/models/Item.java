@@ -10,6 +10,11 @@ public abstract class Item {
 
     protected String mTitle;
 
+    /**
+     * Comma seperated list of tags
+     */
+    protected String mTagString;
+
     protected long mId;
     protected int mColour = UtilityFunctions.getRandomIntegerFromArray(Constants.COLOURS);
     protected long mCreatedDate;
@@ -31,6 +36,15 @@ public abstract class Item {
         ARCHIVED,
         DELETED
     }
+
+    public void appendToTagString(String newTag) {
+        if (!mTagString.equals("")) {
+            mTagString += ",";
+        }
+        mTagString += newTag;
+    }
+
+    public abstract Type getItemType();
 
     public String getTitle() {
         return mTitle;
@@ -88,5 +102,13 @@ public abstract class Item {
 
     public void setStatus(Status status) {
         mStatus = status;
+    }
+
+    public String getTagString() {
+        return mTagString;
+    }
+
+    public void setTagString(String tagString) {
+        mTagString = tagString;
     }
 }

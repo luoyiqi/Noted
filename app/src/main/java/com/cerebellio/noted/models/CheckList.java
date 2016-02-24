@@ -19,6 +19,11 @@ public class CheckList extends Item {
         return mItems.size() == 1 && mTitle.equals("");
     }
 
+    @Override
+    public Type getItemType() {
+        return Type.CHECKLIST;
+    }
+
     public void addItem() {
         mItems.add(new CheckListItem(mId));
     }

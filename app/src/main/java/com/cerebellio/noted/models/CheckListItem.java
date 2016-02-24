@@ -21,6 +21,11 @@ public class CheckListItem extends Item {
         return !mIsCompleted && mContent.equals("");
     }
 
+    @Override
+    public Type getItemType() {
+        return Type.CHECKLIST_ITEM;
+    }
+
     public long getChecklistId() {
         return mChecklistId;
     }

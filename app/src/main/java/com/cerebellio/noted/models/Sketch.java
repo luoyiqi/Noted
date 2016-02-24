@@ -14,6 +14,11 @@ public class Sketch extends Item {
         return mImagePath.equals("");
     }
 
+    @Override
+    public Type getItemType() {
+        return Type.SKETCH;
+    }
+
     public String getImagePath() {
         return mImagePath;
     }
