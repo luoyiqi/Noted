@@ -1,30 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:id="@+id/recycler_item_nav_drawer_container"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:padding="@dimen/size_small"
-                  android:background="?attr/windowBackground"
-                  android:orientation="horizontal">
 
-    <ImageView
-        android:id="@+id/recycler_item_nav_drawer_icon"
-        android:layout_width="0dp"
-        android:layout_weight="0.5"
+<com.andexert.library.RippleView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:rv_color="?attr/colorPrimary"
+    app:rv_rippleDuration="@android:integer/config_shortAnimTime"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:paddingLeft="@dimen/size_medium"
-        />
+        android:orientation="vertical"
+        android:gravity="center"
+        >
 
-    <TextView
-        android:id="@+id/recycler_item_nav_drawer_title"
-        android:layout_width="0dp"
-        android:layout_weight="0.5"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/size_small"
-        android:gravity="left|center"
-        android:textColor="?attr/textColorTertiary"
-        style="@style/text.medium"
-        />
+        <View
+            android:id="@+id/recycler_item_nav_drawer_divider"
+            android:layout_marginTop="@dimen/size_medium"
+            android:layout_marginBottom="@dimen/size_medium"
+            android:visibility="gone"
+            style="@style/divider_across"
+            />
 
-</LinearLayout>
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/recycler_item_nav_drawer_container"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/size_very_large"
+            android:background="?attr/windowBackground"
+            android:orientation="horizontal"
+            android:gravity="center"
+            >
+
+            <FrameLayout
+                android:layout_width="@dimen/size_huge"
+                android:layout_height="match_parent"
+                android:paddingLeft="@dimen/size_medium"
+                >
+
+                <com.cerebellio.noted.views.FilteredIconView
+                    android:id="@+id/recycler_item_nav_drawer_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left|center"
+                    />
+
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/recycler_item_nav_drawer_title"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingRight="@dimen/size_medium"
+                android:gravity="left|center"
+                android:textStyle="bold"
+                android:textColor="?attr/textColorTertiary"
+                style="@style/text.medium"
+                />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.andexert.library.RippleView>
