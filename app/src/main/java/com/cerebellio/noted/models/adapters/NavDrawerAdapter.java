@@ -6,7 +6,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -14,6 +13,7 @@ import com.cerebellio.noted.ApplicationNoted;
 import com.cerebellio.noted.R;
 import com.cerebellio.noted.models.NavDrawerItem;
 import com.cerebellio.noted.utils.UtilityFunctions;
+import com.cerebellio.noted.views.FilteredIconView;
 
 import java.util.Arrays;
 import java.util.List;
@@ -53,13 +53,19 @@ public class NavDrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 ((NavDrawerAdapterViewHolder) holder).mTextTitle.setText(item.getTitle());
                 ((NavDrawerAdapterViewHolder) holder).mImageIcon.setImageResource(item.getIconId());
 
+                ((NavDrawerAdapterViewHolder) holder).mDivider.setVisibility(item.isDividerNeeded() ? View.VISIBLE : View.GONE);
+
                 if (item.getType().equals(mCurrentlyHighlighted)) {
                     ((NavDrawerAdapterViewHolder) holder).mTextTitle.setTextColor(
-                            ContextCompat.getColor(mContext, UtilityFunctions.getResIdFromAttribute(R.attr.colorAccent, mContext)));
+                            ContextCompat.getColor(mContext, UtilityFunctions.getResIdFromAttribute(R.attr.colorPrimary, mContext)));
+                    ((NavDrawerAdapterViewHolder) holder).mImageIcon.setFilter(
+                            ContextCompat.getColor(mContext,
+                                    UtilityFunctions.getResIdFromAttribute(R.attr.colorPrimary, mContext)));
                 } else {
                     ((NavDrawerAdapterViewHolder) holder).mTextTitle.setTextColor(
                             ContextCompat.getColor(mContext, UtilityFunctions.getResIdFromAttribute(R.attr.textColorTertiary, mContext)));
-                }
+                    ((NavDrawerAdapterViewHolder) holder).mImageIcon.setFilterToDefault();
+                 }
                 break;
         }
     }
@@ -92,7 +98,8 @@ public class NavDrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private class NavDrawerAdapterViewHolder extends RecyclerView.ViewHolder {
 
         protected LinearLayout mContainer;
-        protected ImageView mImageIcon;
+        protected View mDivider;
+        protected FilteredIconView mImageIcon;
         protected TextView mTextTitle;
 
         public NavDrawerAdapterViewHolder(View v, int viewType) {
@@ -102,7 +109,8 @@ public class NavDrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
             } else {
                 mContainer = (LinearLayout) v.findViewById(R.id.recycler_item_nav_drawer_container);
-                mImageIcon = (ImageView) v.findViewById(R.id.recycler_item_nav_drawer_icon);
+                mDivider = v.findViewById(R.id.recycler_item_nav_drawer_divider);
+                mImageIcon = (FilteredIconView) v.findViewById(R.id.recycler_item_nav_drawer_icon);
                 mTextTitle = (TextView) v.findViewById(R.id.recycler_item_nav_drawer_title);
 
                 mContainer.setOnClickListener(new View.OnClickListener() {
