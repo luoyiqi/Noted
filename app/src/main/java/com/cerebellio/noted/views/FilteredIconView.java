@@ -1,0 +1,53 @@
+package com.cerebellio.noted.views;
+
+import android.content.Context;
+import android.graphics.PorterDuff;
+import android.support.v4.content.ContextCompat;
+import android.util.AttributeSet;
+import android.widget.ImageView;
+
+import com.cerebellio.noted.R;
+import com.cerebellio.noted.utils.UtilityFunctions;
+
+/**
+ * Filters icon colour depending on current theme
+ */
+public class FilteredIconView extends ImageView {
+
+    private int mDefaultColour;
+    private final boolean mIsDark;
+
+    public FilteredIconView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+
+        mDefaultColour = ContextCompat.getColor(context,
+                UtilityFunctions.getResIdFromAttribute(R.attr.colorFilter, context));
+
+        mIsDark = getResources().getBoolean(
+                UtilityFunctions.getResIdFromAttribute(R.attr.is_dark_theme, context));
+
+        setFilterToDefault();
+    }
+
+    public void setFilter(int colour) {
+        if (getDrawable() != null) {
+            getDrawable().setColorFilter(colour, PorterDuff.Mode.SRC_ATOP);
+
+            if (colour == mDefaultColour) {
+                //not selected
+
+                //Material design guidelines,
+                //Dark theme: icon opacity should be 100%
+                //Light theme: icon opacity should be 54%
+                getDrawable().setAlpha(mIsDark ? 255 : 138);
+            } else {
+                //selected
+                getDrawable().setAlpha(255);
+            }
+        }
+    }
+
+    public void setFilterToDefault() {
+        setFilter(mDefaultColour);
+    }
+}
