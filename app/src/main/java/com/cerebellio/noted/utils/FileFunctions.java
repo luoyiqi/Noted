@@ -1,0 +1,78 @@
+package com.cerebellio.noted.utils;
+
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.text.format.DateFormat;
+import android.util.Log;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Date;
+
+/**
+ * Commonly used File functions
+ */
+public abstract class FileFunctions {
+
+    private static final String LOG_TAG = TextFunctions.makeLogTag(FileFunctions.class);
+
+    /**
+     * Retrieve a bitmap from a given file
+     *
+     * @param path          path to bitmap file
+     * @return              bitmap found or null if error
+     */
+    public static Bitmap getBitmapFromFile(String path) {
+
+        Bitmap bitmap = null;
+
+        try {
+            File f = new File(path);
+            bitmap = BitmapFactory.decodeStream(new FileInputStream(f));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return bitmap;
+    }
+
+    /**
+     * Save a given Sketch bitmap to file storage
+     *
+     * @param sketch            bitmap to save
+     * @param dirName           directory name in which to save file
+     * @param context           calling Context
+     * @return                  saved file path
+     * @throws IOException      if file cannot be opened for writing
+     */
+    public static String saveSketchToStorage(Bitmap sketch, String dirName, Context context) throws IOException {
+
+        //save file with current date and time for uniqueness
+        String  fileName = DateFormat.format("MM-dd-yy HH-mm-ss", new Date().getTime()).toString();
+
+        ContextWrapper contextWrapper = new ContextWrapper(context.getApplicationContext());
+        File directory = contextWrapper.getDir(dirName, Context.MODE_PRIVATE);
+
+        File path = new File(directory, fileName);
+        FileOutputStream fos = null;
+
+        try {
+            fos = new FileOutputStream(path);
+            sketch.compress(Bitmap.CompressFormat.PNG, 100, fos);
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "File could not be opened");
+        } finally {
+            if (fos != null) {
+                fos.close();
+            }
+        }
+
+        return path.getAbsolutePath();
+    }
+
+}
