@@ -1,5 +1,6 @@
 package com.cerebellio.noted.models.adapters;
 
+import android.content.Context;
 import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 
 import com.cerebellio.noted.ApplicationNoted;
 import com.cerebellio.noted.R;
+import com.cerebellio.noted.database.SqlDatabaseHelper;
 import com.cerebellio.noted.models.CheckList;
 import com.cerebellio.noted.models.CheckListItem;
 import com.cerebellio.noted.models.Item;
@@ -32,11 +34,13 @@ public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     private CheckList mCheckList;
     private List<CheckListItem> mItems;
+    private Context mContext;
 
-    public ChecklistItemsAdapter(CheckList checkList) {
+    public ChecklistItemsAdapter(CheckList checkList, Context context) {
 
         mCheckList = checkList;
         mItems = checkList.getItems();
+        mContext = context;
     }
 
     @Override
@@ -129,8 +133,14 @@ public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                             }
 
                             if (mCheckList.isNewItemNeeded()) {
-                                mCheckList.addItem();
+                                SqlDatabaseHelper databaseHelper = new SqlDatabaseHelper(mContext);
+
+                                mCheckList.addItem((CheckListItem) databaseHelper.getItemById(
+                                        databaseHelper.addBlankChecklistItem(mCheckList.getId()), Item.Type.CHECKLIST_ITEM));
+
                                 notifyItemInserted(getAdapterPosition() + 1);
+
+                                databaseHelper.closeDB();
                             }
                         }
                     };
