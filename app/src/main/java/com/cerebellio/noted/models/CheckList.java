@@ -15,7 +15,7 @@ public class CheckList extends Item {
     private List<CheckListItem> mItems = new ArrayList<>();
 
     public CheckList() {
-        addItem();
+
     }
 
     @Override
@@ -29,8 +29,8 @@ public class CheckList extends Item {
         return Type.CHECKLIST;
     }
 
-    public void addItem() {
-        mItems.add(new CheckListItem(mId));
+    public void addItem(CheckListItem item) {
+        mItems.add(item);
     }
 
     public boolean isNewItemNeeded() {
