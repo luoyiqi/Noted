@@ -4,6 +4,7 @@ import com.cerebellio.noted.utils.Constants;
 import com.cerebellio.noted.utils.TextFunctions;
 import com.cerebellio.noted.utils.UtilityFunctions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,7 +16,7 @@ public abstract class Item {
 
     public static final String TAG_STRING_SEPARATOR = ",";
 
-    protected List<String> mTagList;
+    protected List<String> mTagList = new ArrayList<>();
     protected Status mStatus = Status.PINBOARD;
 
     protected long mId;
@@ -199,6 +200,6 @@ public abstract class Item {
     }
 
     public void setTagString(String string) {
-        mTagList = TextFunctions.splitStringToList(string, TAG_STRING_SEPARATOR);
+        mTagList.addAll(TextFunctions.splitStringToList(string, Item.TAG_STRING_SEPARATOR));
     }
 }

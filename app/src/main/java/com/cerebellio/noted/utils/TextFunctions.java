@@ -52,6 +52,10 @@ public abstract class TextFunctions {
      */
     public static List<String> splitStringToList(String string, String separator) {
 
+        if (string.equals("")) {
+            return new ArrayList<>();
+        }
+
         List<String> strings = new ArrayList<>();
 
         for (String tag : string.split(separator)) {

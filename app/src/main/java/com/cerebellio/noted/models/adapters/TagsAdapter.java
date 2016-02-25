@@ -74,7 +74,8 @@ public class TagsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     public void setTagsList(String tagString) {
         mTags.clear();
-        mTags = TextFunctions.splitStringToList(tagString, Item.TAG_STRING_SEPARATOR);
+        mTags.addAll(TextFunctions.splitStringToList(tagString, Item.TAG_STRING_SEPARATOR));
+
         notifyDataSetChanged();
     }
 
