@@ -8,10 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.cerebellio.noted.database.SqlDatabaseHelper;
+import com.cerebellio.noted.models.CheckList;
 import com.cerebellio.noted.models.Item;
 import com.cerebellio.noted.models.Note;
 import com.cerebellio.noted.models.listeners.IOnColourSelectedListener;
 import com.cerebellio.noted.utils.Constants;
+import com.cerebellio.noted.utils.TextFunctions;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
 import java.util.Date;
@@ -20,12 +22,14 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 /**
- * Created by Sam on 09/02/2016.
+ * Allows user to add new {@link CheckList} or edit an existing one
  */
-public class FragmentAddEditNote extends Fragment implements IOnColourSelectedListener {
+public class FragmentAddEditNote extends Fragment
+        implements IOnColourSelectedListener {
 
-    @InjectView(R.id.fragment_add_edit_note_title) MaterialEditText mEditTitle;
     @InjectView(R.id.fragment_add_edit_note_content) MaterialEditText mEditContent;
+
+    private static final String LOG_TAG = TextFunctions.makeLogTag(FragmentAddEditNote.class);
 
     private Note mNote;
     private SqlDatabaseHelper mSqlDatabaseHelper;
@@ -35,6 +39,7 @@ public class FragmentAddEditNote extends Fragment implements IOnColourSelectedLi
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
+
         View rootView = inflater.inflate(R.layout.fragment_add_edit_note, container, false);
         ButterKnife.inject(this, rootView);
 
@@ -42,35 +47,28 @@ public class FragmentAddEditNote extends Fragment implements IOnColourSelectedLi
 
         initNote();
 
-        FragmentCreationModifiedDates fragmentCreationModifiedDates = new FragmentCreationModifiedDates();
-        Bundle bundleDates = new Bundle();
-        bundleDates.putLong(Constants.BUNDLE_ITEM_ID_FOR_DATES_FRAGMENT, mNote.getId());
-        bundleDates.putSerializable(Constants.BUNDLE_ITEM_TYPE_FOR_DATES_FRAGMENT, Item.Type.NOTE);
-        fragmentCreationModifiedDates.setArguments(bundleDates);
-
-        FragmentColourSelection fragmentColourSelection = new FragmentColourSelection();
-        Bundle bundle = new Bundle();
-        bundle.putInt(Constants.BUNDLE_CURRENT_COLOUR, mNote.getColour());
-        fragmentColourSelection.setArguments(bundle);
-
-        getChildFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_add_edit_note_colour_selection_frame, fragmentColourSelection)
-                .replace(R.id.fragment_add_edit_note_dates_frame, fragmentCreationModifiedDates)
-                .commit();
-
-
         return rootView;
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        ApplicationNoted.bus.register(this);
+    }
+
+    @Override
     public void onPause() {
+
         super.onPause();
 
-        mNote.setTitle(mEditTitle.getText().toString());
-        mNote.setContent(mEditContent.getText().toString());
+        ApplicationNoted.bus.unregister(this);
 
-        mNote.setLastModifiedDate(new Date().getTime());
+        //Note has been edited
+        if (!mNote.getContent().equals(mEditContent.getText().toString())) {
+            mNote.setEditedDate(new Date().getTime());
+        }
+
+        mNote.setContent(mEditContent.getText().toString());
 
         if (mNote.isEmpty()) {
             mNote.setStatus(Item.Status.DELETED);
@@ -86,15 +84,23 @@ public class FragmentAddEditNote extends Fragment implements IOnColourSelectedLi
         mNote.setColour(colour);
     }
 
+    /**
+     * Carries out initialisation of {@link #mNote}
+     * If we're editing, retrieves it from database.
+     * If we're adding, insert new {@link Note} into database
+     */
     private void initNote() {
+
         mSqlDatabaseHelper = new SqlDatabaseHelper(getActivity());
 
         if (mIsInEditMode) {
+
+            //Retrieve Note from database
             mNote = (Note) mSqlDatabaseHelper.getItemById(
                     getArguments().getLong(Constants.BUNDLE_ITEM_TO_EDIT_ID), Item.Type.NOTE);
-            mEditTitle.setText(mNote.getTitle());
             mEditContent.setText(mNote.getContent());
         } else {
+
             mNote = (Note) mSqlDatabaseHelper.getItemById(
                     mSqlDatabaseHelper.addBlankNote(), Item.Type.NOTE);
         }

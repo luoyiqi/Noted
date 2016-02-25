@@ -11,16 +11,20 @@ import android.widget.TextView;
 
 import com.cerebellio.noted.ApplicationNoted;
 import com.cerebellio.noted.R;
-import com.cerebellio.noted.utils.Constants;
+import com.cerebellio.noted.models.Item;
+import com.cerebellio.noted.models.events.TagEvent;
+import com.cerebellio.noted.utils.TextFunctions;
 import com.cerebellio.noted.utils.UtilityFunctions;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Sam on 24/02/2016.
+ * Adapter to display tags
  */
 public class TagsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private static final String LOG_TAG = TextFunctions.makeLogTag(TagsAdapter.class);
 
     private static final int TYPE_ITEM = 0;
     private static final int TYPE_ADD = 1;
@@ -29,6 +33,7 @@ public class TagsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<String> mTags = new ArrayList<>();
 
     public TagsAdapter(Context context, String tagString) {
+
         mContext = context;
         setTagsList(tagString);
     }
@@ -37,6 +42,7 @@ public class TagsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
         if (getItemViewType(position) == TYPE_ADD) {
+            //Static layout
             return;
         }
 
@@ -53,6 +59,7 @@ public class TagsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
+        //Final position should be 'Add new tag' button
         return position == mTags.size() ? TYPE_ADD : TYPE_ITEM;
     }
 
@@ -61,19 +68,13 @@ public class TagsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return mTags.size() + 1;
     }
 
+    /**
+     * Change the list of tags displayed
+     * @param tagString     new separated String of tags
+     */
     public void setTagsList(String tagString) {
         mTags.clear();
-
-        if (tagString.equals("")) {
-            return;
-        }
-
-        String[] tagsSplit = tagString.split(",");
-
-        for (int i = 0; i < tagsSplit.length; i++) {
-            mTags.add(tagsSplit[i]);
-        }
-
+        mTags = TextFunctions.splitStringToList(tagString, Item.TAG_STRING_SEPARATOR);
         notifyDataSetChanged();
     }
 
@@ -82,19 +83,32 @@ public class TagsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         protected TextView mTextTag;
 
         public TagsAdapterViewHolder(View v, int viewType) {
+
             super(v);
 
             mTextTag = (TextView) v.findViewById(R.id.recycler_item_tag_value);
 
             if (viewType == TYPE_ADD) {
-                mTextTag.setText("+");
+                mTextTag.setText(mContext.getString(R.string.tag_new));
                 mTextTag.getBackground().setColorFilter(
                         ContextCompat.getColor(mContext,
                                 UtilityFunctions.getResIdFromAttribute(R.attr.colorAccent, mContext)), PorterDuff.Mode.SRC_ATOP);
+
+                //TagEvent to event bus for edit
                 mTextTag.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        ApplicationNoted.bus.post(Constants.OTTO_ADD_TAG);
+                        ApplicationNoted.bus.post(new TagEvent(TagEvent.Type.ADD));
+                    }
+                });
+            } else {
+
+                //TagEvent to event bus for edit, along with new tag value
+                mTextTag.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ApplicationNoted.bus.post(
+                                new TagEvent(TagEvent.Type.EDIT, mTextTag.getText().toString()));
                     }
                 });
             }

@@ -4,9 +4,4 @@
       tools:context=".ActivityMain"
     >
 
-    <item android:id="@+id/menu_action_settings"
-          android:title="@string/menu_action_settings"
-          app:showAsAction="never"
-        />
-
 </menu>

@@ -11,15 +11,16 @@ import android.view.ViewGroup;
 import android.view.Window;
 
 import com.cerebellio.noted.models.listeners.IOnColourSelectedListener;
-import com.cerebellio.noted.utils.Constants;
+import com.cerebellio.noted.utils.TextFunctions;
 
 /**
- * Created by Sam on 12/02/2016.
+ * Displays a palette of colours from which the user can select
  */
 public class DialogSketchColour extends DialogFragment implements IOnColourSelectedListener {
 
+    private static final String LOG_TAG = TextFunctions.makeLogTag(DialogSketchColour.class);
+
     private IOnColourSelectedListener mIOnColourSelectedListener;
-    private FragmentColourSelection mFragmentColourSelection;
 
     public DialogSketchColour() {}
 
@@ -31,14 +32,9 @@ public class DialogSketchColour extends DialogFragment implements IOnColourSelec
 
         View rootView = getActivity().getLayoutInflater().inflate(R.layout.dialog_colour_selection, null);
 
-        mFragmentColourSelection = new FragmentColourSelection();
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(Constants.BUNDLE_COLOUR_SELECTION_NEEDS_BAR, false);
-        mFragmentColourSelection.setArguments(bundle);
-
         getChildFragmentManager()
                 .beginTransaction()
-                .replace(R.id.dialog_stroke_colour_selection, mFragmentColourSelection)
+                .replace(R.id.dialog_stroke_colour_selection, new FragmentColourSelection())
                 .commit();
 
         return rootView;
@@ -46,7 +42,9 @@ public class DialogSketchColour extends DialogFragment implements IOnColourSelec
 
     @Override
     public void onAttach(Context context) {
+
         super.onAttach(context);
+
         try {
             mIOnColourSelectedListener = (IOnColourSelectedListener) getParentFragment();
         } catch (ClassCastException e) {
@@ -56,6 +54,7 @@ public class DialogSketchColour extends DialogFragment implements IOnColourSelec
 
     @Override
     public void onColourSelected(Integer colour) {
+
         mIOnColourSelectedListener.onColourSelected(colour);
         dismiss();
     }

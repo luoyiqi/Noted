@@ -26,11 +26,15 @@ import android.widget.TextView;
 
 import com.cerebellio.noted.database.SqlDatabaseHelper;
 import com.cerebellio.noted.models.Item;
+import com.cerebellio.noted.models.events.ItemWithListPositionEvent;
 import com.cerebellio.noted.models.NavDrawerItem;
 import com.cerebellio.noted.models.adapters.ShowItemsAdapter;
 import com.cerebellio.noted.models.listeners.IOnFloatingActionMenuOptionClickedListener;
+import com.cerebellio.noted.models.listeners.IOnItemFocusNeedsUpdatingListener;
 import com.cerebellio.noted.models.listeners.IOnItemSelectedToEditListener;
-import com.cerebellio.noted.utils.RecyclerScroll;
+import com.cerebellio.noted.utils.ColourFunctions;
+import com.cerebellio.noted.utils.Constants;
+import com.cerebellio.noted.utils.FabShowHideRecyclerScroll;
 import com.cerebellio.noted.utils.UtilityFunctions;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
@@ -42,7 +46,7 @@ import butterknife.InjectView;
 /**
  * Created by Sam on 09/02/2016.
  */
-public class FragmentShowItems extends Fragment {
+public class FragmentShowItems extends Fragment implements IOnItemSelectedToEditListener, IOnItemFocusNeedsUpdatingListener {
 
     @InjectView(R.id.fragment_show_items_recycler) RecyclerView mItemsRecycler;
     @InjectView(R.id.fragment_show_items_floating_action_menu) FloatingActionsMenu mFloatingActionsMenu;
@@ -74,7 +78,7 @@ public class FragmentShowItems extends Fragment {
         //Get background colour for current theme and set the alpha opacity to almost full,
         //which gives the effect of covering the main RecyclerView when FAB pressed
         int backColourId = ContextCompat.getColor(getActivity(), UtilityFunctions.getResIdFromAttribute(R.attr.windowBackground, getActivity()));
-        mOverlay.setBackgroundColor(UtilityFunctions.adjustAlpha(backColourId, 245));
+        mOverlay.setBackgroundColor(ColourFunctions.adjustAlpha(backColourId, 245));
 
         mFloatingActionsMenu.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -217,7 +221,7 @@ public class FragmentShowItems extends Fragment {
                     }
                 });
 
-        mItemsRecycler.addOnScrollListener(new RecyclerScroll() {
+        mItemsRecycler.addOnScrollListener(new FabShowHideRecyclerScroll() {
             @Override
             public void hide() {
                 mFloatingActionsMenu
@@ -284,6 +288,7 @@ public class FragmentShowItems extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         if (item.getItemId() == R.id.menu_action_item_filter_submenu_none) {
             mAdapter.swapFilter(ShowItemsAdapter.FilterType.NONE, mCurrentType);
         } else if (item.getItemId() == R.id.menu_action_item_filter_submenu_note) {
@@ -293,6 +298,8 @@ public class FragmentShowItems extends Fragment {
         }  else if (item.getItemId() == R.id.menu_action_item_filter_submenu_sketch) {
             mAdapter.swapFilter(ShowItemsAdapter.FilterType.SKETCH, mCurrentType);
         }
+
+        item.setChecked(true);
 
         toggleEmptyText();
 
@@ -328,10 +335,30 @@ public class FragmentShowItems extends Fragment {
         }
     }
 
+    @Override
+    public void onItemToEdit(Item item) {
+        mIOnItemSelectedToEditListener.onItemToEdit(item);
+    }
+
+    @Override
+    public void onRemove(int position) {
+        mAdapter.removeItem(position);
+    }
+
+    @Override
+    public void onUpdateColour(int position, int newColour) {
+        mAdapter.updateItemColour(position, newColour);
+    }
+
     @Subscribe
-    public void itemToEdit(final Item item) {
-        mFloatingActionsMenu.setVisibility(View.GONE);
-        mIOnItemSelectedToEditListener.onItemSelected(item);
+    public void onItemToFocus(ItemWithListPositionEvent itemWithListPositionEvent) {
+        DialogItemFocus dialogItemFocus = new DialogItemFocus();
+        Bundle bundle = new Bundle();
+        bundle.putLong(Constants.BUNDLE_ITEM_ID, itemWithListPositionEvent.getItem().getId());
+        bundle.putInt(Constants.BUNDLE_ITEM_POSITION, itemWithListPositionEvent.getPosition());
+        bundle.putSerializable(Constants.BUNDLE_ITEM_TYPE, itemWithListPositionEvent.getItem().getItemType());
+        dialogItemFocus.setArguments(bundle);
+        dialogItemFocus.show(getChildFragmentManager(), null);
     }
 
     /**
@@ -365,6 +392,7 @@ public class FragmentShowItems extends Fragment {
         mCurrentType = type;
         setListToCurrentType();
     }
+
 
     private void setListToCurrentType() {
         mAdapter.setItemType(mCurrentType);

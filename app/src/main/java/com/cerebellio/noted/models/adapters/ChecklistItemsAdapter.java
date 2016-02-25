@@ -13,22 +13,28 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.cerebellio.noted.ApplicationNoted;
 import com.cerebellio.noted.R;
 import com.cerebellio.noted.models.CheckList;
 import com.cerebellio.noted.models.CheckListItem;
 import com.cerebellio.noted.models.Item;
+import com.cerebellio.noted.models.events.ChecklistItemEditedEvent;
+import com.cerebellio.noted.utils.TextFunctions;
 
 import java.util.List;
 
 /**
- * Created by Sam on 21/01/2016.
+ * Adapter to display {@link CheckListItem}
  */
 public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private static final String LOG_TAG = TextFunctions.makeLogTag(ChecklistItemsAdapter.class);
 
     private CheckList mCheckList;
     private List<CheckListItem> mItems;
 
     public ChecklistItemsAdapter(CheckList checkList) {
+
         mCheckList = checkList;
         mItems = checkList.getItems();
     }
@@ -40,21 +46,22 @@ public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+
         CheckListItem item = mItems.get(position);
 
         ((ChecklistItemsAdapterViewHolder) holder).mEditContent.setText(item.getContent());
         ((ChecklistItemsAdapterViewHolder) holder).mCheckCompleted.setChecked(item.isCompleted());
 
-        //don't want to be able to remove empty item
+        //Don't want to be able to remove or mark as completed an empty item
         ((ChecklistItemsAdapterViewHolder) holder).mTextRemove.setVisibility(
                 item.isEmpty() ? View.INVISIBLE : View.VISIBLE);
-
         ((ChecklistItemsAdapterViewHolder) holder).mCheckCompleted.setVisibility(
                 item.isEmpty() ? View.INVISIBLE : View.VISIBLE);
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycler_item_checklist_items, parent, false);
 
@@ -74,7 +81,9 @@ public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         protected TextView mTextRemove;
 
         public ChecklistItemsAdapterViewHolder(View v) {
+
             super(v);
+
             mLinearLayoutFrame = (LinearLayout) v.findViewById(R.id.recycler_item_checklist_items_frame);
             mCheckCompleted = (CheckBox) v.findViewById(R.id.recycler_item_checklist_items_completed);
             mEditContent = (EditText) v.findViewById(R.id.recycler_item_checklist_items_content);
@@ -103,14 +112,14 @@ public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
                 @Override
                 public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+                    ApplicationNoted.bus.post(new ChecklistItemEditedEvent());
                 }
 
                 @Override
                 public void afterTextChanged(Editable editable) {
                     mItems.get(getAdapterPosition()).setContent(mEditContent.getText().toString());
 
-                    //remove item if it becomes empty and is not last in list
+                    //Remove item if it becomes empty and is not last in list
                     //posting from Handler to circumvent binding issues
                     Handler handler = new Handler();
                     final Runnable r = new Runnable() {
@@ -127,6 +136,7 @@ public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     };
                     handler.post(r);
 
+                    //Can't mark as completed or remove if current item is empty
                     mTextRemove.setVisibility(
                             mItems.get(getAdapterPosition()).isEmpty() ? View.INVISIBLE : View.VISIBLE);
                     mCheckCompleted.setVisibility(

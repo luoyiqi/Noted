@@ -3,9 +3,11 @@ package com.cerebellio.noted.utils;
 import com.cerebellio.noted.R;
 
 /**
- * Created by Sam on 09/02/2016.
+ * Commonly used constant values
  */
 public abstract class Constants {
+
+    private static final String LOG_TAG = TextFunctions.makeLogTag(Constants.class);
 
     public static final String SHARED_PREFS_THEME_ID = "theme_id";
 
@@ -13,12 +15,16 @@ public abstract class Constants {
     public static final int DARK_THEME_ID = R.style.NotedTheme_Dark;
 
     public static final String BUNDLE_IS_IN_EDIT_MODE = "is_in_edit_mode";
-    public static final String BUNDLE_ITEM_ID_FOR_DATES_FRAGMENT = "item_id_for_dates_fragment";
-    public static final String BUNDLE_ITEM_TYPE_FOR_DATES_FRAGMENT = "item_type_for_dates_fragment";
+    public static final String BUNDLE_ITEM_ID = "item_id";
+    public static final String BUNDLE_ITEM_POSITION = "item_position";
+    public static final String BUNDLE_ITEM_TYPE = "item_type";
     public static final String BUNDLE_ITEM_TO_EDIT_ID = "item_to_edit_id";
-    public static final String BUNDLE_CURRENT_COLOUR = "current_colour";
-    public static final String BUNDLE_COLOUR_SELECTION_NEEDS_BAR = "colour_selection_needs_bar";
+    public static final String BUNDLE_TAG_VALUE = "tag_value";
 
+    public static final String INTENT_ITEM_ID = "item_id";
+    public static final String INTENT_ITEM_TYPE = "type";
+
+    //region Colours
     public static final Integer[] COLOURS = new Integer[]{
             0xFFE57373,
             0xFFF44336,
@@ -84,4 +90,6 @@ public abstract class Constants {
             0xFF455A64,
             0xFF000000
     };
+    //endregion
+
 }

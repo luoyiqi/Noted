@@ -5,7 +5,7 @@
 
     <item android:id="@+id/menu_action_search"
           android:title="Search"
-          android:icon="@drawable/ic_search"
+          android:icon="@drawable/ic_toolbar_search"
           app:showAsAction="collapseActionView|ifRoom"
           app:actionViewClass="android.support.v7.widget.SearchView"
         />
@@ -13,36 +13,38 @@
     <item android:id="@+id/menu_action_item_filter"
           android:title="@string/menu_action_filter"
           android:orderInCategory="200"
-          android:icon="@drawable/ic_filter"
+          android:icon="@drawable/ic_toolbar_filter"
           app:showAsAction="ifRoom"
         >
 
         <menu
             >
 
-            <item
-                android:id="@+id/menu_action_item_filter_submenu_none"
-                android:icon="@drawable/ic_clear_filter"
-                android:title="Clear filter"
-                />
+            <group
+                android:checkableBehavior="single"
+                >
+                <item
+                    android:id="@+id/menu_action_item_filter_submenu_none"
+                    android:title="@string/menu_filter_none"
+                    android:checked="true"
+                    />
 
-            <item
-                android:id="@+id/menu_action_item_filter_submenu_note"
-                android:icon="@drawable/ic_note"
-                android:title="Note"
-                />
+                <item
+                    android:id="@+id/menu_action_item_filter_submenu_note"
+                    android:title="@string/menu_filter_note"
+                    />
 
-            <item
-                android:id="@+id/menu_action_item_filter_submenu_checklist"
-                android:icon="@drawable/ic_checklist"
-                android:title="Checklist"
-                />
+                <item
+                    android:id="@+id/menu_action_item_filter_submenu_checklist"
+                    android:title="@string/menu_filter_checklist"
+                    />
 
-            <item
-                android:id="@+id/menu_action_item_filter_submenu_sketch"
-                android:icon="@drawable/ic_sketch"
-                android:title="Sketch"
-                />
+                <item
+                    android:id="@+id/menu_action_item_filter_submenu_sketch"
+                    android:title="@string/menu_filter_sketch"
+                    />
+
+            </group>
 
         </menu>
 

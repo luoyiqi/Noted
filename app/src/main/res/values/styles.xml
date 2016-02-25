@@ -18,13 +18,17 @@
         <item name="colorAccent">@color/default_colorAccent</item>
         <item name="windowBackground">@color/default_windowBackground</item>
         <item name="colorCardBackground">@color/default_colorCardBackground</item>
-        <item name="colorUrgent">@color/default_colorUrgent</item>
+        <item name="colorDivider">@color/default_colorDivider</item>
+        <item name="colorFilter">@color/default_colorFilter</item>
         <item name="textColorSecondary">@color/default_textColorSecondary</item>
         <item name="textColorTertiary">@color/default_textColorTertiary</item>
 
         <item name="floatingActionMenuLabelBackground">@drawable/default_fab_label_background</item>
         <item name="editTextBackgroundDrawable">@drawable/default_edit_text_background</item>
         <item name="seekbar">@drawable/default_seekbar</item>
+        <item name="tag_background">@drawable/default_tag</item>
+
+        <item name="is_dark_theme">@bool/default_isDarkTheme</item>
     </style>
 
     <style name="NotedTheme.Dark" parent="NotedTheme.Base">
@@ -36,13 +40,17 @@
         <item name="colorAccent">@color/dark_colorAccent</item>
         <item name="windowBackground">@color/dark_windowBackground</item>
         <item name="colorCardBackground">@color/dark_colorCardBackground</item>
-        <item name="colorUrgent">@color/dark_colorUrgent</item>
+        <item name="colorDivider">@color/dark_colorDivider</item>
+        <item name="colorFilter">@color/dark_colorFilter</item>
         <item name="textColorSecondary">@color/dark_textColorSecondary</item>
         <item name="textColorTertiary">@color/dark_textColorTertiary</item>
 
         <item name="floatingActionMenuLabelBackground">@drawable/dark_fab_label_background</item>
         <item name="editTextBackgroundDrawable">@drawable/dark_edit_text_background</item>
         <item name="seekbar">@drawable/dark_seekbar</item>
+        <item name="tag_background">@drawable/dark_tag</item>
+
+        <item name="is_dark_theme">@bool/dark_isDarkTheme</item>
     </style>
 
     <style name="seekbar" parent="android:Widget.ProgressBar.Horizontal">
@@ -111,13 +119,13 @@
     <style name="divider_across">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
-        <item name="android:background">?attr/windowBackground</item>
+        <item name="android:background">?attr/colorDivider</item>
     </style>
 
     <style name="divider_up">
         <item name="android:layout_width">1dp</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:background">?attr/textColorSecondary</item>
+        <item name="android:background">?attr/colorDivider</item>
     </style>
 
 </resources>

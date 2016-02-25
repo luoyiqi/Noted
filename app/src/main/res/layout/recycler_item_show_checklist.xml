@@ -19,16 +19,6 @@
         >
 
         <TextView
-            android:id="@+id/recycler_item_show_checklist_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/size_medium"
-            android:textStyle="bold"
-            android:gravity="center"
-            style="@style/text.huge"
-            />
-
-        <TextView
             android:id="@+id/recycler_item_show_checklist_items"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

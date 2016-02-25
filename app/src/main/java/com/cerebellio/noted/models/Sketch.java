@@ -1,9 +1,13 @@
 package com.cerebellio.noted.models;
 
+import com.cerebellio.noted.utils.TextFunctions;
+
 /**
  * Represents a sketch a user can draw
  */
 public class Sketch extends Item {
+
+    private static final String LOG_TAG = TextFunctions.makeLogTag(Sketch.class);
 
     private String mImagePath;
 
@@ -11,6 +15,7 @@ public class Sketch extends Item {
 
     @Override
     public boolean isEmpty() {
+        //Empty if has not been saved to file
         return mImagePath.equals("");
     }
 

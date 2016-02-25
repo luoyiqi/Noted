@@ -7,5 +7,5 @@ import com.cerebellio.noted.models.Item;
  * has been selected to edit
  */
 public interface IOnItemSelectedToEditListener {
-    void onItemSelected(Item item);
+    void onItemToEdit(Item item);
 }

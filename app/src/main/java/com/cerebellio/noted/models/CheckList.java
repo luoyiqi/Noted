@@ -1,12 +1,16 @@
 package com.cerebellio.noted.models;
 
+import com.cerebellio.noted.utils.TextFunctions;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Sam on 10/02/2016.
+ * Represents a Checklist, which can be populated with completable items
  */
 public class CheckList extends Item {
+
+    private static final String LOG_TAG = TextFunctions.makeLogTag(CheckList.class);
 
     private List<CheckListItem> mItems = new ArrayList<>();
 
@@ -16,7 +20,8 @@ public class CheckList extends Item {
 
     @Override
     public boolean isEmpty() {
-        return mItems.size() == 1 && mTitle.equals("");
+        //Empty if only contains default item
+        return mItems.size() == 1 && mItems.get(0).getContent().trim().equals("");
     }
 
     @Override

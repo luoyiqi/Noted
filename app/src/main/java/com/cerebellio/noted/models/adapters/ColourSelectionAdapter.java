@@ -8,24 +8,22 @@ import android.widget.TextView;
 
 import com.cerebellio.noted.ApplicationNoted;
 import com.cerebellio.noted.R;
+import com.cerebellio.noted.models.events.ColourSelectedEvent;
+import com.cerebellio.noted.utils.TextFunctions;
 
 import java.util.List;
 
 /**
- * Created by Sam on 10/02/2016.
+ * Adapter to display colours
  */
 public class ColourSelectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private static final String LOG_TAG = TextFunctions.makeLogTag(ColourSelectionAdapter.class);
 
     private List<Integer> mColours;
 
     public ColourSelectionAdapter(List<Integer> colours) {
         mColours = colours;
-    }
-
-    @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
-
     }
 
     @Override
@@ -35,6 +33,7 @@ public class ColourSelectionAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
         return new ColourSelectionAdapterViewHolder(
                 LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.recycler_item_colour_selection, parent, false));
@@ -50,13 +49,16 @@ public class ColourSelectionAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         protected TextView mTextColour;
 
         public ColourSelectionAdapterViewHolder(View v) {
+
             super(v);
+
             mTextColour = (TextView) v.findViewById(R.id.recycler_item_colour_selection_colour);
 
             mTextColour.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ApplicationNoted.bus.post(mColours.get(getAdapterPosition()));
+                    ApplicationNoted.bus.post(
+                            new ColourSelectedEvent(mColours.get(getAdapterPosition())));
                 }
             });
         }

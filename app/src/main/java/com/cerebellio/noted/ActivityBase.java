@@ -7,17 +7,21 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
 import com.cerebellio.noted.utils.Constants;
+import com.cerebellio.noted.utils.TextFunctions;
 
 /**
  * Base for Activities, contains commonly used operations
  */
-public class ActivityBase extends AppCompatActivity {
+public abstract class ActivityBase extends AppCompatActivity {
+
+    private static final String LOG_TAG = TextFunctions.makeLogTag(ActivityBase.class);
 
     protected final int TRANSITION_VERTICAL = 0;
     protected final int TRANSITION_HORIZONTAL = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         int themeId = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
                 .getInt(Constants.SHARED_PREFS_THEME_ID, Constants.DEFAULT_THEME_ID);
         setTheme(themeId);

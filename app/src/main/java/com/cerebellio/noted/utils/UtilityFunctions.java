@@ -1,25 +1,13 @@
 package com.cerebellio.noted.utils;
 
 import android.content.Context;
-import android.content.ContextWrapper;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.text.format.DateFormat;
 import android.util.TypedValue;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+import com.cerebellio.noted.views.WrapContentGridLayoutManager;
+
 import java.util.Random;
 
 /**
@@ -27,6 +15,16 @@ import java.util.Random;
  */
 public abstract class UtilityFunctions {
 
+    private static final String LOG_TAG = TextFunctions.makeLogTag(UtilityFunctions.class);
+
+    /**
+     * Sets up a given RecyclerView with a {@link LinearLayoutManager}
+     *
+     * @param context           calling Context
+     * @param recyclerView      RecyclerView to set up
+     * @param adapter           {@link android.support.v7.widget.RecyclerView.Adapter} to assign
+     * @param orientation       {@link LinearLayoutManager#VERTICAL} or {@link LinearLayoutManager#HORIZONTAL}
+     */
     public static void setUpLinearRecycler(Context context, RecyclerView recyclerView,
                                            RecyclerView.Adapter adapter, int orientation) {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
@@ -37,16 +35,32 @@ public abstract class UtilityFunctions {
         recyclerView.setAdapter(adapter);
     }
 
-    public static void setUpGridRecycler(Context context, RecyclerView recyclerView, RecyclerView.Adapter adapter, int columns) {
-        GridLayoutManager gridLayout = new GridLayoutManager(context, columns);
-        gridLayout.setOrientation(LinearLayoutManager.VERTICAL);
+    /**
+     * Sets up a given RecyclerView with a {@link WrapContentGridLayoutManager}
+     *
+     * @param context           calling Context
+     * @param recyclerView      RecyclerView to set up
+     * @param adapter           {@link android.support.v7.widget.RecyclerView.Adapter} to assign
+     * @param columns           number of columns
+     */
+    public static void setUpWrapContentGridRecycler(
+            Context context, RecyclerView recyclerView, RecyclerView.Adapter adapter, int columns) {
+        WrapContentGridLayoutManager gridLayout = new WrapContentGridLayoutManager(context, columns);
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(gridLayout);
         recyclerView.setAdapter(adapter);
     }
 
-    public static void setUpStaggeredGridRecycler(RecyclerView recyclerView, RecyclerView.Adapter adapter, int columns) {
+    /**
+     * Sets up a given RecyclerView with a {@link StaggeredGridLayoutManager}
+     *
+     * @param recyclerView      RecyclerView to set up
+     * @param adapter           {@link android.support.v7.widget.RecyclerView.Adapter} to assign
+     * @param columns           number of columns
+     */
+    public static void setUpStaggeredGridRecycler(
+            RecyclerView recyclerView, RecyclerView.Adapter adapter, int columns) {
         StaggeredGridLayoutManager staggeredLayout = new StaggeredGridLayoutManager(columns, StaggeredGridLayoutManager.VERTICAL);
         staggeredLayout.setOrientation(LinearLayoutManager.VERTICAL);
 
@@ -55,26 +69,19 @@ public abstract class UtilityFunctions {
         recyclerView.setAdapter(adapter);
     }
 
-
-    public static int adjustAlpha(int colour, int alpha) {
-        return Color.argb(alpha,
-                Color.red(colour),
-                Color.green(colour),
-                Color.blue(colour));
-    }
-
-
-    public static String getDateString(long millisSinceUpdate) {
-        return millisSinceUpdate == 0 ? "" : new SimpleDateFormat("dd/MM/yy HH:mm:ss", Locale.getDefault())
-                .format(new Date(millisSinceUpdate));
-    }
-
+    /**
+     * Gets the resource id of an attribute for the current theme
+     *
+     * @param attr              attribute to resolve
+     * @param context           calling Context
+     * @return                  resource id
+     */
     public static int getResIdFromAttribute(final int attr, Context context) {
         if (attr == 0)
             return 0;
-        final TypedValue typedvalueattr = new TypedValue();
-        context.getTheme().resolveAttribute(attr, typedvalueattr, true);
-        return typedvalueattr.resourceId;
+        final TypedValue typedValue = new TypedValue();
+        context.getTheme().resolveAttribute(attr, typedValue, true);
+        return typedValue.resourceId;
     }
 
     /**
@@ -86,39 +93,4 @@ public abstract class UtilityFunctions {
         return fullList[new Random().nextInt(fullList.length)];
     }
 
-    public static Bitmap getBitmapFromFile(String path) {
-        Bitmap bitmap = null;
-
-        try {
-            File f = new File(path);
-            bitmap = BitmapFactory.decodeStream(new FileInputStream(f));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        return bitmap;
-    }
-
-    public static String saveSketchToStorage(Bitmap sketch, Context context) throws IOException {
-        ContextWrapper contextWrapper = new ContextWrapper(context.getApplicationContext());
-        File directory = contextWrapper.getDir("sketches", Context.MODE_PRIVATE);
-        String  fileName = DateFormat.format("MM-dd-yy HH-mm-ss", new Date().getTime()).toString();
-        File path = new File(directory, fileName);
-
-        FileOutputStream fos = null;
-
-        try {
-            fos = new FileOutputStream(path);
-            // Use the compress method on the BitMap object to write image to the OutputStream
-            sketch.compress(Bitmap.CompressFormat.PNG, 100, fos);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (fos != null) {
-                fos.close();
-            }
-        }
-
-        return path.getAbsolutePath();
-    }
 }

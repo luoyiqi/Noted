@@ -4,9 +4,7 @@ import android.content.Context;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -23,6 +21,7 @@ import com.cerebellio.noted.models.Item;
 import com.cerebellio.noted.models.NavDrawerItem;
 import com.cerebellio.noted.models.Note;
 import com.cerebellio.noted.models.Sketch;
+import com.cerebellio.noted.models.events.ItemWithListPositionEvent;
 import com.cerebellio.noted.utils.TextFunctions;
 
 import java.util.ArrayList;
@@ -31,9 +30,11 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Created by Sam on 09/02/2016.
+ * Adapter to display {@link Item}
  */
 public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private static final String LOG_TAG = TextFunctions.makeLogTag(ShowItemsAdapter.class);
 
     private static final int TYPE_NOTE = 0;
     private static final int TYPE_CHECKLIST = 1;
@@ -41,6 +42,10 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     private List<Item> mItems = new ArrayList<>();
     private Context mContext;
+
+    /**
+     * Is item clickable?
+     */
     private boolean mIsEnabled = true;
 
     public enum FilterType {
@@ -50,7 +55,10 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         SKETCH
     }
 
+
+
     public ShowItemsAdapter(Context context, FilterType filterType) {
+
         mContext = context;
         mItems = getFilteredItems(filterType, NavDrawerItem.NavDrawerItemType.PINBOARD);
     }
@@ -62,43 +70,38 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             default:
             case TYPE_NOTE:
                 Note note = (Note) mItems.get(position);
+                ShowNotesAdapterViewHolder notesHolder = ((ShowNotesAdapterViewHolder) holder);
 
-                ((ShowNotesAdapterViewHolder) holder).mLinearLayoutFrame.setBackgroundColor(note.getColour());
-                ((ShowNotesAdapterViewHolder) holder).mTextTitle.setText(note.getTitle());
-                ((ShowNotesAdapterViewHolder) holder).mTextContent.setText(note.getContent());
-
-                if (note.getTitle().equals("")) {
-                    ((ShowNotesAdapterViewHolder) holder).mTextTitle.setVisibility(View.GONE);
-                }
-
-                ((ShowNotesAdapterViewHolder) holder).mCardView.setOnCreateContextMenuListener(new ItemContextMenu(position));
-
+                notesHolder.mLinearLayoutFrame.setBackgroundColor(note.getColour());
+                notesHolder.mTextContent.setText(note.getContent());
                 break;
             case TYPE_CHECKLIST:
                 CheckList checkList = (CheckList) mItems.get(position);
-                ShowChecklistsAdapterViewHolder checklistHolder = (ShowChecklistsAdapterViewHolder) holder;
+                ShowChecklistsAdapterViewHolder checklistHolder =
+                        (ShowChecklistsAdapterViewHolder) holder;
 
                 checklistHolder.mLinearLayoutFrame.setBackgroundColor(checkList.getColour());
-                checklistHolder.mTextTitle.setText(checkList.getTitle());
                 checklistHolder.mTextContent.setText("");
 
-                if (checkList.getTitle().equals("")) {
-                    checklistHolder.mTextTitle.setVisibility(View.GONE);
-                }
-
+                /**
+                 * Loop through every item
+                 * Can't itself be shown in RecyclerView because it would be nested,
+                 * so we display each {@link CheckListItem} on a separate line in a TextView
+                 */
                 for (int i = 0; i < checkList.getItems().size(); i++) {
                     CheckListItem item = checkList.getItems().get(i);
 
-                    //don't draw empty checklist items,
-                    //avoid gap at bottom caused by final entry having to be empty
+                    //Don't draw empty checklist items
                     if (item.isEmpty()) {
                         continue;
                     }
 
+                    //Not first item, so append newline characters
                     if (i != 0) {
                         checklistHolder.mTextContent.append("\n\n");
                     }
 
+                    //Need content to be Spannable so we can strike through it if it is completed
                     SpannableString content = TextFunctions.convertStringToSpannable(item.getContent());
 
                     if (item.isCompleted()) {
@@ -108,21 +111,19 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     checklistHolder.mTextContent.append(content);
                 }
 
-                checklistHolder.mCardView.setOnCreateContextMenuListener(new ItemContextMenu(position));
-
                 break;
             case TYPE_SKETCH:
                 Sketch sketch = (Sketch) mItems.get(position);
                 ImageView sketchView = ((ShowSketchesAdapterViewHolder) holder).mImageSketch;
                 new LazySketchLoader(mContext, sketchView, sketch).execute();
 
-                ((ShowSketchesAdapterViewHolder) holder).mCardView.setOnCreateContextMenuListener(new ItemContextMenu(position));
                 break;
         }
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
         View itemView;
 
         switch (viewType) {
@@ -149,6 +150,8 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     @Override
     public int getItemViewType(int position) {
+
+        //Check type of item so we know which layout to choose
         if (mItems.get(position) instanceof Note) {
             return TYPE_NOTE;
         } else if (mItems.get(position) instanceof CheckList) {
@@ -158,7 +161,16 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
 
+    /**
+     * Gets a list of {@link Item} from the database
+     * with a filter applied
+     *
+     * @param filterType        i.e. only {@link Note} or only {@link CheckList}
+     * @param type              i.e. {@link com.cerebellio.noted.models.NavDrawerItem.NavDrawerItemType#PINBOARD}
+     * @return                  filtered List
+     */
     private List<Item> getFilteredItems(FilterType filterType, NavDrawerItem.NavDrawerItemType type) {
+
         SqlDatabaseHelper sqlDatabaseHelper = new SqlDatabaseHelper(mContext);
 
         List<Item> allItems = new ArrayList<>();
@@ -179,14 +191,15 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 break;
         }
 
-        //Sort Items by LastModifiedDate
+        //Sort Items by Edited Date
         Collections.sort(allItems, new Comparator<Item>() {
             @Override
             public int compare(Item item, Item item2) {
-                return (int) (item2.getLastModifiedDate() - item.getLastModifiedDate());
+                return (int) (item2.getEditedDate() - item.getEditedDate());
             }
         });
 
+        //Avoid showing blank Notes etc.
         for (Item item : allItems) {
             if (!item.isEmpty()) {
                 mItems.add(item);
@@ -198,26 +211,68 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return allItems;
     }
 
+    /**
+     * Publicly accessible method to change
+     * {@link com.cerebellio.noted.models.adapters.ShowItemsAdapter.FilterType} applied
+     *
+     * @param filterType        new filter to apply
+     * @param type              i.e. {@link com.cerebellio.noted.models.NavDrawerItem.NavDrawerItemType#PINBOARD}
+     */
     public void swapFilter(FilterType filterType, NavDrawerItem.NavDrawerItemType type) {
         mItems.clear();
         mItems = getFilteredItems(filterType, type);
         notifyDataSetChanged();
     }
 
+    /**
+     * Allows disabling of items so they cannot be selected
+     *
+     * @param isEnabled     true if items should not be clickable, false otherwise
+     */
     public void setEnabled(boolean isEnabled) {
         mIsEnabled = isEnabled;
     }
 
+    /**
+     * Change the current {@link com.cerebellio.noted.models.NavDrawerItem.NavDrawerItemType}
+     *
+     * @param type      new type
+     */
     public void setItemType(NavDrawerItem.NavDrawerItemType type) {
         mItems.clear();
         mItems = getFilteredItems(FilterType.NONE, type);
         notifyDataSetChanged();
     }
 
+    /**
+     * Replaced Items with given List
+     *
+     * @param items         new List
+     */
     public void replaceItems(List<Item> items) {
         mItems.clear();
         mItems.addAll(items);
         notifyDataSetChanged();
+    }
+
+    /**
+     * Remove an item with the given position
+     *
+     * @param position      position at which to remove item
+     */
+    public void removeItem(int position) {
+        notifyItemRemoved(position);
+    }
+
+    /**
+     * Change the colour of an item
+     *
+     * @param position          position to change
+     * @param newColour         new colour to apply
+     */
+    public void updateItemColour(int position, int newColour) {
+        mItems.get(position).setColour(newColour);
+        notifyItemChanged(position);
     }
 
     public List<Item> getItems() {
@@ -228,15 +283,14 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         protected CardView mCardView;
         protected LinearLayout mLinearLayoutFrame;
-        protected TextView mTextTitle;
         protected TextView mTextContent;
 
         public ShowNotesAdapterViewHolder(View v) {
+
             super(v);
 
             mCardView = (CardView) v.findViewById(R.id.recycler_item_show_notes_card);
             mLinearLayoutFrame = (LinearLayout) v.findViewById(R.id.recycler_item_show_notes_frame);
-            mTextTitle = (TextView) v.findViewById(R.id.recycler_item_show_notes_title);
             mTextContent = (TextView) v.findViewById(R.id.recycler_item_show_notes_content);
 
             mCardView.setOnClickListener(
@@ -244,7 +298,9 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                         @Override
                         public void onClick(View view) {
                             if (mIsEnabled) {
-                                ApplicationNoted.bus.post(mItems.get(getAdapterPosition()));
+                                ApplicationNoted.bus.post(
+                                        new ItemWithListPositionEvent(mItems.get(getAdapterPosition()),
+                                                getAdapterPosition()));
                             }
                         }
                     });
@@ -255,16 +311,15 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         protected CardView mCardView;
         protected LinearLayout mLinearLayoutFrame;
-        protected TextView mTextTitle;
         protected TextView mTextContent;
 
 
         public ShowChecklistsAdapterViewHolder(View v) {
+
             super(v);
 
             mCardView = (CardView) v.findViewById(R.id.recycler_item_show_checklist_card);
             mLinearLayoutFrame = (LinearLayout) v.findViewById(R.id.recycler_item_show_checklist_frame);
-            mTextTitle = (TextView) v.findViewById(R.id.recycler_item_show_checklist_title);
             mTextContent = (TextView) v.findViewById(R.id.recycler_item_show_checklist_items);
 
             mCardView.setOnClickListener(
@@ -272,7 +327,9 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                         @Override
                         public void onClick(View view) {
                             if (mIsEnabled) {
-                                ApplicationNoted.bus.post(mItems.get(getAdapterPosition()));
+                                ApplicationNoted.bus.post(
+                                        new ItemWithListPositionEvent(mItems.get(getAdapterPosition()),
+                                                getAdapterPosition()));
                             }
                         }
                     });
@@ -285,6 +342,7 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         protected ImageView mImageSketch;
 
         public ShowSketchesAdapterViewHolder(View v) {
+
             super(v);
 
             mCardView = (CardView) v.findViewById(R.id.recycler_item_show_sketch_card);
@@ -295,99 +353,12 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                         @Override
                         public void onClick(View view) {
                             if (mIsEnabled) {
-                                ApplicationNoted.bus.post(mItems.get(getAdapterPosition()));
+                                ApplicationNoted.bus.post(
+                                        new ItemWithListPositionEvent(mItems.get(getAdapterPosition()),
+                                                getAdapterPosition()));
                             }
                         }
                     });
-        }
-    }
-
-    private class ItemContextMenu implements View.OnCreateContextMenuListener {
-
-        private int mPosition;
-
-        public ItemContextMenu(int position) {
-            mPosition = position;
-        }
-
-        @Override
-        public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
-            final int ID_ARCHIVE = 0;
-            final int ID_UNARCHIVE = 1;
-            final int ID_TRASH = 2;
-            final int ID_UNTRASH = 3;
-            final int ID_DELETE = 4;
-
-            MenuItem archive = contextMenu.add(0, ID_ARCHIVE, 0, mContext.getString(R.string.context_menu_archive));
-            MenuItem unarchive = contextMenu.add(0, ID_UNARCHIVE, 0, mContext.getString(R.string.context_menu_unarchive));
-            MenuItem trash = contextMenu.add(0, ID_TRASH, 0, mContext.getString(R.string.context_menu_trash));
-            MenuItem untrash = contextMenu.add(0, ID_UNTRASH, 0, mContext.getString(R.string.context_menu_remove_trash));
-            MenuItem delete = contextMenu.add(0, ID_DELETE, 0, mContext.getString(R.string.context_menu_delete));
-
-            switch (mItems.get(mPosition).getStatus()) {
-                default:
-                case NONE:
-                    contextMenu.removeItem(ID_UNARCHIVE);
-                    contextMenu.removeItem(ID_UNTRASH);
-                    contextMenu.removeItem(ID_DELETE);
-                    break;
-                case ARCHIVED:
-                    contextMenu.removeItem(ID_ARCHIVE);
-                    contextMenu.removeItem(ID_UNTRASH);
-                    contextMenu.removeItem(ID_DELETE);
-                    break;
-                case TRASHED:
-                    contextMenu.removeItem(ID_UNARCHIVE);
-                    contextMenu.removeItem(ID_TRASH);
-                    break;
-                case DELETED:
-                    break;
-            }
-
-            archive.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem menuItem) {
-                    mItems.get(mPosition).setStatus(Item.Status.ARCHIVED);
-                    notifyItemRemoved(mPosition);
-                    return false;
-                }
-            });
-
-            unarchive.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem menuItem) {
-                    mItems.get(mPosition).setStatus(Item.Status.NONE);
-                    notifyItemRemoved(mPosition);
-                    return false;
-                }
-            });
-
-            trash.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem menuItem) {
-                    mItems.get(mPosition).setStatus(Item.Status.TRASHED);
-                    notifyItemRemoved(mPosition);
-                    return false;
-                }
-            });
-
-            untrash.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem menuItem) {
-                    mItems.get(mPosition).setStatus(Item.Status.NONE);
-                    notifyItemRemoved(mPosition);
-                    return false;
-                }
-            });
-
-            delete.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem menuItem) {
-                    mItems.get(mPosition).setStatus(Item.Status.DELETED);
-                    notifyItemRemoved(mPosition);
-                    return false;
-                }
-            });
         }
     }
 }

@@ -12,6 +12,8 @@ import android.widget.TextView;
 import com.cerebellio.noted.ApplicationNoted;
 import com.cerebellio.noted.R;
 import com.cerebellio.noted.models.NavDrawerItem;
+import com.cerebellio.noted.models.events.NavDrawerItemTypeSelectedEvent;
+import com.cerebellio.noted.utils.TextFunctions;
 import com.cerebellio.noted.utils.UtilityFunctions;
 import com.cerebellio.noted.views.FilteredIconView;
 
@@ -19,9 +21,11 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created by Sam on 11/02/2016.
+ * Adapter to display {@link NavDrawerItem}
  */
 public class NavDrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private static final String LOG_TAG = TextFunctions.makeLogTag(NavDrawerAdapter.class);
 
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_ITEM = 1;
@@ -30,6 +34,7 @@ public class NavDrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private NavDrawerItem.NavDrawerItemType mCurrentlyHighlighted = NavDrawerItem.NavDrawerItemType.PINBOARD;
     private Context mContext;
 
+    //Items marked with these types can be selected
     private static final NavDrawerItem.NavDrawerItemType[] HIGHLIGHTABLE_TYPES = {
             NavDrawerItem.NavDrawerItemType.PINBOARD,
             NavDrawerItem.NavDrawerItemType.ARCHIVE,
@@ -37,17 +42,21 @@ public class NavDrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     };
 
     public NavDrawerAdapter(List<NavDrawerItem> items, Context context) {
+
         mItems = items;
         mContext = context;
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+
         switch (getItemViewType(position)) {
             case TYPE_HEADER:
-
+                //Static layout for header so no code needed
                 break;
             case TYPE_ITEM:
+
+                //Account for header
                 NavDrawerItem item = mItems.get(position - 1);
 
                 ((NavDrawerAdapterViewHolder) holder).mTextTitle.setText(item.getTitle());
@@ -56,22 +65,28 @@ public class NavDrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 ((NavDrawerAdapterViewHolder) holder).mDivider.setVisibility(item.isDividerNeeded() ? View.VISIBLE : View.GONE);
 
                 if (item.getType().equals(mCurrentlyHighlighted)) {
+
+                    //This item needs to be highlighted
                     ((NavDrawerAdapterViewHolder) holder).mTextTitle.setTextColor(
                             ContextCompat.getColor(mContext, UtilityFunctions.getResIdFromAttribute(R.attr.colorPrimary, mContext)));
                     ((NavDrawerAdapterViewHolder) holder).mImageIcon.setFilter(
                             ContextCompat.getColor(mContext,
                                     UtilityFunctions.getResIdFromAttribute(R.attr.colorPrimary, mContext)));
                 } else {
+
+                    //This item doesn't need to be highlighted
                     ((NavDrawerAdapterViewHolder) holder).mTextTitle.setTextColor(
                             ContextCompat.getColor(mContext, UtilityFunctions.getResIdFromAttribute(R.attr.textColorTertiary, mContext)));
                     ((NavDrawerAdapterViewHolder) holder).mImageIcon.setFilterToDefault();
                  }
+
                 break;
         }
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
         switch (viewType) {
             case TYPE_HEADER:
                 return new NavDrawerAdapterViewHolder(
@@ -92,6 +107,7 @@ public class NavDrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     @Override
     public int getItemViewType(int position) {
+        //First item is the header
         return position == 0 ? TYPE_HEADER : TYPE_ITEM;
     }
 
@@ -103,11 +119,11 @@ public class NavDrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         protected TextView mTextTitle;
 
         public NavDrawerAdapterViewHolder(View v, int viewType) {
+
             super(v);
 
-            if (viewType == TYPE_HEADER) {
+            if (viewType == TYPE_ITEM) {
 
-            } else {
                 mContainer = (LinearLayout) v.findViewById(R.id.recycler_item_nav_drawer_container);
                 mDivider = v.findViewById(R.id.recycler_item_nav_drawer_divider);
                 mImageIcon = (FilteredIconView) v.findViewById(R.id.recycler_item_nav_drawer_icon);
@@ -117,11 +133,13 @@ public class NavDrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     @Override
                     public void onClick(View view) {
 
-                        //offset for header
+                        //Offset for header
                         NavDrawerItem.NavDrawerItemType type = mItems.get(getAdapterPosition() - 1).getType();
-                        ApplicationNoted.bus.post(type);
 
-                        //check if type selected is highlight-able
+                        //Post type to event bus
+                        ApplicationNoted.bus.post(new NavDrawerItemTypeSelectedEvent(type));
+
+                        //Check if type selected is highlight-able
                         //i.e. it should be highlighted as current view in nav drawer
                         if (Arrays.asList(HIGHLIGHTABLE_TYPES).contains(type)) {
                             mCurrentlyHighlighted = type;

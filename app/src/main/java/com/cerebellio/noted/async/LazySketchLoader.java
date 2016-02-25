@@ -11,12 +11,15 @@ import android.os.AsyncTask;
 import android.widget.ImageView;
 
 import com.cerebellio.noted.models.Sketch;
-import com.cerebellio.noted.utils.UtilityFunctions;
+import com.cerebellio.noted.utils.FileFunctions;
+import com.cerebellio.noted.utils.TextFunctions;
 
 /**
  * Loads a {@link Sketch} bitmap off the UI thread and inserts into the ImageView once loaded
  */
 public class LazySketchLoader extends AsyncTask<Object, Void, Bitmap> {
+
+    private static final String LOG_TAG = TextFunctions.makeLogTag(LazySketchLoader.class);
 
     private Context mContext;
     private ImageView mTarget;
@@ -31,7 +34,7 @@ public class LazySketchLoader extends AsyncTask<Object, Void, Bitmap> {
 
     @Override
     protected Bitmap doInBackground(Object... objects) {
-        return UtilityFunctions.getBitmapFromFile(mSketch.getImagePath());
+        return FileFunctions.getBitmapFromFile(mSketch.getImagePath());
     }
 
     @Override

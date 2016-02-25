@@ -9,6 +9,11 @@
     <string name="nav_drawer_trash">Trash</string>
     <string name="nav_drawer_settings">Settings</string>
 
+    <string name="menu_filter_none">#nofilter</string>
+    <string name="menu_filter_note">Note</string>
+    <string name="menu_filter_checklist">Checklist</string>
+    <string name="menu_filter_sketch">Sketch</string>
+
     <string name="context_menu_archive">Archive</string>
     <string name="context_menu_unarchive">Unarchive</string>
     <string name="context_menu_delete">Delete</string>
@@ -17,11 +22,13 @@
 
     <string name="edit_text_title_hint">Title</string>
     <string name="edit_text_content_hint">Content</string>
-    <string name="edit_text_content_new_item">New item</string>
+    <string name="edit_text_content_new_item">+ New item</string>
 
     <string name="fab_create_note">New note</string>
     <string name="fab_create_checklist">New checklist</string>
     <string name="fab_create_sketch">New sketch</string>
+
+    <string name="tag_new">+ New tag</string>
 
     <string name="popup_stroke_thickness">Thickness</string>
     <string name="popup_stroke_opacity">Opacity</string>
@@ -34,5 +41,15 @@
     <string name="settings_title_theme">Theme</string>
     <string name="settings_theme_summary_light">Light</string>
     <string name="settings_theme_summary_dark">Dark</string>
+
+    <string name="search_hint">Search items</string>
+
+    <string name="dialog_save">Save</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_edit">Edit</string>
+    <string name="dialog_item_focus_add_tags">Add tags</string>
+    <string name="dialog_item_focus_edit_content">Edit content</string>
+    <string name="dialog_delete">Delete</string>
+    <string name="hint_tag">Tag</string>
 
 </resources>

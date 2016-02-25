@@ -14,23 +14,44 @@
         android:id="@+id/dialog_add_tag_add_tag"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Tag"
+        android:hint="@string/hint_tag"
         android:singleLine="true"
         android:textColor="?attr/textColorTertiary"
         />
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/size_medium"
-        android:orientation="horizontal"
-        android:gravity="right|center"
         >
+
+        <TextView
+            android:id="@+id/dialog_add_tag_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:textColor="@color/md_red_700"
+            android:textAllCaps="true"
+            android:text="@string/dialog_delete"
+            style="@style/text.medium"
+            />
+
+        <TextView
+            android:id="@+id/dialog_add_tag_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:textColor="?attr/colorAccent"
+            android:textAllCaps="true"
+            android:text="@string/dialog_save"
+            style="@style/text.medium"
+            />
 
         <TextView
             android:id="@+id/dialog_add_tag_cancel"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/dialog_add_tag_save"
             android:layout_marginRight="@dimen/size_medium"
             android:textColor="?attr/colorAccent"
             android:textAllCaps="true"
@@ -38,17 +59,6 @@
             style="@style/text.medium"
             />
 
-
-        <TextView
-            android:id="@+id/dialog_add_tag_save"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textColor="?attr/colorAccent"
-            android:textAllCaps="true"
-            android:text="@string/dialog_save"
-            style="@style/text.medium"
-            />
-
-    </LinearLayout>
+    </RelativeLayout>
 
 </LinearLayout>

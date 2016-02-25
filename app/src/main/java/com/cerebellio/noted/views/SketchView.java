@@ -12,6 +12,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.cerebellio.noted.models.listeners.IOnSketchActionListener;
+import com.cerebellio.noted.utils.TextFunctions;
 
 import java.util.Stack;
 
@@ -20,7 +21,10 @@ import java.util.Stack;
  */
 public class SketchView extends View {
 
+    private static final String LOG_TAG = TextFunctions.makeLogTag(SketchView.class);
+
     private static final int INITIAL_STROKE_SIZE = 30;
+    private static final int DEFAULT_COLOUR = Color.WHITE;
 
     private Path mDrawPath;
     private Paint mDrawPaint;
@@ -42,18 +46,6 @@ public class SketchView extends View {
     public SketchView(Context context, AttributeSet attrs){
         super(context, attrs);
         setupDrawing();
-    }
-
-    private void setupDrawing(){
-        mDrawPath = new Path();
-        mDrawPaint = new Paint();
-
-        mDrawPaint.setColor(mPaintColour);
-        mDrawPaint.setAntiAlias(true);
-        mDrawPaint.setStrokeWidth(INITIAL_STROKE_SIZE);
-        mDrawPaint.setStyle(Paint.Style.STROKE);
-        mDrawPaint.setStrokeJoin(Paint.Join.ROUND);
-        mDrawPaint.setStrokeCap(Paint.Cap.ROUND);
     }
 
     @Override
@@ -78,6 +70,8 @@ public class SketchView extends View {
             canvas.drawBitmap(mCanvasBitmap, 0, 0, null);
         }
 
+        //Cycle through all paths and draw them to canvas
+        //TODO efficiency needs massively improving
         for (Pair<Path, Paint> path : mPaths) {
             canvas.drawPath(path.first, path.second);
         }
@@ -91,33 +85,49 @@ public class SketchView extends View {
         float touchY = event.getY();
 
         if (mStrokeType.equals(StrokeType.ERASER)) {
-            mDrawPaint.setColor(Color.WHITE);
+            mDrawPaint.setColor(DEFAULT_COLOUR);
         } else {
             mDrawPaint.setColor(mPaintColour);
         }
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+
                 mDrawPath.reset();
                 Paint paint = new Paint(mDrawPaint);
+
+                //Push new Path/Paint set to stack
                 mPaths.push(new Pair<>(mDrawPath, paint));
+
                 mDrawPath.reset();
+
                 mDrawPath.moveTo(touchX, touchY);
+
                 mX = touchX;
                 mY = touchY;
+
                 invalidate();
                 break;
             case MotionEvent.ACTION_MOVE:
+
+                //Draw bezier across finger path
                 mDrawPath.quadTo(mX, mY, (touchX + mX) / 2, (touchY + mY) / 2);
+
                 mX = touchX;
                 mY = touchY;
+
                 invalidate();
                 break;
             case MotionEvent.ACTION_UP:
+
+
                 mDrawPath.lineTo(mX, mY);
                 Paint newPaint = new Paint(mDrawPaint);
+
+                //Push stroke Pair to stack
                 mPaths.push(new Pair<>(mDrawPath, newPaint));
                 mDrawPath = new Path();
+
                 invalidate();
                 break;
             default:
@@ -125,6 +135,24 @@ public class SketchView extends View {
         return true;
     }
 
+    /**
+     * Initialise key variables
+     */
+    private void setupDrawing(){
+        mDrawPath = new Path();
+        mDrawPaint = new Paint();
+
+        mDrawPaint.setColor(mPaintColour);
+        mDrawPaint.setAntiAlias(true);
+        mDrawPaint.setStrokeWidth(INITIAL_STROKE_SIZE);
+        mDrawPaint.setStyle(Paint.Style.STROKE);
+        mDrawPaint.setStrokeJoin(Paint.Join.ROUND);
+        mDrawPaint.setStrokeCap(Paint.Cap.ROUND);
+    }
+
+    /**
+     * Undo previous action on stack
+     */
     public void undoAction() {
         if (mPaths.size() > 1) {
             //remove move path
@@ -137,6 +165,9 @@ public class SketchView extends View {
         }
     }
 
+    /**
+     * Redo previous action on stack
+     */
     public void redoAction() {
         if (mUndonePaths.size() > 0) {
             mPaths.push(mUndonePaths.pop());
@@ -145,18 +176,35 @@ public class SketchView extends View {
         }
     }
 
+    /**
+     *
+     * @return      true if undo is possible, false otherwise
+     */
     public boolean isUndoAvailable() {
         return mPaths.size() > 1;
     }
 
+    /**
+     *
+     * @return      true if redo is possible, false otherwise
+     */
     public boolean isRedoAvailable() {
         return mUndonePaths.size() > 0;
     }
 
+    /**
+     *
+     * @return      true if a stroke has been made without been undone
+     */
     public boolean hasChangeBeenMade() {
         return mPaths.size() > 0;
     }
 
+    /**
+     * Set current bitmap
+     *
+     * @param canvasBitmap          new Bitmap to display
+     */
     public void setCanvasBitmap(Bitmap canvasBitmap) {
         if (!canvasBitmap.isMutable()) {
             canvasBitmap = canvasBitmap.copy(Bitmap.Config.ARGB_8888, true);
@@ -164,6 +212,11 @@ public class SketchView extends View {
         mCanvasBitmap = canvasBitmap;
     }
 
+    /**
+     * Set stroke colour
+     *
+     * @param colour        new colour
+     */
     public void setColour(int colour) {
         invalidate();
         mPaintColour = colour;

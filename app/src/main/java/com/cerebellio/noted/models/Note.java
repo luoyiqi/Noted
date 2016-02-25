@@ -1,19 +1,23 @@
 package com.cerebellio.noted.models;
 
+import com.cerebellio.noted.utils.TextFunctions;
+
 /**
- * Created by Sam on 08/02/2016.
+ * Represents a text note
  */
 public class Note extends Item {
 
-    private String mContent;
+    private static final String LOG_TAG = TextFunctions.makeLogTag(Note.class);
 
+    private String mContent;
 
     public Note() {
     }
 
     @Override
     public boolean isEmpty() {
-        return mTitle.equals("") && mContent.equals("");
+        //Empty if only contains spaces or nothing
+        return mContent.trim().equals("");
     }
 
     @Override

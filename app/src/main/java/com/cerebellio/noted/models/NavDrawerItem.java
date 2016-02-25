@@ -1,9 +1,13 @@
 package com.cerebellio.noted.models;
 
+import com.cerebellio.noted.utils.TextFunctions;
+
 /**
- * Created by Sam on 11/02/2016.
+ * Represents an item in the navigation drawer
  */
 public class NavDrawerItem {
+
+    private static final String LOG_TAG = TextFunctions.makeLogTag(NavDrawerItem.class);
 
     private int mIconId;
     private boolean mIsDividerNeeded;
@@ -19,6 +23,7 @@ public class NavDrawerItem {
     }
 
     public NavDrawerItem(String title, int iconId, boolean isDividerNeeded, NavDrawerItemType type) {
+
         mTitle = title;
         mIconId = iconId;
         mIsDividerNeeded = isDividerNeeded;

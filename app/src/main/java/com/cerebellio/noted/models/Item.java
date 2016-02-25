@@ -1,27 +1,28 @@
 package com.cerebellio.noted.models;
 
 import com.cerebellio.noted.utils.Constants;
+import com.cerebellio.noted.utils.TextFunctions;
 import com.cerebellio.noted.utils.UtilityFunctions;
 
+import java.util.List;
+
 /**
- * Created by Sam on 10/02/2016.
+ * Represents an abstract item
  */
 public abstract class Item {
 
-    protected String mTitle;
+    private static final String LOG_TAG = TextFunctions.makeLogTag(Item.class);
 
-    /**
-     * Comma seperated list of tags
-     */
-    protected String mTagString;
+    public static final String TAG_STRING_SEPARATOR = ",";
+
+    protected List<String> mTagList;
+    protected Status mStatus = Status.PINBOARD;
 
     protected long mId;
     protected int mColour = UtilityFunctions.getRandomIntegerFromArray(Constants.COLOURS);
     protected long mCreatedDate;
-    protected long mLastModifiedDate;
+    protected long mEditedDate;
     protected boolean mIsImportant;
-
-    protected Status mStatus = Status.NONE;
 
     public enum Type {
         NOTE,
@@ -31,30 +32,115 @@ public abstract class Item {
     }
 
     public enum Status {
-        NONE,
+        PINBOARD,
         TRASHED,
         ARCHIVED,
         DELETED
     }
 
-    public void appendToTagString(String newTag) {
-        if (!mTagString.equals("")) {
-            mTagString += ",";
-        }
-        mTagString += newTag;
-    }
-
+    /**
+     *
+     * @return {@link com.cerebellio.noted.models.Item.Type}
+     */
     public abstract Type getItemType();
 
-    public String getTitle() {
-        return mTitle;
-    }
-
+    /**
+     * Check whether given {@link Item} is considered empty
+     * @return              true if empty, false otherwise
+     */
     public abstract boolean isEmpty();
 
-    public void setTitle(String title) {
-        mTitle = title;
+    /**
+     * Delete a tag
+     * @param tag       tag to delete
+     */
+    public void deleteTag(String tag) {
+        mTagList.remove(mTagList.indexOf(tag.trim()));
     }
+
+    /**
+     * Add a tag
+     * @param newTag    tag to add
+     */
+    public void addTag(String newTag) {
+
+        //Don't add empty string
+        if (newTag.trim().equals("")) {
+            return;
+        }
+
+        //Add tag if it doesn't already exist
+        if (!isTagExisting(newTag.trim())) {
+            mTagList.add(newTag.trim());
+        }
+    }
+
+    /**
+     * Edit tag
+     * @param originalTag       tag before editing
+     * @param newTag            tag after editing
+     */
+    public void editTag(String originalTag, String newTag) {
+
+        if (newTag.trim().equals("")) {
+            deleteTag(originalTag.trim());
+        } else {
+            mTagList.set(mTagList.indexOf(originalTag.trim()), newTag.trim());
+        }
+
+    }
+
+    /**
+     * Checks whether {@link Item} is already tagged with this tag
+     * @param tag           tag to check
+     * @return              true if tag is already present
+     */
+    public boolean isTagExisting(String tag) {
+        return mTagList.contains(tag.trim());
+    }
+
+    /**
+     *
+     * @return          true if {@link Item} is possible to trash
+     */
+    public boolean canBeTrashed() {
+        return mStatus.equals(Status.PINBOARD) || mStatus.equals(Status.ARCHIVED);
+    }
+
+    /**
+     *
+     * @return          true if {@link Item} is possible to delete
+     */
+    public boolean canBeDeleted() {
+        return mStatus.equals(Status.TRASHED);
+    }
+
+    /**
+     *
+     * @return          true if {@link Item} is possible to archive
+     */
+    public boolean canBeArchived() {
+        return mStatus.equals(Status.PINBOARD) || mStatus.equals(Status.TRASHED);
+    }
+
+    /**
+     *
+     * @return          true if {@link Item} is possible to pinboarded
+     */
+    public boolean canBePinboarded() {
+        return mStatus.equals(Status.ARCHIVED) || mStatus.equals(Status.TRASHED);
+    }
+
+    /**
+     *
+     * @return          true if no tags are set
+     */
+    public boolean areTagsEmpty() {
+        return mTagList.isEmpty();
+    }
+
+
+
 
     public long getId() {
         return mId;
@@ -72,12 +158,12 @@ public abstract class Item {
         mCreatedDate = createdDate;
     }
 
-    public long getLastModifiedDate() {
-        return mLastModifiedDate;
+    public long getEditedDate() {
+        return mEditedDate;
     }
 
-    public void setLastModifiedDate(long lastModifiedDate) {
-        mLastModifiedDate = lastModifiedDate;
+    public void setEditedDate(long editedDate) {
+        mEditedDate = editedDate;
     }
 
     public int getColour() {
@@ -104,11 +190,15 @@ public abstract class Item {
         mStatus = status;
     }
 
-    public String getTagString() {
-        return mTagString;
+    public String getRawTagString() {
+        return TextFunctions.listToSeparatedString(mTagList, TAG_STRING_SEPARATOR, false);
     }
 
-    public void setTagString(String tagString) {
-        mTagString = tagString;
+    public String getFormattedTagString() {
+        return TextFunctions.listToSeparatedString(mTagList, TAG_STRING_SEPARATOR, true);
+    }
+
+    public void setTagString(String string) {
+        mTagList = TextFunctions.splitStringToList(string, TAG_STRING_SEPARATOR);
     }
 }

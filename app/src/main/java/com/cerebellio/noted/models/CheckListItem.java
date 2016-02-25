@@ -1,14 +1,19 @@
 package com.cerebellio.noted.models;
 
+import com.cerebellio.noted.utils.TextFunctions;
+
 /**
- * Created by Sam on 10/02/2016.
+ * Represents a single item in a {@link CheckList}
  */
 public class CheckListItem extends Item {
+
+    private static final String LOG_TAG = TextFunctions.makeLogTag(CheckListItem.class);
 
     private String mContent = "";
 
     private long mChecklistId;
     private boolean mIsCompleted = false;
+    private int mIndex;
 
     public CheckListItem() {}
 
@@ -18,6 +23,7 @@ public class CheckListItem extends Item {
 
     @Override
     public boolean isEmpty() {
+        //Empty if not completed and only contains default text
         return !mIsCompleted && mContent.equals("");
     }
 
@@ -48,5 +54,13 @@ public class CheckListItem extends Item {
 
     public void setIsCompleted(boolean isCompleted) {
         mIsCompleted = isCompleted;
+    }
+
+    public int getIndex() {
+        return mIndex;
+    }
+
+    public void setIndex(int index) {
+        mIndex = index;
     }
 }

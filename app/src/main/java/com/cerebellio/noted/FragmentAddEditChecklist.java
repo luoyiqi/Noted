@@ -13,10 +13,12 @@ import com.cerebellio.noted.database.SqlDatabaseHelper;
 import com.cerebellio.noted.models.CheckList;
 import com.cerebellio.noted.models.Item;
 import com.cerebellio.noted.models.adapters.ChecklistItemsAdapter;
+import com.cerebellio.noted.models.events.ChecklistItemEditedEvent;
 import com.cerebellio.noted.models.listeners.IOnColourSelectedListener;
 import com.cerebellio.noted.utils.Constants;
+import com.cerebellio.noted.utils.TextFunctions;
 import com.cerebellio.noted.utils.UtilityFunctions;
-import com.rengwuxian.materialedittext.MaterialEditText;
+import com.squareup.otto.Subscribe;
 
 import java.util.Date;
 
@@ -24,27 +26,26 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 /**
- * Created by Sam on 09/02/2016.
+ * Allows user to add new {@link CheckList} or edit an existing one
  */
 public class FragmentAddEditChecklist extends Fragment implements IOnColourSelectedListener {
 
-    @InjectView(R.id.fragment_add_edit_checklist_title) MaterialEditText mEditTitle;
     @InjectView(R.id.fragment_add_edit_checklist_items_recycler) RecyclerView mRecycler;
+
+    private static final String LOG_TAG = TextFunctions.makeLogTag(FragmentAddEditChecklist.class);
 
     private CheckList mCheckList;
     private SqlDatabaseHelper mSqlDatabaseHelper;
-
-    private boolean mIsInEditMode;
     private ChecklistItemsAdapter mAdapter;
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
+    private boolean mIsInEditMode;
+    //If user makes a change, this flag is set to true
+    private boolean mHasBeenEdited = false;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
+
         View rootView = inflater.inflate(R.layout.fragment_add_edit_checklist, container, false);
         ButterKnife.inject(this, rootView);
 
@@ -52,36 +53,20 @@ public class FragmentAddEditChecklist extends Fragment implements IOnColourSelec
 
         initChecklist();
 
-        //scroll to end of list
+        //Scroll to end of list so user can conveniently enter new item
         mRecycler.smoothScrollToPosition(mAdapter.getItemCount());
-
-        FragmentCreationModifiedDates fragmentCreationModifiedDates = new FragmentCreationModifiedDates();
-        Bundle bundleDates = new Bundle();
-        bundleDates.putLong(Constants.BUNDLE_ITEM_ID_FOR_DATES_FRAGMENT, mCheckList.getId());
-        bundleDates.putSerializable(Constants.BUNDLE_ITEM_TYPE_FOR_DATES_FRAGMENT, Item.Type.CHECKLIST);
-        fragmentCreationModifiedDates.setArguments(bundleDates);
-
-        FragmentColourSelection fragmentColourSelection = new FragmentColourSelection();
-        Bundle bundle = new Bundle();
-        bundle.putInt(Constants.BUNDLE_CURRENT_COLOUR, mCheckList.getColour());
-        fragmentColourSelection.setArguments(bundle);
-
-        getChildFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_add_edit_checklist_colour_selection_frame, fragmentColourSelection)
-                .replace(R.id.fragment_add_edit_checklist_dates_frame, fragmentCreationModifiedDates)
-                .commit();
 
         return rootView;
     }
 
     @Override
     public void onPause() {
+
         super.onPause();
 
-        mCheckList.setTitle(mEditTitle.getText().toString());
-
-        mCheckList.setLastModifiedDate(new Date().getTime());
+        if (mHasBeenEdited) {
+            mCheckList.setEditedDate(new Date().getTime());
+        }
 
         if (mCheckList.isEmpty()) {
             mCheckList.setStatus(Item.Status.DELETED);
@@ -97,19 +82,31 @@ public class FragmentAddEditChecklist extends Fragment implements IOnColourSelec
         mCheckList.setColour(colour);
     }
 
+    @Subscribe
+    public void receiveEvent(ChecklistItemEditedEvent event) {
+        mHasBeenEdited = true;
+    }
+
+    /**
+     * Carries out initialisation of {@link #mCheckList}
+     * If we're editing, retrieves it from database.
+     * If we're adding, insert new {@link CheckList} into database
+     */
     private void initChecklist() {
+
         mSqlDatabaseHelper = new SqlDatabaseHelper(getActivity());
 
         if (mIsInEditMode) {
+
+            //Retrieve Checklist from database
             mCheckList = (CheckList) mSqlDatabaseHelper.getItemById(
                     getArguments().getLong(Constants.BUNDLE_ITEM_TO_EDIT_ID), Item.Type.CHECKLIST);
-            mEditTitle.setText(mCheckList.getTitle());
         } else {
+
+            //Create new Checklist
             mCheckList = (CheckList) mSqlDatabaseHelper.getItemById(
                     mSqlDatabaseHelper.addBlankChecklist(), Item.Type.CHECKLIST);
         }
-
-        mSqlDatabaseHelper.closeDB();
 
         mAdapter = new ChecklistItemsAdapter(mCheckList);
         UtilityFunctions.setUpLinearRecycler(getActivity(), mRecycler,
@@ -118,14 +115,13 @@ public class FragmentAddEditChecklist extends Fragment implements IOnColourSelec
         mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeRemoved(int positionStart, int itemCount) {
-                SqlDatabaseHelper sqlDatabaseHelper = new SqlDatabaseHelper(getActivity());
 
                 for (int i = positionStart; i < positionStart + itemCount; i++) {
-                    sqlDatabaseHelper.addOrEditItem(mAdapter.getItems().get(i));
+
+                    //Item has been removed, notify database
+                    mSqlDatabaseHelper.addOrEditItem(mAdapter.getItems().get(i));
                     mAdapter.getItems().remove(i);
                 }
-
-                sqlDatabaseHelper.closeDB();
 
                 super.onItemRangeRemoved(positionStart, itemCount);
             }
@@ -134,6 +130,7 @@ public class FragmentAddEditChecklist extends Fragment implements IOnColourSelec
         mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
+
                 mRecycler.scrollToPosition(positionStart);
                 super.onItemRangeInserted(positionStart, itemCount);
             }

@@ -25,8 +25,10 @@ import com.cerebellio.noted.models.Item;
 import com.cerebellio.noted.models.Sketch;
 import com.cerebellio.noted.models.listeners.IOnColourSelectedListener;
 import com.cerebellio.noted.models.listeners.IOnSketchActionListener;
+import com.cerebellio.noted.utils.ColourFunctions;
 import com.cerebellio.noted.utils.Constants;
-import com.cerebellio.noted.utils.UtilityFunctions;
+import com.cerebellio.noted.utils.FileFunctions;
+import com.cerebellio.noted.utils.TextFunctions;
 import com.cerebellio.noted.views.SketchView;
 
 import java.io.IOException;
@@ -42,14 +44,13 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
          IOnSketchActionListener{
 
     @InjectView(R.id.fragment_add_edit_sketch_sketchview) SketchView mSketchView;
-    @InjectView(R.id.fragment_add_edit_sketch_title) TextView mTextTitle;
     @InjectView(R.id.fragment_add_edit_sketch_colour) TextView mTextColour;
     @InjectView(R.id.fragment_add_edit_sketch_paintbrush) ImageView mPaintbrush;
     @InjectView(R.id.fragment_add_edit_sketch_eraser) ImageView mEraser;
     @InjectView(R.id.fragment_add_edit_sketch_undo) ImageView mUndo;
     @InjectView(R.id.fragment_add_edit_sketch_redo) ImageView mRedo;
 
-    private static final String LOG_TAG = FragmentAddEditSketch.class.getSimpleName();
+    private static final String LOG_TAG = TextFunctions.makeLogTag(FragmentAddEditSketch.class);
 
     private static final int POPUP_PAINT = 0;
     private static final int POPUP_ERASER = 1;
@@ -57,6 +58,7 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
     private Sketch mSketch = new Sketch();
     private SqlDatabaseHelper mSqlDatabaseHelper;
 
+    //Current alpha value as provided by popup
     private int mAlpha;
     private boolean mIsInEditMode;
 
@@ -73,19 +75,8 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
 
         mAlpha = Color.alpha(mSketch.getColour());
 
-        FragmentCreationModifiedDates fragmentCreationModifiedDates = new FragmentCreationModifiedDates();
-        Bundle bundleDates = new Bundle();
-        bundleDates.putLong(Constants.BUNDLE_ITEM_ID_FOR_DATES_FRAGMENT, mSketch.getId());
-        bundleDates.putSerializable(Constants.BUNDLE_ITEM_TYPE_FOR_DATES_FRAGMENT, Item.Type.SKETCH);
-        fragmentCreationModifiedDates.setArguments(bundleDates);
-
-        getChildFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_add_edit_sketch_dates_frame, fragmentCreationModifiedDates)
-                .commit();
-
+        //Set colour selection View to current colour
         mTextColour.setBackgroundColor(mSketch.getColour());
-
         mTextColour.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -96,11 +87,14 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
         mPaintbrush.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 if (mSketchView.getStrokeType().equals(SketchView.StrokeType.STROKE)) {
+
                     showPopup(view, POPUP_PAINT);
                 } else {
+
                     mSketchView.setStrokeType(SketchView.StrokeType.STROKE);
-                    switchStrokeTypeViews(SketchView.StrokeType.STROKE);
+                    toggleStrokeTypeViews(SketchView.StrokeType.STROKE);
                 }
             }
         });
@@ -108,11 +102,14 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
         mEraser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 if (mSketchView.getStrokeType().equals(SketchView.StrokeType.ERASER)) {
+
                     showPopup(view, POPUP_ERASER);
                 } else {
+
                     mSketchView.setStrokeType(SketchView.StrokeType.ERASER);
-                    switchStrokeTypeViews(SketchView.StrokeType.ERASER);
+                    toggleStrokeTypeViews(SketchView.StrokeType.ERASER);
                 }
             }
         });
@@ -123,7 +120,6 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
                 mSketchView.undoAction();
             }
         });
-
         mRedo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -131,29 +127,31 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
             }
         });
 
-        switchStrokeTypeViews(mSketchView.getStrokeType());
+        toggleStrokeTypeViews(mSketchView.getStrokeType());
 
         return rootView;
     }
 
     @Override
     public void onPause() {
+
         super.onPause();
 
-        if (mSketchView.hasChangeBeenMade()) {
-            mSketch.setLastModifiedDate(new Date().getTime());
-        }
+        if (!mSketchView.hasChangeBeenMade() && mSketch.isEmpty()) {
 
-        mSketch.setTitle(mTextTitle.getText().toString());
-
-        try {
-            mSketch.setImagePath(UtilityFunctions.saveSketchToStorage(mSketchView.getSketch(), getActivity()));
-        } catch (IOException e) {
-            Log.e(LOG_TAG, "Error saving image to file");
-        }
-
-        if (mSketch.isEmpty()) {
+            //Sketch has not been touched
             mSketch.setStatus(Item.Status.DELETED);
+        } else {
+
+            //Update last edited time before saving
+            mSketch.setEditedDate(new Date().getTime());
+
+            try {
+                mSketch.setImagePath(FileFunctions.saveSketchToStorage(
+                        mSketchView.getSketch(), "sketches", getActivity()));
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Error saving image to file");
+            }
         }
 
         mSqlDatabaseHelper.addOrEditSketch(mSketch);
@@ -163,13 +161,17 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
 
     @Override
     public void onColourSelected(Integer colour) {
-        mSketch.setColour(UtilityFunctions.adjustAlpha(colour, mAlpha));
-        mSketchView.setColour(UtilityFunctions.adjustAlpha(colour, mAlpha));
-        mTextColour.setBackgroundColor(UtilityFunctions.adjustAlpha(colour, mAlpha));
+
+        int newColour = ColourFunctions.adjustAlpha(colour, mAlpha);
+
+        mSketch.setColour(newColour);
+        mSketchView.setColour(newColour);
+        mTextColour.setBackgroundColor(newColour);
     }
 
     @Override
     public void onChange() {
+
         Animation popOut = AnimationUtils.loadAnimation(getActivity(), R.anim.pop_out);
         Animation popIn = AnimationUtils.loadAnimation(getActivity(), R.anim.pop_in);
 
@@ -203,23 +205,27 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
      * or creating a new one
      */
     private void initSketch() {
+
         mSqlDatabaseHelper = new SqlDatabaseHelper(getActivity());
 
         if (mIsInEditMode) {
+
             mSketch = (Sketch) mSqlDatabaseHelper.getItemById(
                     getArguments().getLong(Constants.BUNDLE_ITEM_TO_EDIT_ID), Item.Type.SKETCH);
 
             mSketchView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
                 public void onGlobalLayout() {
-                    mSketchView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    mSketchView.setCanvasBitmap(UtilityFunctions.getBitmapFromFile(mSketch.getImagePath()));
 
-                    mTextTitle.setText(mSketch.getTitle());
+                    //When SketchView is laid out we paint the image to its canvas
+                    //If we don't wait for this the image isn't drawn
+                    mSketchView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    mSketchView.setCanvasBitmap(FileFunctions.getBitmapFromFile(mSketch.getImagePath()));
                 }
             });
 
         } else {
+
             mSketch = (Sketch) mSqlDatabaseHelper.getItemById(
                     mSqlDatabaseHelper.addBlankSketch(), Item.Type.SKETCH);
         }
@@ -230,6 +236,7 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
 
     /**
      * Creates a popup which allows user to select width/opacity of the paint stroke
+     *
      * @param anchor            View from which popup should originate
      * @param type              either {@link #POPUP_PAINT} or {@link #POPUP_ERASER}
      */
@@ -293,19 +300,22 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
         });
         seekAlpha.setProgress(mAlpha);
 
+        //We don't need to be able to change alpha if the eraser is the current tool
         seekAlpha.setVisibility(type == POPUP_PAINT ? View.VISIBLE : View.GONE);
         textAlpha.setVisibility(type == POPUP_PAINT ? View.VISIBLE : View.GONE);
     }
 
     /**
      * Switches the focus between Paint and Eraser views
-     * @param strokeType     {@link com.cerebellio.noted.views.SketchView.StrokeType} current type
+     *
+     * @param requestedType     {@link com.cerebellio.noted.views.SketchView.StrokeType} current type
      */
-    private void switchStrokeTypeViews(SketchView.StrokeType strokeType) {
+    private void toggleStrokeTypeViews(SketchView.StrokeType requestedType) {
+
         Animation popOut = AnimationUtils.loadAnimation(getActivity(), R.anim.pop_out);
         Animation popIn = AnimationUtils.loadAnimation(getActivity(), R.anim.pop_in);
 
-        if (strokeType.equals(SketchView.StrokeType.STROKE)) {
+        if (requestedType.equals(SketchView.StrokeType.STROKE)) {
             mPaintbrush.startAnimation(popOut);
             mEraser.startAnimation(popIn);
         } else {
