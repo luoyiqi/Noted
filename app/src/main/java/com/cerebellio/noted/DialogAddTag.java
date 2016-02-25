@@ -6,10 +6,12 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -80,6 +82,23 @@ public class DialogAddTag extends DialogFragment{
             }
         });
 
+        mEditTag.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+
+                //If user presses 'Done' on keyboard, save the tag
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    if (getArguments() != null) {
+                        mIOnTagOperationListener.onTagEdited(
+                                mOriginalTag, mEditTag.getText().toString().toLowerCase(Locale.getDefault()));
+                    } else {
+                        mIOnTagOperationListener.onTagAdded(mEditTag.getText().toString().toLowerCase(Locale.getDefault()));
+                    }
+                    dismiss();
+                }
+                return false;
+            }
+        });
 
         if (getArguments() != null) {
 
