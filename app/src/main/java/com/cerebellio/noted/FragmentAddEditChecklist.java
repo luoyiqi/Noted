@@ -108,7 +108,7 @@ public class FragmentAddEditChecklist extends Fragment implements IOnColourSelec
                     mSqlDatabaseHelper.addBlankChecklist(), Item.Type.CHECKLIST);
         }
 
-        mAdapter = new ChecklistItemsAdapter(mCheckList);
+        mAdapter = new ChecklistItemsAdapter(mCheckList, getActivity());
         UtilityFunctions.setUpLinearRecycler(getActivity(), mRecycler,
                 mAdapter, LinearLayoutManager.VERTICAL);
 
@@ -127,14 +127,6 @@ public class FragmentAddEditChecklist extends Fragment implements IOnColourSelec
             }
         });
 
-        mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onItemRangeInserted(int positionStart, int itemCount) {
-
-                mRecycler.scrollToPosition(positionStart);
-                super.onItemRangeInserted(positionStart, itemCount);
-            }
-        });
     }
 
 
