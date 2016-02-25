@@ -58,9 +58,15 @@
         <item name="android:maxHeight">1dp</item>
     </style>
 
+
     <style name="menu_item_text_appearance" parent="style/TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textColor">?attr/textColorTertiary</item>
         <item name="android:textSize">@dimen/text_medium</item>
+    </style>
+
+    <style name="toolbar_popup" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:background">?attr/windowBackground</item>
+        <item name="colorControlNormal">?attr/textColorTertiary</item>
     </style>
 
     <style name="card" parent="CardView">
