@@ -44,7 +44,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 /**
- * Created by Sam on 09/02/2016.
+ * Shows Items retrieved from the database
  */
 public class FragmentShowItems extends Fragment implements IOnItemSelectedToEditListener, IOnItemFocusNeedsUpdatingListener {
 
@@ -56,8 +56,8 @@ public class FragmentShowItems extends Fragment implements IOnItemSelectedToEdit
     @InjectView(R.id.fragment_show_items_empty) TextView mTextEmpty;
     @InjectView(R.id.fragment_show_items_overlay) View mOverlay;
 
-    private static final int NUM_COLUMNS_PORTRAIT = 2;
-    private static final int NUM_COLUMNS_LANDSCAPE = 4;
+    private static final int NUM_COLUMNS_PORTRAIT = 4;
+    private static final int NUM_COLUMNS_LANDSCAPE = 6;
 
     private IOnFloatingActionMenuOptionClickedListener mIOnFloatingActionMenuOptionClickedListener;
     private IOnItemSelectedToEditListener mIOnItemSelectedToEditListener;
