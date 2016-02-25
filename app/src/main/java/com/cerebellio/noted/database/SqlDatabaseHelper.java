@@ -63,7 +63,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_CHECKLIST_ITEM_CHECKLIST_ID = "checklist_id";
     private static final String COLUMN_CHECKLIST_ITEM_CONTENT = "content";
     private static final String COLUMN_CHECKLIST_ITEM_COMPLETED = "completed";
-    private static final String COLUMN_CHECKLIST_ITEM_INDEX = "index";
+    private static final String COLUMN_CHECKLIST_ITEM_POSITION = "position";
 
     /**
      * Columns only for Sketch table
@@ -107,7 +107,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
             + COLUMN_CHECKLIST_ITEM_CHECKLIST_ID + " INTEGER,"
             + COLUMN_CHECKLIST_ITEM_CONTENT + " TEXT,"
             + COLUMN_CHECKLIST_ITEM_COMPLETED + " INTEGER DEFAULT 0,"
-            + COLUMN_CHECKLIST_ITEM_INDEX + " INTEGER,"
+            + COLUMN_CHECKLIST_ITEM_POSITION + " INTEGER,"
             + COLUMN_STATUS + " TEXT DEFAULT '" + Item.Status.PINBOARD.toString() + "')";
 
     /**
@@ -265,7 +265,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         String query = "SELECT * FROM " + TABLE_CHECKLIST_ITEM
                 + whereCondition
                 + " ORDER BY "
-                + COLUMN_CHECKLIST_ITEM_INDEX
+                + COLUMN_CHECKLIST_ITEM_POSITION
                 + " ASC";
         Cursor cursor = db.rawQuery(query, null);
 
@@ -280,7 +280,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
                 item.setChecklistId(cursor.getLong(cursor.getColumnIndex(COLUMN_CHECKLIST_ITEM_CHECKLIST_ID)));
                 item.setContent(cursor.getString(cursor.getColumnIndex(COLUMN_CHECKLIST_ITEM_CONTENT)));
                 item.setIsCompleted(cursor.getInt(cursor.getColumnIndex(COLUMN_CHECKLIST_ITEM_COMPLETED)) == 1);
-                item.setIndex(cursor.getInt(cursor.getColumnIndex(COLUMN_CHECKLIST_ITEM_INDEX)));
+                item.setIndex(cursor.getInt(cursor.getColumnIndex(COLUMN_CHECKLIST_ITEM_POSITION)));
                 item.setStatus(Item.Status.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_STATUS))));
 
 
@@ -466,7 +466,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_CHECKLIST_ITEM_CHECKLIST_ID, checklistId);
         contentValues.put(COLUMN_CHECKLIST_ITEM_CONTENT, "");
         contentValues.put(COLUMN_CHECKLIST_ITEM_COMPLETED, 0);
-        contentValues.put(COLUMN_CHECKLIST_ITEM_INDEX, 0);
+        contentValues.put(COLUMN_CHECKLIST_ITEM_POSITION, 0);
         contentValues.put(COLUMN_STATUS, Item.Status.PINBOARD.toString());
 
         return db.insert(TABLE_CHECKLIST_ITEM, null, contentValues);
@@ -590,7 +590,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_CHECKLIST_ITEM_CHECKLIST_ID, checkListItem.getChecklistId());
         contentValues.put(COLUMN_CHECKLIST_ITEM_CONTENT, checkListItem.getContent());
         contentValues.put(COLUMN_CHECKLIST_ITEM_COMPLETED, checkListItem.isCompleted() ? 1 : 0);
-        contentValues.put(COLUMN_CHECKLIST_ITEM_INDEX, checkListItem.getIndex());
+        contentValues.put(COLUMN_CHECKLIST_ITEM_POSITION, checkListItem.getIndex());
         contentValues.put(COLUMN_STATUS, checkListItem.getStatus().toString());
 
         //check to see if this checklistItem is already in db
