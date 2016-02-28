@@ -3,6 +3,7 @@
 
     <string name="menu_action_settings">Settings</string>
     <string name="menu_action_filter">Filter</string>
+    <string name="menu_action_sort">Sort</string>
 
     <string name="nav_drawer_pinboard">Pinboard</string>
     <string name="nav_drawer_archive">Archive</string>
@@ -13,6 +14,10 @@
     <string name="menu_filter_note">Note</string>
     <string name="menu_filter_checklist">Checklist</string>
     <string name="menu_filter_sketch">Sketch</string>
+    <string name="menu_sort_edited_desc">Edited DESC</string>
+    <string name="menu_sort_edited_asc">Edited ASC</string>
+    <string name="menu_sort_created_desc">Created DESC</string>
+    <string name="menu_sort_created_asc">Created ASC</string>
 
     <string name="context_menu_archive">Archive</string>
     <string name="context_menu_unarchive">Unarchive</string>
@@ -29,6 +34,7 @@
     <string name="fab_create_sketch">New sketch</string>
 
     <string name="tag_new">+ New tag</string>
+    <string name="tag_hint">Tag</string>
 
     <string name="popup_stroke_thickness">Thickness</string>
     <string name="popup_stroke_opacity">Opacity</string>
@@ -47,9 +53,23 @@
     <string name="dialog_save">Save</string>
     <string name="dialog_cancel">Cancel</string>
     <string name="dialog_edit">Edit</string>
+    <string name="dialog_permanently_delete_title">Permanently delete this item?</string>
     <string name="dialog_item_focus_add_tags">Add tags</string>
     <string name="dialog_item_focus_edit_content">Edit content</string>
     <string name="dialog_delete">Delete</string>
-    <string name="hint_tag">Tag</string>
+
+    <string name="settings_header_display">Display</string>
+    <string name="settings_display_theme_title">Choose theme</string>
+    <string name="settings_display_theme_summary">Sets the current theme</string>
+
+    <string name="title_note_new">New note</string>
+    <string name="title_note_edit">Edit note</string>
+    <string name="title_checklist_new">New checklist</string>
+    <string name="title_checklist_edit">Edit checklist</string>
+    <string name="title_sketch_new">New sketch</string>
+    <string name="title_sketch_edit">Edit sketch</string>
+    <string name="title_nav_drawer_pinboard">Pinboard</string>
+    <string name="title_nav_drawer_archive">Archive</string>
+    <string name="title_nav_drawer_trash">Trash</string>
 
 </resources>
