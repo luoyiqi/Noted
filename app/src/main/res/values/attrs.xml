@@ -13,7 +13,6 @@
     <attr name="colorDivider" format="color"/>
     <attr name="colorFilter" format="color"/>
 
-    <attr name="floatingActionMenuLabelBackground" format="reference"/>
     <attr name="editTextBackgroundDrawable" format="reference"/>
     <attr name="seekbar" format="reference"/>
     <attr name="tag_background" format="reference"/>
