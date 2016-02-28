@@ -2,42 +2,39 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/recycler_item_checklist_items_frame"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/size_large"
-    android:padding="@dimen/size_tiny"
+    android:layout_height="@dimen/size_very_large"
     android:orientation="horizontal"
-    android:background="?attr/editTextBackgroundDrawable"
     >
 
     <CheckBox
         android:id="@+id/recycler_item_checklist_items_completed"
-        android:layout_width="0dp"
-        android:layout_weight="0.2"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/size_medium"
+        android:layout_marginRight="@dimen/size_large"
         />
 
     <EditText
         android:id="@+id/recycler_item_checklist_items_content"
         android:layout_width="0dp"
-        android:layout_weight="0.7"
+        android:layout_weight="1"
         android:layout_height="match_parent"
         android:hint="@string/edit_text_content_new_item"
         android:gravity="left|center"
         android:inputType="textCapSentences|textAutoCorrect"
-        android:background="?attr/editTextBackgroundDrawable"
         android:singleLine="true"
         android:textColor="?attr/textColorTertiary"
-        style="@style/edit_text.medium"
+        android:background="@android:color/transparent"
+        style="@style/edit_text.large"
         />
 
-    <TextView
-        android:id="@+id/recycler_item_checklist_items_remove"
-        android:layout_width="0dp"
-        android:layout_weight="0.1"
+    <com.cerebellio.noted.views.FilteredIconView
+        android:id="@+id/recycler_item_checklist_items_drag"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:textColor="?attr/textColorTertiary"
-        android:text="X"
-        style="@style/text.medium"
+        android:layout_marginLeft="@dimen/size_medium"
+        android:layout_marginRight="@dimen/size_medium"
+        android:src="@drawable/ic_drag"
         />
 
 </LinearLayout>
