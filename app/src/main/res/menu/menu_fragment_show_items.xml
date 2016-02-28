@@ -23,6 +23,7 @@
             <group
                 android:checkableBehavior="single"
                 >
+
                 <item
                     android:id="@+id/menu_action_item_filter_submenu_none"
                     android:title="@string/menu_filter_none"
@@ -42,6 +43,47 @@
                 <item
                     android:id="@+id/menu_action_item_filter_submenu_sketch"
                     android:title="@string/menu_filter_sketch"
+                    />
+
+            </group>
+
+        </menu>
+
+    </item>
+
+    <item android:id="@+id/menu_action_item_sort"
+          android:title="@string/menu_action_sort"
+          android:orderInCategory="300"
+          android:icon="@drawable/ic_toolbar_sort"
+          app:showAsAction="ifRoom"
+        >
+
+        <menu
+            >
+
+            <group
+                android:checkableBehavior="single"
+                >
+
+                <item
+                    android:id="@+id/menu_action_item_sort_submenu_edited_asc"
+                    android:title="@string/menu_sort_edited_asc"
+                    android:checked="true"
+                    />
+
+                <item
+                    android:id="@+id/menu_action_item_sort_submenu_edited_desc"
+                    android:title="@string/menu_sort_edited_desc"
+                    />
+
+                <item
+                    android:id="@+id/menu_action_item_sort_submenu_created_asc"
+                    android:title="@string/menu_sort_created_asc"
+                    />
+
+                <item
+                    android:id="@+id/menu_action_item_sort_submenu_created_desc"
+                    android:title="@string/menu_sort_created_desc"
                     />
 
             </group>
