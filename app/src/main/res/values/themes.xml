@@ -15,13 +15,12 @@
     <!--<color name="default_colorCardBackground">@color/md_brown_200</color>-->
 
     <!--DEFAULT THEME-->
-    <color name="default_colorPrimary">@color/md_indigo_500</color>
-    <color name="default_colorPrimaryDark">@color/md_indigo_700</color>
+    <color name="default_colorPrimary">@color/md_cyan_500</color>
+    <color name="default_colorPrimaryDark">@color/md_cyan_700</color>
     <color name="default_colorAccent">@color/md_deep_orange_500</color>
-    <color name="default_colorUrgent">@color/md_red_500</color>
     <color name="default_floatingActionMenuColorFirst">@color/md_yellow_500</color>
     <color name="default_floatingActionMenuColorSecond">@color/md_green_500</color>
-    <color name="default_floatingActionMenuColorThird">@color/md_red_500</color>
+    <color name="default_floatingActionMenuColorThird">@color/md_purple_500</color>
     <color name="default_textColorSecondary">@color/md_white_1000</color>
     <color name="default_textColorTertiary">#D9000000</color>
     <color name="default_navigationBarColor">@color/md_black_1000</color>
@@ -33,13 +32,12 @@
     <bool name="default_isDarkTheme">false</bool>
 
     <!--DARK THEME-->
-    <color name="dark_colorPrimary">@color/md_blue_500</color>
-    <color name="dark_colorPrimaryDark">@color/md_blue_700</color>
-    <color name="dark_colorAccent">@color/md_orange_500</color>
-    <color name="dark_colorUrgent">@color/md_red_700</color>
-    <color name="dark_floatingActionMenuColorFirst">@color/md_yellow_500</color>
-    <color name="dark_floatingActionMenuColorSecond">@color/md_green_500</color>
-    <color name="dark_floatingActionMenuColorThird">@color/md_red_500</color>
+    <color name="dark_colorPrimary">@color/md_indigo_500</color>
+    <color name="dark_colorPrimaryDark">@color/md_indigo_700</color>
+    <color name="dark_colorAccent">@color/md_red_500</color>
+    <color name="dark_floatingActionMenuColorFirst">@color/md_brown_500</color>
+    <color name="dark_floatingActionMenuColorSecond">@color/md_orange_500</color>
+    <color name="dark_floatingActionMenuColorThird">@color/md_green_500</color>
     <color name="dark_textColorSecondary">@color/md_white_1000</color>
     <color name="dark_textColorTertiary">@color/md_grey_300</color>
     <color name="dark_navigationBarColor">@color/md_black_1000</color>
