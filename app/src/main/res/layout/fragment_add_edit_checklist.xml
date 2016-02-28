@@ -5,25 +5,15 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/windowBackground"
     android:padding="@dimen/size_medium"
+    android:background="?attr/windowBackground"
     >
 
-    <FrameLayout
-        android:id="@+id/fragment_add_edit_checklist_items_recycler_frame"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/fragment_add_edit_checklist_items_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?attr/editTextBackgroundDrawable"
-        android:layout_margin="@dimen/size_small"
-        android:padding="@dimen/size_small"
-        >
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/fragment_add_edit_checklist_items_recycler"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            />
-
-    </FrameLayout>
+        />
 
 </LinearLayout>

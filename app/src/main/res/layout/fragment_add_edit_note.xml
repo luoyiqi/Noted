@@ -27,7 +27,7 @@
             met:met_baseColor="?attr/textColorTertiary"
             met:met_floatingLabel="highlight"
             met:met_floatingLabelAlwaysShown="true"
-            style="@style/edit_text.medium"
+            style="@style/edit_text.large"
             />
 
     </FrameLayout>
