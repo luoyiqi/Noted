@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -27,6 +26,7 @@ import com.cerebellio.noted.models.Item;
 import com.cerebellio.noted.models.NavDrawerItem;
 import com.cerebellio.noted.models.adapters.NavDrawerAdapter;
 import com.cerebellio.noted.models.events.NavDrawerItemTypeSelectedEvent;
+import com.cerebellio.noted.models.events.TitleChangedEvent;
 import com.cerebellio.noted.models.listeners.IOnFloatingActionMenuOptionClickedListener;
 import com.cerebellio.noted.models.listeners.IOnItemSelectedToEditListener;
 import com.cerebellio.noted.utils.Constants;
@@ -64,6 +64,7 @@ public class ActivityMain extends ActivityBase
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        overridePendingTransition(0, 0);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -138,6 +139,7 @@ public class ActivityMain extends ActivityBase
         initShowItemsFragment();
         initNavDrawer();
         handleIntent(getIntent());
+        setToolbarTitle(getString(R.string.title_nav_drawer_pinboard));
     }
 
     @Override
@@ -168,17 +170,13 @@ public class ActivityMain extends ActivityBase
 
     @Override
     protected void onResume() {
-
         super.onResume();
-
         ApplicationNoted.bus.register(this);
     }
 
     @Override
     protected void onPause() {
-
         super.onPause();
-
         ApplicationNoted.bus.unregister(this);
     }
 
@@ -204,7 +202,6 @@ public class ActivityMain extends ActivityBase
      * @param type      {@link com.cerebellio.noted.models.Item.Type} of item
      */
     private void displayAddEditItemFragment(Item item, Item.Type type) {
-
         FragmentTransaction ft = mFragmentManager.beginTransaction();
         animateFragmentTransition(ft, TRANSITION_HORIZONTAL);
         Fragment fragment;
@@ -216,7 +213,6 @@ public class ActivityMain extends ActivityBase
         } else {
             bundle.putBoolean(Constants.BUNDLE_IS_IN_EDIT_MODE, true);
             bundle.putLong(Constants.BUNDLE_ITEM_TO_EDIT_ID, item.getId());
-
         }
 
         //Set fragment to applicable type
@@ -240,38 +236,35 @@ public class ActivityMain extends ActivityBase
 
     @Subscribe
     public void onNavDrawerItemSelected(final NavDrawerItemTypeSelectedEvent event) {
+        switch (event.getType()) {
+            case PINBOARD:
+                setItemType(NavDrawerItem.NavDrawerItemType.PINBOARD);
+                break;
+            case ARCHIVE:
+                setItemType(NavDrawerItem.NavDrawerItemType.ARCHIVE);
+                break;
+            case TRASH:
+                setItemType(NavDrawerItem.NavDrawerItemType.TRASH);
+                break;
+            default:
+            case SETTINGS:
+                PreferenceManager.getDefaultSharedPreferences(getBaseContext())
+                        .edit()
+                        .putInt(Constants.SHARED_PREFS_THEME_ID,
+                                PreferenceManager.getDefaultSharedPreferences(getBaseContext())
+                                        .getInt(Constants.SHARED_PREFS_THEME_ID,
+                                                Constants.DEFAULT_THEME_ID) == Constants.DEFAULT_THEME_ID
+                                        ? Constants.DARK_THEME_ID
+                                        : Constants.DEFAULT_THEME_ID)
+                        .commit();
+                recreate();
+                break;
+        }
+    }
 
-        final Handler handler = new Handler();
-
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                switch (event.getType()) {
-                    case PINBOARD:
-                        setItemType(NavDrawerItem.NavDrawerItemType.PINBOARD);
-                        break;
-                    case ARCHIVE:
-                        setItemType(NavDrawerItem.NavDrawerItemType.ARCHIVE);
-                        break;
-                    case TRASH:
-                        setItemType(NavDrawerItem.NavDrawerItemType.TRASH);
-                        break;
-                    default:
-                    case SETTINGS:
-                        PreferenceManager.getDefaultSharedPreferences(getBaseContext())
-                                .edit()
-                                .putInt(Constants.SHARED_PREFS_THEME_ID,
-                                        PreferenceManager.getDefaultSharedPreferences(getBaseContext())
-                                                .getInt(Constants.SHARED_PREFS_THEME_ID,
-                                                        Constants.DEFAULT_THEME_ID) == Constants.DEFAULT_THEME_ID
-                                                ? Constants.DARK_THEME_ID
-                                                : Constants.DEFAULT_THEME_ID)
-                                .commit();
-                        recreate();
-                        break;
-                }
-            }
-        }, getResources().getInteger(android.R.integer.config_longAnimTime));
+    @Subscribe
+    public void onTitleChanged(TitleChangedEvent event) {
+        setToolbarTitle(event.getTitle());
     }
 
     /**
@@ -320,7 +313,6 @@ public class ActivityMain extends ActivityBase
      * @param type      {@link com.cerebellio.noted.models.NavDrawerItem.NavDrawerItemType} to pass
      */
     private void setItemType(NavDrawerItem.NavDrawerItemType type) {
-
         mCurrentNavDrawerType = type;
 
         FragmentShowItems fragmentShowItems =
@@ -382,6 +374,12 @@ public class ActivityMain extends ActivityBase
             //Show navigate back up arrow and lock nav drawer
             mNavDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             mDrawerToggle.setDrawerIndicatorEnabled(false);
+        }
+    }
+
+    private void setToolbarTitle(String title) {
+        if (mToolbar != null) {
+            mToolbar.setTitle(title);
         }
     }
 }
