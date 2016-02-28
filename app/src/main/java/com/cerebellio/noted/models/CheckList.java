@@ -29,15 +29,35 @@ public class CheckList extends Item {
         return Type.CHECKLIST;
     }
 
+    /**
+     * Add a {@link CheckListItem} to this {@link CheckList}
+     *
+     * @param item          {@link CheckListItem} to add
+     */
     public void addItem(CheckListItem item) {
         mItems.add(item);
     }
 
+    /**
+     *
+     * @return      true if new {@link CheckListItem} needs adding
+     */
     public boolean isNewItemNeeded() {
         return !mItems.get(mItems.size() - 1).isEmpty();
     }
 
+    /**
+     * Assigns positions to each {@link CheckListItem}
+     */
+    public void assignPositions() {
+        for (int i = 0; i < mItems.size(); i++) {
+            mItems.get(i).setPosition(i);
+        }
+    }
+
+
     public List<CheckListItem> getItems() {
+
         return mItems;
     }
 
