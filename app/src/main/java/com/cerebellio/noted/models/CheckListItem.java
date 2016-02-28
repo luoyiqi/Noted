@@ -5,7 +5,7 @@ import com.cerebellio.noted.utils.TextFunctions;
 /**
  * Represents a single item in a {@link CheckList}
  */
-public class CheckListItem extends Item {
+public class CheckListItem extends Item implements Cloneable {
 
     private static final String LOG_TAG = TextFunctions.makeLogTag(CheckListItem.class);
 
@@ -13,7 +13,7 @@ public class CheckListItem extends Item {
 
     private long mChecklistId;
     private boolean mIsCompleted = false;
-    private int mIndex;
+    private int mPosition;
 
     public CheckListItem() {}
 
@@ -23,13 +23,29 @@ public class CheckListItem extends Item {
 
     @Override
     public boolean isEmpty() {
-        //Empty if not completed and only contains default text
-        return !mIsCompleted && mContent.equals("");
+        //Empty if contains default text
+        return mContent.equals("");
     }
 
     @Override
     public Type getItemType() {
         return Type.CHECKLIST_ITEM;
+    }
+
+    /**
+     * Creates a deep copy of this object
+     *
+     * @return          the deep copy
+     */
+    public CheckListItem createDeepCopy() {
+
+        CheckListItem newItem = new CheckListItem(mChecklistId);
+
+        newItem.setContent(mContent);
+        newItem.setIsCompleted(mIsCompleted);
+        newItem.setPosition(mPosition);
+
+        return newItem;
     }
 
     public long getChecklistId() {
@@ -56,11 +72,11 @@ public class CheckListItem extends Item {
         mIsCompleted = isCompleted;
     }
 
-    public int getIndex() {
-        return mIndex;
+    public int getPosition() {
+        return mPosition;
     }
 
-    public void setIndex(int index) {
-        mIndex = index;
+    public void setPosition(int position) {
+        mPosition = position;
     }
 }
