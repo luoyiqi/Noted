@@ -17,12 +17,25 @@
         android:background="?attr/colorPrimary"
         >
 
-        <TextView
-            android:id="@+id/dialog_item_focus_colour"
+        <!--This FrameLayout prevents TextView being invisible
+            when it happens to be the same colour as the backround-->
+
+        <FrameLayout
+            android:id="@+id/dialog_item_focus_colour_frame"
             android:layout_width="@dimen/icon_size"
             android:layout_height="@dimen/icon_size"
+            android:background="?textColorPrimary"
             android:layout_alignParentLeft="true"
-            />
+            >
+
+            <TextView
+                android:id="@+id/dialog_item_focus_colour"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="1dp"
+                />
+
+        </FrameLayout>
 
         <ImageView
             android:id="@+id/dialog_item_focus_delete"
@@ -81,12 +94,21 @@
 
         <TextView
             android:id="@+id/dialog_item_focus_current_tags"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/size_medium"
             android:text="@string/dialog_item_focus_add_tags"
             android:textColor="?attr/textColorTertiary"
             style="@style/text.small"
+            />
+
+        <com.cerebellio.noted.views.FilteredIconView
+            android:id="@+id/dialog_item_focus_current_tags_expand_collapse"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/size_medium"
+            android:layout_marginRight="@dimen/size_medium"
+            android:src="@drawable/ic_expand"
             />
 
     </LinearLayout>
@@ -130,11 +152,15 @@
 
     </LinearLayout>
 
+    <View style="@style/divider_across"
+          android:layout_marginTop="@dimen/size_medium"
+          />
+
     <FrameLayout
         android:id="@+id/dialog_item_focus_dates_frame"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/size_medium"
+        android:layout_marginTop="@dimen/size_small"
         android:layout_marginLeft="@dimen/size_medium"
         android:layout_marginRight="@dimen/size_medium"
         android:layout_marginBottom="@dimen/size_medium"
