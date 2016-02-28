@@ -18,6 +18,7 @@ public class FilteredIconView extends ImageView {
     private static final String LOG_TAG = TextFunctions.makeLogTag(FilteredIconView.class);
 
     private int mDefaultColour;
+    private int mCurrentColour = mDefaultColour;
     private final boolean mIsDark;
 
     public FilteredIconView(Context context, AttributeSet attrs) {
@@ -33,12 +34,22 @@ public class FilteredIconView extends ImageView {
         setFilterToDefault();
     }
 
+    @Override
+    public void setImageResource(int resId) {
+        super.setImageResource(resId);
+
+        //Need to reapply filter when image resource changed
+        setFilter(mCurrentColour);
+    }
+
     /**
      * Set the colour of the filter applied to the View
      *
      * @param colour        new colour to apply
      */
     public void setFilter(int colour) {
+        mCurrentColour = colour;
+
         if (getDrawable() != null) {
             getDrawable().setColorFilter(colour, PorterDuff.Mode.SRC_ATOP);
 
