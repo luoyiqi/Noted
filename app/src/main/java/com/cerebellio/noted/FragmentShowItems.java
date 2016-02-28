@@ -2,12 +2,10 @@ package com.cerebellio.noted;
 
 import android.app.SearchManager;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
@@ -26,13 +24,13 @@ import android.widget.TextView;
 
 import com.cerebellio.noted.database.SqlDatabaseHelper;
 import com.cerebellio.noted.models.Item;
-import com.cerebellio.noted.models.events.ItemWithListPositionEvent;
 import com.cerebellio.noted.models.NavDrawerItem;
 import com.cerebellio.noted.models.adapters.ShowItemsAdapter;
+import com.cerebellio.noted.models.events.ItemWithListPositionEvent;
+import com.cerebellio.noted.models.events.TitleChangedEvent;
 import com.cerebellio.noted.models.listeners.IOnFloatingActionMenuOptionClickedListener;
 import com.cerebellio.noted.models.listeners.IOnItemFocusNeedsUpdatingListener;
 import com.cerebellio.noted.models.listeners.IOnItemSelectedToEditListener;
-import com.cerebellio.noted.utils.ColourFunctions;
 import com.cerebellio.noted.utils.Constants;
 import com.cerebellio.noted.utils.FabShowHideRecyclerScroll;
 import com.cerebellio.noted.utils.UtilityFunctions;
@@ -46,7 +44,8 @@ import butterknife.InjectView;
 /**
  * Shows Items retrieved from the database
  */
-public class FragmentShowItems extends Fragment implements IOnItemSelectedToEditListener, IOnItemFocusNeedsUpdatingListener {
+public class FragmentShowItems extends FragmentBase
+        implements IOnItemSelectedToEditListener, IOnItemFocusNeedsUpdatingListener {
 
     @InjectView(R.id.fragment_show_items_recycler) RecyclerView mItemsRecycler;
     @InjectView(R.id.fragment_show_items_floating_action_menu) FloatingActionsMenu mFloatingActionsMenu;
@@ -56,17 +55,14 @@ public class FragmentShowItems extends Fragment implements IOnItemSelectedToEdit
     @InjectView(R.id.fragment_show_items_empty) TextView mTextEmpty;
     @InjectView(R.id.fragment_show_items_overlay) View mOverlay;
 
-    private static final int NUM_COLUMNS_PORTRAIT = 4;
-    private static final int NUM_COLUMNS_LANDSCAPE = 6;
+    private static final int NUM_COLUMNS = 4;
 
     private IOnFloatingActionMenuOptionClickedListener mIOnFloatingActionMenuOptionClickedListener;
     private IOnItemSelectedToEditListener mIOnItemSelectedToEditListener;
     private ShowItemsAdapter mAdapter;
-    private ShowItemsAdapter.FilterType mFilterType = ShowItemsAdapter.FilterType.NONE;
-    private NavDrawerItem.NavDrawerItemType mCurrentType = NavDrawerItem.NavDrawerItemType.PINBOARD;
+    private SqlDatabaseHelper mSqlDatabaseHelper;
 
     private boolean mIsFabMenuVisible = true;
-    private SqlDatabaseHelper mSqlDatabaseHelper;
 
     @Nullable
     @Override
@@ -74,11 +70,6 @@ public class FragmentShowItems extends Fragment implements IOnItemSelectedToEdit
 
         View rootView = inflater.inflate(R.layout.fragment_show_items, container, false);
         ButterKnife.inject(this, rootView);
-
-        //Get background colour for current theme and set the alpha opacity to almost full,
-        //which gives the effect of covering the main RecyclerView when FAB pressed
-        int backColourId = ContextCompat.getColor(getActivity(), UtilityFunctions.getResIdFromAttribute(R.attr.windowBackground, getActivity()));
-        mOverlay.setBackgroundColor(ColourFunctions.adjustAlpha(backColourId, 245));
 
         mFloatingActionsMenu.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -88,7 +79,7 @@ public class FragmentShowItems extends Fragment implements IOnItemSelectedToEdit
             }
         });
 
-        mAdapter = new ShowItemsAdapter(getActivity(), mFilterType);
+        mAdapter = new ShowItemsAdapter(getActivity());
         mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeRemoved(int positionStart, int itemCount) {
@@ -119,11 +110,7 @@ public class FragmentShowItems extends Fragment implements IOnItemSelectedToEdit
             }
         });
 
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            UtilityFunctions.setUpStaggeredGridRecycler(mItemsRecycler, mAdapter, NUM_COLUMNS_LANDSCAPE);
-        } else {
-            UtilityFunctions.setUpStaggeredGridRecycler(mItemsRecycler, mAdapter, NUM_COLUMNS_PORTRAIT);
-        }
+        UtilityFunctions.setUpStaggeredGridRecycler(mItemsRecycler, mAdapter, NUM_COLUMNS);
 
         toggleEmptyText();
 
@@ -131,7 +118,7 @@ public class FragmentShowItems extends Fragment implements IOnItemSelectedToEdit
             @Override
             public void onClick(View view) {
                 Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fab_shrink);
-                mOverlay.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.shrink_into_bottom_right));
+                mOverlay.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.shutter_up));
                 animation.setAnimationListener(new Animation.AnimationListener() {
                     @Override
                     public void onAnimationStart(Animation animation) {
@@ -156,7 +143,7 @@ public class FragmentShowItems extends Fragment implements IOnItemSelectedToEdit
             @Override
             public void onClick(View view) {
                 Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fab_shrink);
-                mOverlay.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.shrink_into_bottom_right));
+                mOverlay.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.shutter_up));
                 animation.setAnimationListener(new Animation.AnimationListener() {
                     @Override
                     public void onAnimationStart(Animation animation) {
@@ -181,7 +168,7 @@ public class FragmentShowItems extends Fragment implements IOnItemSelectedToEdit
             @Override
             public void onClick(View view) {
                 Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fab_shrink);
-                mOverlay.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.shrink_into_bottom_right));
+                mOverlay.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.shutter_up));
                 animation.setAnimationListener(new Animation.AnimationListener() {
                     @Override
                     public void onAnimationStart(Animation animation) {
@@ -207,7 +194,7 @@ public class FragmentShowItems extends Fragment implements IOnItemSelectedToEdit
                     @Override
                     public void onMenuExpanded() {
                         mOverlay.setVisibility(View.VISIBLE);
-                        mOverlay.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.grow_from_bottom_right));
+                        mOverlay.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.shutter_down));
                         mAdapter.setEnabled(false);
                         mItemsRecycler.setLayoutFrozen(true);
                     }
@@ -215,7 +202,7 @@ public class FragmentShowItems extends Fragment implements IOnItemSelectedToEdit
                     @Override
                     public void onMenuCollapsed() {
                         mOverlay.setVisibility(View.GONE);
-                        mOverlay.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.shrink_into_bottom_right));
+                        mOverlay.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.shutter_up));
                         mAdapter.setEnabled(true);
                         mItemsRecycler.setLayoutFrozen(false);
                     }
@@ -243,17 +230,20 @@ public class FragmentShowItems extends Fragment implements IOnItemSelectedToEdit
             }
         });
 
+        setItemType(NavDrawerItem.NavDrawerItemType.PINBOARD);
+
         return rootView;
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
         getActivity().getMenuInflater().inflate(R.menu.menu_fragment_show_items, menu);
 
+        MenuItem searchItem = menu.findItem(R.id.menu_action_search);
         SearchManager searchManager =
                 (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
-        android.support.v7.widget.SearchView searchView =
-                (android.support.v7.widget.SearchView) menu.findItem(R.id.menu_action_search).getActionView();
+        SearchView searchView =
+                (SearchView) MenuItemCompat.getActionView(searchItem);
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getActivity().getComponentName()));
 
@@ -270,7 +260,6 @@ public class FragmentShowItems extends Fragment implements IOnItemSelectedToEdit
                 } else {
                     searchChanged(newText);
                     toggleEmptyText();
-                    mItemsRecycler.smoothScrollToPosition(0);
                 }
 
                 return false;
@@ -280,23 +269,63 @@ public class FragmentShowItems extends Fragment implements IOnItemSelectedToEdit
         searchView.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
-                setListToCurrentType();
+                mAdapter.refresh();
                 return false;
             }
         });
+
+        //Ensure correct options are selected when menu refreshes
+        switch (mAdapter.getSortType()) {
+            case EDITED_ASC:
+                menu.findItem(R.id.menu_action_item_sort_submenu_edited_asc).setChecked(true);
+                break;
+            case EDITED_DESC:
+                menu.findItem(R.id.menu_action_item_sort_submenu_edited_desc).setChecked(true);
+                break;
+            case CREATED_ASC:
+                menu.findItem(R.id.menu_action_item_sort_submenu_created_asc).setChecked(true);
+                break;
+            case CREATED_DESC:
+                menu.findItem(R.id.menu_action_item_sort_submenu_created_desc).setChecked(true);
+                break;
+        }
+
+        //Ensure correct options are selected when menu refreshes
+        switch (mAdapter.getFilterType()) {
+            case NONE:
+                menu.findItem(R.id.menu_action_item_filter_submenu_none).setChecked(true);
+                break;
+            case NOTE:
+                menu.findItem(R.id.menu_action_item_filter_submenu_note).setChecked(true);
+                break;
+            case CHECKLIST:
+                menu.findItem(R.id.menu_action_item_filter_submenu_checklist).setChecked(true);
+                break;
+            case SKETCH:
+                menu.findItem(R.id.menu_action_item_filter_submenu_sketch).setChecked(true);
+                break;
+        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
         if (item.getItemId() == R.id.menu_action_item_filter_submenu_none) {
-            mAdapter.swapFilter(ShowItemsAdapter.FilterType.NONE, mCurrentType);
+            mAdapter.setFilterType(ShowItemsAdapter.FilterType.NONE);
         } else if (item.getItemId() == R.id.menu_action_item_filter_submenu_note) {
-            mAdapter.swapFilter(ShowItemsAdapter.FilterType.NOTE, mCurrentType);
+            mAdapter.setFilterType(ShowItemsAdapter.FilterType.NOTE);
         }  else if (item.getItemId() == R.id.menu_action_item_filter_submenu_checklist) {
-            mAdapter.swapFilter(ShowItemsAdapter.FilterType.CHECKLIST, mCurrentType);
+            mAdapter.setFilterType(ShowItemsAdapter.FilterType.CHECKLIST);
         }  else if (item.getItemId() == R.id.menu_action_item_filter_submenu_sketch) {
-            mAdapter.swapFilter(ShowItemsAdapter.FilterType.SKETCH, mCurrentType);
+            mAdapter.setFilterType(ShowItemsAdapter.FilterType.SKETCH);
+        }  else if (item.getItemId() == R.id.menu_action_item_sort_submenu_edited_asc) {
+            mAdapter.setSortType(ShowItemsAdapter.SortType.EDITED_ASC);
+        }  else if (item.getItemId() == R.id.menu_action_item_sort_submenu_edited_desc) {
+            mAdapter.setSortType(ShowItemsAdapter.SortType.EDITED_DESC);
+        }  else if (item.getItemId() == R.id.menu_action_item_sort_submenu_created_asc) {
+            mAdapter.setSortType(ShowItemsAdapter.SortType.CREATED_ASC);
+        }   else if (item.getItemId() == R.id.menu_action_item_sort_submenu_created_desc) {
+            mAdapter.setSortType(ShowItemsAdapter.SortType.CREATED_DESC);
         }
 
         item.setChecked(true);
@@ -385,18 +414,30 @@ public class FragmentShowItems extends Fragment implements IOnItemSelectedToEdit
     }
 
     public void searchChanged(String searchQuery) {
-        mAdapter.replaceItems(mSqlDatabaseHelper.searchItems(searchQuery, mCurrentType));
+        mAdapter.replaceItems(mSqlDatabaseHelper.searchItems(searchQuery, mAdapter.getNavType()));
+    }
+
+    private void setListToCurrentType() {
+        mAdapter.refresh();
+        toggleEmptyText();
     }
 
     public void setItemType(NavDrawerItem.NavDrawerItemType type) {
-        mCurrentType = type;
-        setListToCurrentType();
-    }
-
-
-    private void setListToCurrentType() {
-        mAdapter.setItemType(mCurrentType);
+        mAdapter.setNavType(type);
         toggleEmptyText();
-        mItemsRecycler.smoothScrollToPosition(0);
+
+        switch (type) {
+            default:
+            case PINBOARD:
+                ApplicationNoted.bus.post(new TitleChangedEvent(getString(R.string.title_nav_drawer_pinboard)));
+                break;
+            case ARCHIVE:
+                ApplicationNoted.bus.post(new TitleChangedEvent(getString(R.string.title_nav_drawer_archive)));
+                break;
+            case TRASH:
+                ApplicationNoted.bus.post(new TitleChangedEvent(getString(R.string.title_nav_drawer_trash)));
+                break;
+        }
     }
+
 }
