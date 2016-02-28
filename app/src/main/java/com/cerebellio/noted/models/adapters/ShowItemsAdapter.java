@@ -1,19 +1,16 @@
 package com.cerebellio.noted.models.adapters;
 
 import android.content.Context;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.cerebellio.noted.ApplicationNoted;
 import com.cerebellio.noted.R;
-import com.cerebellio.noted.async.LazySketchLoader;
 import com.cerebellio.noted.database.SqlDatabaseHelper;
 import com.cerebellio.noted.models.CheckList;
 import com.cerebellio.noted.models.CheckListItem;
@@ -23,7 +20,9 @@ import com.cerebellio.noted.models.Note;
 import com.cerebellio.noted.models.Sketch;
 import com.cerebellio.noted.models.events.ItemWithListPositionEvent;
 import com.cerebellio.noted.utils.TextFunctions;
+import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -43,6 +42,10 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private List<Item> mItems = new ArrayList<>();
     private Context mContext;
 
+    private FilterType mFilterType = FilterType.NONE;
+    private SortType mSortType = SortType.EDITED_DESC;
+    private NavDrawerItem.NavDrawerItemType mNavType = NavDrawerItem.NavDrawerItemType.PINBOARD;
+
     /**
      * Is item clickable?
      */
@@ -55,12 +58,16 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         SKETCH
     }
 
+    public enum SortType {
+        EDITED_ASC,
+        EDITED_DESC,
+        CREATED_ASC,
+        CREATED_DESC
+    }
 
-
-    public ShowItemsAdapter(Context context, FilterType filterType) {
-
+    public ShowItemsAdapter(Context context) {
         mContext = context;
-        mItems = getFilteredItems(filterType, NavDrawerItem.NavDrawerItemType.PINBOARD);
+        refresh();
     }
 
     @Override
@@ -72,7 +79,7 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 Note note = (Note) mItems.get(position);
                 ShowNotesAdapterViewHolder notesHolder = ((ShowNotesAdapterViewHolder) holder);
 
-                notesHolder.mLinearLayoutFrame.setBackgroundColor(note.getColour());
+                notesHolder.mTextContent.setBackgroundColor(note.getColour());
                 notesHolder.mTextContent.setText(note.getContent());
                 break;
             case TYPE_CHECKLIST:
@@ -80,7 +87,7 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 ShowChecklistsAdapterViewHolder checklistHolder =
                         (ShowChecklistsAdapterViewHolder) holder;
 
-                checklistHolder.mLinearLayoutFrame.setBackgroundColor(checkList.getColour());
+                checklistHolder.mTextContent.setBackgroundColor(checkList.getColour());
                 checklistHolder.mTextContent.setText("");
 
                 /**
@@ -115,8 +122,10 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             case TYPE_SKETCH:
                 Sketch sketch = (Sketch) mItems.get(position);
                 ImageView sketchView = ((ShowSketchesAdapterViewHolder) holder).mImageSketch;
-                new LazySketchLoader(mContext, sketchView, sketch).execute();
-
+                Picasso.with(mContext)
+                        .load(new File(sketch.getImagePath()))
+                        .fit()
+                        .into(sketchView);
                 break;
         }
     }
@@ -162,42 +171,14 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     /**
-     * Gets a list of {@link Item} from the database
-     * with a filter applied
-     *
-     * @param filterType        i.e. only {@link Note} or only {@link CheckList}
-     * @param type              i.e. {@link com.cerebellio.noted.models.NavDrawerItem.NavDrawerItemType#PINBOARD}
-     * @return                  filtered List
+     * Swaps the visible {@link Item} visible depending on
+     * {@link #mFilterType}, {@link #mNavType} and {@link #mSortType}
      */
-    private List<Item> getFilteredItems(FilterType filterType, NavDrawerItem.NavDrawerItemType type) {
+    public void refresh() {
+        mItems.clear();
 
-        SqlDatabaseHelper sqlDatabaseHelper = new SqlDatabaseHelper(mContext);
-
-        List<Item> allItems = new ArrayList<>();
-
-        switch (filterType) {
-            default:
-            case NONE:
-                allItems.addAll(sqlDatabaseHelper.getAllItems(type));
-                break;
-            case NOTE:
-                allItems.addAll(sqlDatabaseHelper.getAllNotes(type));
-                break;
-            case CHECKLIST:
-                allItems.addAll(sqlDatabaseHelper.getAllChecklists(type));
-                break;
-            case SKETCH:
-                allItems.addAll(sqlDatabaseHelper.getAllSketches(type));
-                break;
-        }
-
-        //Sort Items by Edited Date
-        Collections.sort(allItems, new Comparator<Item>() {
-            @Override
-            public int compare(Item item, Item item2) {
-                return (int) (item2.getEditedDate() - item.getEditedDate());
-            }
-        });
+        List<Item> allItems = filterItems();
+        sortItems(allItems);
 
         //Avoid showing blank Notes etc.
         for (Item item : allItems) {
@@ -206,22 +187,51 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             }
         }
 
-        sqlDatabaseHelper.closeDB();
+        notifyDataSetChanged();
+    }
 
+    private List<Item> filterItems() {
+        SqlDatabaseHelper sqlDatabaseHelper = new SqlDatabaseHelper(mContext);
+        List<Item> allItems = new ArrayList<>();
+
+        switch (mFilterType) {
+            default:
+            case NONE:
+                allItems.addAll(sqlDatabaseHelper.getAllItems(mNavType));
+                break;
+            case NOTE:
+                allItems.addAll(sqlDatabaseHelper.getAllNotes(mNavType));
+                break;
+            case CHECKLIST:
+                allItems.addAll(sqlDatabaseHelper.getAllChecklists(mNavType));
+                break;
+            case SKETCH:
+                allItems.addAll(sqlDatabaseHelper.getAllSketches(mNavType));
+                break;
+        }
+
+        sqlDatabaseHelper.closeDB();
         return allItems;
     }
 
-    /**
-     * Publicly accessible method to change
-     * {@link com.cerebellio.noted.models.adapters.ShowItemsAdapter.FilterType} applied
-     *
-     * @param filterType        new filter to apply
-     * @param type              i.e. {@link com.cerebellio.noted.models.NavDrawerItem.NavDrawerItemType#PINBOARD}
-     */
-    public void swapFilter(FilterType filterType, NavDrawerItem.NavDrawerItemType type) {
-        mItems.clear();
-        mItems = getFilteredItems(filterType, type);
-        notifyDataSetChanged();
+    private void sortItems(List<Item> allItems) {
+        //Sort Items depending on sortType
+        Collections.sort(allItems, new Comparator<Item>() {
+            @Override
+            public int compare(Item item, Item item2) {
+                switch (mSortType) {
+                    default:
+                    case EDITED_DESC:
+                        return (int) (item2.getEditedDate() - item.getEditedDate());
+                    case EDITED_ASC:
+                        return (int) (item.getEditedDate() - item2.getEditedDate());
+                    case CREATED_DESC:
+                        return (int) (item2.getCreatedDate() - item.getCreatedDate());
+                    case CREATED_ASC:
+                        return (int) (item.getCreatedDate() - item2.getCreatedDate());
+                }
+            }
+        });
     }
 
     /**
@@ -231,17 +241,6 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
      */
     public void setEnabled(boolean isEnabled) {
         mIsEnabled = isEnabled;
-    }
-
-    /**
-     * Change the current {@link com.cerebellio.noted.models.NavDrawerItem.NavDrawerItemType}
-     *
-     * @param type      new type
-     */
-    public void setItemType(NavDrawerItem.NavDrawerItemType type) {
-        mItems.clear();
-        mItems = getFilteredItems(FilterType.NONE, type);
-        notifyDataSetChanged();
     }
 
     /**
@@ -279,21 +278,43 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return mItems;
     }
 
+    public NavDrawerItem.NavDrawerItemType getNavType() {
+        return mNavType;
+    }
+
+    public SortType getSortType() {
+        return mSortType;
+    }
+
+    public FilterType getFilterType() {
+        return mFilterType;
+    }
+
+    public void setFilterType(FilterType filterType) {
+        mFilterType = filterType;
+        refresh();
+    }
+
+    public void setSortType(SortType sortType) {
+        mSortType = sortType;
+        refresh();
+    }
+
+    public void setNavType(NavDrawerItem.NavDrawerItemType navType) {
+        mNavType = navType;
+        refresh();
+    }
+
     private class ShowNotesAdapterViewHolder extends RecyclerView.ViewHolder {
 
-        protected CardView mCardView;
-        protected LinearLayout mLinearLayoutFrame;
         protected TextView mTextContent;
 
         public ShowNotesAdapterViewHolder(View v) {
-
             super(v);
 
-            mCardView = (CardView) v.findViewById(R.id.recycler_item_show_notes_card);
-            mLinearLayoutFrame = (LinearLayout) v.findViewById(R.id.recycler_item_show_notes_frame);
             mTextContent = (TextView) v.findViewById(R.id.recycler_item_show_notes_content);
 
-            mCardView.setOnClickListener(
+            mTextContent.setOnClickListener(
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -309,20 +330,15 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     private class ShowChecklistsAdapterViewHolder extends RecyclerView.ViewHolder {
 
-        protected CardView mCardView;
-        protected LinearLayout mLinearLayoutFrame;
         protected TextView mTextContent;
 
 
         public ShowChecklistsAdapterViewHolder(View v) {
-
             super(v);
 
-            mCardView = (CardView) v.findViewById(R.id.recycler_item_show_checklist_card);
-            mLinearLayoutFrame = (LinearLayout) v.findViewById(R.id.recycler_item_show_checklist_frame);
             mTextContent = (TextView) v.findViewById(R.id.recycler_item_show_checklist_items);
 
-            mCardView.setOnClickListener(
+            mTextContent.setOnClickListener(
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -338,17 +354,14 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     private class ShowSketchesAdapterViewHolder extends RecyclerView.ViewHolder {
 
-        protected CardView mCardView;
         protected ImageView mImageSketch;
 
         public ShowSketchesAdapterViewHolder(View v) {
-
             super(v);
 
-            mCardView = (CardView) v.findViewById(R.id.recycler_item_show_sketch_card);
             mImageSketch = (ImageView) v.findViewById(R.id.recycler_item_show_sketch_sketch);
 
-            mCardView.setOnClickListener(
+            mImageSketch.setOnClickListener(
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
