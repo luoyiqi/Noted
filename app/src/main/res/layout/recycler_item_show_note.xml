@@ -1,31 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView
+<TextView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/recycler_item_show_notes_card"
+    android:id="@+id/recycler_item_show_notes_content"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/size_tiny"
-    style="@style/card"
-    >
-
-    <LinearLayout
-        android:id="@+id/recycler_item_show_notes_frame"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/size_medium"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:background="?attr/colorCardBackground"
-        >
-
-        <TextView
-            android:id="@+id/recycler_item_show_notes_content"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            style="@style/text.medium"
-            />
-
-    </LinearLayout>
-
-</android.support.v7.widget.CardView>
+    android:layout_margin="1dp"
+    android:padding="@dimen/size_small"
+    android:gravity="center"
+    style="@style/text.large"
+    />
