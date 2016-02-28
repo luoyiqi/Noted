@@ -66,13 +66,24 @@ public abstract class FileFunctions {
             sketch.compress(Bitmap.CompressFormat.PNG, 100, fos);
         } catch (IOException e) {
             Log.e(LOG_TAG, "File could not be opened");
-        } finally {
+        } catch (NullPointerException e) {
+            Log.e(LOG_TAG, "Sketch not initialised");
+         }finally {
             if (fos != null) {
                 fos.close();
             }
         }
 
         return path.getAbsolutePath();
+    }
+
+    /**
+     * Deletes a file at the given path
+     * @param path      path of the file to delete
+     * @return          true if file deleted, false otherwise
+     */
+    public static boolean deleteSketchFromStorage(String path) {
+        return new File(path).delete();
     }
 
 }
