@@ -10,21 +10,29 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.RotateAnimation;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.cerebellio.noted.database.SqlDatabaseHelper;
 import com.cerebellio.noted.models.Item;
+import com.cerebellio.noted.models.Sketch;
 import com.cerebellio.noted.models.adapters.TagsAdapter;
 import com.cerebellio.noted.models.events.TagEvent;
 import com.cerebellio.noted.models.listeners.IOnColourSelectedListener;
+import com.cerebellio.noted.models.listeners.IOnDeleteDialogDismissedListener;
 import com.cerebellio.noted.models.listeners.IOnItemFocusNeedsUpdatingListener;
 import com.cerebellio.noted.models.listeners.IOnItemSelectedToEditListener;
 import com.cerebellio.noted.models.listeners.IOnTagOperationListener;
 import com.cerebellio.noted.utils.Constants;
+import com.cerebellio.noted.utils.FileFunctions;
 import com.cerebellio.noted.utils.TextFunctions;
 import com.cerebellio.noted.utils.UtilityFunctions;
+import com.cerebellio.noted.views.FilteredIconView;
 import com.squareup.otto.Subscribe;
 
 import butterknife.ButterKnife;
@@ -33,10 +41,13 @@ import butterknife.InjectView;
 /**
  * Provides the user a number of operations for the selected Item
  */
-public class DialogItemFocus extends DialogFragment implements IOnTagOperationListener, IOnColourSelectedListener {
+public class DialogItemFocus extends DialogFragment
+        implements IOnTagOperationListener, IOnColourSelectedListener, IOnDeleteDialogDismissedListener {
 
     @InjectView(R.id.dialog_item_focus_add_tag_frame)
     LinearLayout mTagFrame;
+    @InjectView(R.id.dialog_item_focus_current_tags_expand_collapse)
+    FilteredIconView mTagExpandCollapse;
     @InjectView(R.id.dialog_item_focus_current_tags)
     TextView mTextCurrentTags;
     @InjectView(R.id.dialog_item_focus_tag_recycler)
@@ -53,6 +64,8 @@ public class DialogItemFocus extends DialogFragment implements IOnTagOperationLi
     ImageView mDelete;
     @InjectView(R.id.dialog_item_focus_colour)
     TextView mTextColour;
+    @InjectView(R.id.dialog_item_focus_colour_frame)
+    FrameLayout mFrameColour;
 
     private static final String LOG_TAG = TextFunctions.makeLogTag(DialogItemFocus.class);
 
@@ -64,9 +77,9 @@ public class DialogItemFocus extends DialogFragment implements IOnTagOperationLi
     private SqlDatabaseHelper mDatabaseHelper;
 
     private int mPosition;
+    private boolean mIsTagFrameExpanded = false;
 
-    public DialogItemFocus() {
-    }
+    public DialogItemFocus() {}
 
     @Nullable
     @Override
@@ -97,10 +110,26 @@ public class DialogItemFocus extends DialogFragment implements IOnTagOperationLi
             }
         });
 
+        //Colour isn't relevant for sketches in the same way it is for notes and checklists
+        mTextColour.setVisibility(mItem instanceof Sketch ? View.GONE : View.VISIBLE);
+        mFrameColour.setVisibility(mItem instanceof Sketch ? View.GONE : View.VISIBLE);
+
         mTagFrame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mTagsRecycler.setVisibility(mTagsRecycler.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
+                mIsTagFrameExpanded = !mIsTagFrameExpanded;
+                mTagsRecycler.setVisibility(mIsTagFrameExpanded ? View.VISIBLE : View.GONE);
+
+                //This animation causes the collapse/expand arrow to rotate
+                //in the required direction, i.e. when the tag draw is open
+                //it points upwards, when closed it points down
+                RotateAnimation animation = new RotateAnimation(
+                        mIsTagFrameExpanded ? 0 : 180, mIsTagFrameExpanded ? 180 : 360,
+                        Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                animation.setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime));
+                animation.setInterpolator(new DecelerateInterpolator());
+                animation.setFillAfter(true);
+                mTagExpandCollapse.startAnimation(animation);
             }
         });
 
@@ -152,9 +181,7 @@ public class DialogItemFocus extends DialogFragment implements IOnTagOperationLi
         mDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mItem.setStatus(Item.Status.DELETED);
-                mIOnItemFocusNeedsUpdatingListener.onRemove(mPosition);
-                dismiss();
+                new DialogDeleteItem().show(getChildFragmentManager(), null);
             }
         });
 
@@ -219,10 +246,21 @@ public class DialogItemFocus extends DialogFragment implements IOnTagOperationLi
 
     @Override
     public void onColourSelected(Integer colour) {
-
         mItem.setColour(colour);
         mTextColour.setBackgroundColor(colour);
         mIOnItemFocusNeedsUpdatingListener.onUpdateColour(mPosition, colour);
+    }
+
+    @Override
+    public void onDelete() {
+        mItem.setStatus(Item.Status.DELETED);
+        mIOnItemFocusNeedsUpdatingListener.onRemove(mPosition);
+
+        if (mItem instanceof Sketch) {
+            FileFunctions.deleteSketchFromStorage(((Sketch) mItem).getImagePath());
+        }
+
+        dismiss();
     }
 
     @Subscribe
