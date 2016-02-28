@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/popup_width"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/size_medium"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:background="?attr/windowBackground"
+    >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/size_huge"
+        android:text="@string/dialog_permanently_delete_title"
+        android:gravity="center"
+        android:textColor="?attr/textColorTertiary"
+        style="@style/text.huge"
+        />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/size_medium"
+        >
+
+        <TextView
+            android:id="@+id/dialog_delete_item_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/size_large"
+            android:layout_alignParentRight="true"
+            android:text="@string/dialog_delete"
+            style="@style/dialog_button"
+            />
+
+        <TextView
+            android:id="@+id/dialog_delete_item_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/size_large"
+            android:layout_toLeftOf="@id/dialog_delete_item_delete"
+            android:layout_marginRight="@dimen/size_small"
+            android:text="@string/dialog_cancel"
+            style="@style/dialog_button"
+            />
+
+    </RelativeLayout>
+
+</LinearLayout>
