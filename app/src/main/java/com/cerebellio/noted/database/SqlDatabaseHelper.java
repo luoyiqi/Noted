@@ -417,7 +417,6 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
      * @return          equivalent String
      */
     private String convertItemType(NavDrawerItem.NavDrawerItemType type) {
-
         switch (type) {
             default:
             case PINBOARD:
