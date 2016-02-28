@@ -23,7 +23,6 @@
         <item name="textColorSecondary">@color/default_textColorSecondary</item>
         <item name="textColorTertiary">@color/default_textColorTertiary</item>
 
-        <item name="floatingActionMenuLabelBackground">@drawable/default_fab_label_background</item>
         <item name="editTextBackgroundDrawable">@drawable/default_edit_text_background</item>
         <item name="seekbar">@drawable/default_seekbar</item>
         <item name="tag_background">@drawable/default_tag</item>
@@ -45,7 +44,6 @@
         <item name="textColorSecondary">@color/dark_textColorSecondary</item>
         <item name="textColorTertiary">@color/dark_textColorTertiary</item>
 
-        <item name="floatingActionMenuLabelBackground">@drawable/dark_fab_label_background</item>
         <item name="editTextBackgroundDrawable">@drawable/dark_edit_text_background</item>
         <item name="seekbar">@drawable/dark_seekbar</item>
         <item name="tag_background">@drawable/dark_tag</item>
@@ -116,10 +114,19 @@
     </style>
 
     <style name="fab_label">
-        <item name="android:background">@drawable/default_fab_label_background</item>
         <item name="android:textSize">@dimen/text_small</item>
         <item name="android:padding">@dimen/size_small</item>
         <item name="android:textColor">?attr/textColorPrimary</item>
+    </style>
+
+    <style name="dialog_button">
+        <item name="android:minWidth">@dimen/size_huge</item>
+        <item name="android:paddingLeft">@dimen/size_small</item>
+        <item name="android:paddingRight">@dimen/size_small</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">@dimen/text_medium</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:textAllCaps">true</item>
     </style>
 
     <style name="divider_across">
