@@ -231,7 +231,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
                         + " = "
                         + checkList.getId()
                         + " AND " + COLUMN_STATUS
-                        + " = '" + checkList.getStatus().toString() + "'"));
+                        + " != '" + Item.Status.DELETED + "'"));
 
                 checkLists.add(checkList);
 
@@ -280,9 +280,8 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
                 item.setChecklistId(cursor.getLong(cursor.getColumnIndex(COLUMN_CHECKLIST_ITEM_CHECKLIST_ID)));
                 item.setContent(cursor.getString(cursor.getColumnIndex(COLUMN_CHECKLIST_ITEM_CONTENT)));
                 item.setIsCompleted(cursor.getInt(cursor.getColumnIndex(COLUMN_CHECKLIST_ITEM_COMPLETED)) == 1);
-                item.setIndex(cursor.getInt(cursor.getColumnIndex(COLUMN_CHECKLIST_ITEM_POSITION)));
+                item.setPosition(cursor.getInt(cursor.getColumnIndex(COLUMN_CHECKLIST_ITEM_POSITION)));
                 item.setStatus(Item.Status.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_STATUS))));
-
 
                 checkListItems.add(item);
 
@@ -553,6 +552,8 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
     public void addOrEditChecklist(CheckList checkList) {
         SQLiteDatabase db = getWritableDatabase();
 
+        checkList.assignPositions();
+
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_COLOUR, checkList.getColour());
         contentValues.put(COLUMN_CREATED_DATE, checkList.getCreatedDate());
@@ -590,7 +591,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_CHECKLIST_ITEM_CHECKLIST_ID, checkListItem.getChecklistId());
         contentValues.put(COLUMN_CHECKLIST_ITEM_CONTENT, checkListItem.getContent());
         contentValues.put(COLUMN_CHECKLIST_ITEM_COMPLETED, checkListItem.isCompleted() ? 1 : 0);
-        contentValues.put(COLUMN_CHECKLIST_ITEM_POSITION, checkListItem.getIndex());
+        contentValues.put(COLUMN_CHECKLIST_ITEM_POSITION, checkListItem.getPosition());
         contentValues.put(COLUMN_STATUS, checkListItem.getStatus().toString());
 
         //check to see if this checklistItem is already in db
