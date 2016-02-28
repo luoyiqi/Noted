@@ -28,7 +28,7 @@
         android:id="@+id/fragment_show_items_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#EE000000"
+        android:background="?attr/colorPrimary"
         android:visibility="gone"
         />
 
