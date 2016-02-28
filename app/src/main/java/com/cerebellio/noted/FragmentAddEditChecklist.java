@@ -2,25 +2,28 @@ package com.cerebellio.noted;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.cerebellio.noted.database.SqlDatabaseHelper;
 import com.cerebellio.noted.models.CheckList;
+import com.cerebellio.noted.models.CheckListItem;
 import com.cerebellio.noted.models.Item;
 import com.cerebellio.noted.models.adapters.ChecklistItemsAdapter;
-import com.cerebellio.noted.models.events.ChecklistItemEditedEvent;
+import com.cerebellio.noted.models.events.TitleChangedEvent;
 import com.cerebellio.noted.models.listeners.IOnColourSelectedListener;
+import com.cerebellio.noted.models.listeners.IOnStartDragListener;
 import com.cerebellio.noted.utils.Constants;
 import com.cerebellio.noted.utils.TextFunctions;
 import com.cerebellio.noted.utils.UtilityFunctions;
-import com.squareup.otto.Subscribe;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -28,7 +31,8 @@ import butterknife.InjectView;
 /**
  * Allows user to add new {@link CheckList} or edit an existing one
  */
-public class FragmentAddEditChecklist extends Fragment implements IOnColourSelectedListener {
+public class FragmentAddEditChecklist extends FragmentBase
+        implements IOnColourSelectedListener, IOnStartDragListener{
 
     @InjectView(R.id.fragment_add_edit_checklist_items_recycler) RecyclerView mRecycler;
 
@@ -37,10 +41,10 @@ public class FragmentAddEditChecklist extends Fragment implements IOnColourSelec
     private CheckList mCheckList;
     private SqlDatabaseHelper mSqlDatabaseHelper;
     private ChecklistItemsAdapter mAdapter;
+    private List<CheckListItem> mOriginalItems = new ArrayList<>();
 
     private boolean mIsInEditMode;
-    //If user makes a change, this flag is set to true
-    private boolean mHasBeenEdited = false;
+    private ItemTouchHelper mItemTouchHelper;
 
     @Nullable
     @Override
@@ -56,6 +60,9 @@ public class FragmentAddEditChecklist extends Fragment implements IOnColourSelec
         //Scroll to end of list so user can conveniently enter new item
         mRecycler.smoothScrollToPosition(mAdapter.getItemCount());
 
+        ApplicationNoted.bus.post(new TitleChangedEvent(
+                mIsInEditMode ? getString(R.string.title_checklist_edit) : getString(R.string.title_checklist_new)));
+
         return rootView;
     }
 
@@ -64,7 +71,7 @@ public class FragmentAddEditChecklist extends Fragment implements IOnColourSelec
 
         super.onPause();
 
-        if (mHasBeenEdited) {
+        if (hasBeenEdited()) {
             mCheckList.setEditedDate(new Date().getTime());
         }
 
@@ -82,9 +89,38 @@ public class FragmentAddEditChecklist extends Fragment implements IOnColourSelec
         mCheckList.setColour(colour);
     }
 
-    @Subscribe
-    public void receiveEvent(ChecklistItemEditedEvent event) {
-        mHasBeenEdited = true;
+    @Override
+    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
+        mItemTouchHelper.startDrag(viewHolder);
+    }
+
+    /**
+     * Determines whether the checklist has been edited
+     *
+     * @return          true if edited, false otherwise
+     */
+    private boolean hasBeenEdited() {
+
+        //If item has been added or removed from original list
+        if (mOriginalItems.size() != mCheckList.getItems().size()) {
+            return true;
+        }
+
+        for (int i = 0; i < mOriginalItems.size(); i++) {
+
+            CheckListItem originalItem = mOriginalItems.get(i);
+            CheckListItem newItem = mCheckList.getItems().get(i);
+
+            if (!originalItem.getContent().equals(newItem.getContent())
+                    || originalItem.isCompleted() != newItem.isCompleted()) {
+
+                //Content of an item or its completion mark has been changed
+                return true;
+            }
+        }
+
+        //No changes have been made
+        return false;
     }
 
     /**
@@ -108,9 +144,40 @@ public class FragmentAddEditChecklist extends Fragment implements IOnColourSelec
                     mSqlDatabaseHelper.addBlankChecklist(), Item.Type.CHECKLIST);
         }
 
-        mAdapter = new ChecklistItemsAdapter(mCheckList, getActivity());
+        //Deep copy the list so we can check if it has been edited later
+        for (CheckListItem item : mCheckList.getItems()) {
+            mOriginalItems.add(item.createDeepCopy());
+        }
+
+        mAdapter = new ChecklistItemsAdapter(mCheckList, getActivity(), this);
         UtilityFunctions.setUpLinearRecycler(getActivity(), mRecycler,
                 mAdapter, LinearLayoutManager.VERTICAL);
+
+        mItemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(
+                ItemTouchHelper.UP | ItemTouchHelper.DOWN,
+                ItemTouchHelper.START | ItemTouchHelper.END) {
+
+            @Override
+            public boolean isLongPressDragEnabled() {
+                //Using custom view to perform dragging
+                return false;
+            }
+
+            @Override
+            public boolean onMove(RecyclerView recyclerView,
+                                  RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                mAdapter.swap(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+                return true;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                mAdapter.remove(viewHolder.getAdapterPosition());
+                mAdapter.notifyItemChanged(viewHolder.getAdapterPosition());
+            }
+        });
+
+        mItemTouchHelper.attachToRecyclerView(mRecycler);
 
         mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override

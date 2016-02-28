@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,6 +22,7 @@ import android.widget.TextView;
 import com.cerebellio.noted.database.SqlDatabaseHelper;
 import com.cerebellio.noted.models.Item;
 import com.cerebellio.noted.models.Sketch;
+import com.cerebellio.noted.models.events.TitleChangedEvent;
 import com.cerebellio.noted.models.listeners.IOnColourSelectedListener;
 import com.cerebellio.noted.models.listeners.IOnSketchActionListener;
 import com.cerebellio.noted.utils.ColourFunctions;
@@ -40,7 +40,7 @@ import butterknife.InjectView;
 /**
  * Allows user to create a {@link Sketch} or edit an existing one
  */
-public class FragmentAddEditSketch extends Fragment implements IOnColourSelectedListener,
+public class FragmentAddEditSketch extends FragmentBase implements IOnColourSelectedListener,
          IOnSketchActionListener{
 
     @InjectView(R.id.fragment_add_edit_sketch_sketchview) SketchView mSketchView;
@@ -129,6 +129,9 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
 
         toggleStrokeTypeViews(mSketchView.getStrokeType());
 
+        ApplicationNoted.bus.post(new TitleChangedEvent(
+                mIsInEditMode ? getString(R.string.title_sketch_edit) : getString(R.string.title_sketch_new)));
+
         return rootView;
     }
 
@@ -137,14 +140,13 @@ public class FragmentAddEditSketch extends Fragment implements IOnColourSelected
 
         super.onPause();
 
-        if (!mSketchView.hasChangeBeenMade() && mSketch.isEmpty()) {
+        if (mSketchView.hasChangeBeenMade()) {
+            mSketch.setEditedDate(new Date().getTime());
+        }
 
-            //Sketch has not been touched
+        if (mSketch.isEmpty() && !mSketchView.hasChangeBeenMade()) {
             mSketch.setStatus(Item.Status.DELETED);
         } else {
-
-            //Update last edited time before saving
-            mSketch.setEditedDate(new Date().getTime());
 
             try {
                 mSketch.setImagePath(FileFunctions.saveSketchToStorage(

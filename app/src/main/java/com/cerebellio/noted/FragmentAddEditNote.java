@@ -2,7 +2,6 @@ package com.cerebellio.noted;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +10,7 @@ import com.cerebellio.noted.database.SqlDatabaseHelper;
 import com.cerebellio.noted.models.CheckList;
 import com.cerebellio.noted.models.Item;
 import com.cerebellio.noted.models.Note;
+import com.cerebellio.noted.models.events.TitleChangedEvent;
 import com.cerebellio.noted.models.listeners.IOnColourSelectedListener;
 import com.cerebellio.noted.utils.Constants;
 import com.cerebellio.noted.utils.TextFunctions;
@@ -24,7 +24,7 @@ import butterknife.InjectView;
 /**
  * Allows user to add new {@link CheckList} or edit an existing one
  */
-public class FragmentAddEditNote extends Fragment
+public class FragmentAddEditNote extends FragmentBase
         implements IOnColourSelectedListener {
 
     @InjectView(R.id.fragment_add_edit_note_content) MaterialEditText mEditContent;
@@ -46,6 +46,9 @@ public class FragmentAddEditNote extends Fragment
         mIsInEditMode = getArguments().getBoolean(Constants.BUNDLE_IS_IN_EDIT_MODE);
 
         initNote();
+
+        ApplicationNoted.bus.post(new TitleChangedEvent(
+                mIsInEditMode ? getString(R.string.title_note_edit) : getString(R.string.title_note_new)));
 
         return rootView;
     }
