@@ -1,7 +1,7 @@
 package com.cerebellio.noted.models.adapters;
 
 import android.content.Context;
-import android.graphics.PorterDuff;
+import android.graphics.drawable.GradientDrawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -91,9 +91,9 @@ public class TagsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             if (viewType == TYPE_ADD) {
                 mTextTag.setText(mContext.getString(R.string.tag_new));
-                mTextTag.getBackground().setColorFilter(
+                ((GradientDrawable) mTextTag.getBackground()).setColor(
                         ContextCompat.getColor(mContext,
-                                UtilityFunctions.getResIdFromAttribute(R.attr.colorAccent, mContext)), PorterDuff.Mode.SRC_ATOP);
+                                UtilityFunctions.getResIdFromAttribute(R.attr.colorAccent, mContext)));
 
                 //TagEvent to event bus for edit
                 mTextTag.setOnClickListener(new View.OnClickListener() {
