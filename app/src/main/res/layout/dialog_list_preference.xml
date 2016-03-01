@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="?attr/windowBackground"
+    >
+
+    <!--<TextView-->
+        <!--android:id="@+id/dialog_title"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_margin="@dimen/size_medium"-->
+        <!--android:textColor="?attr/textColorTertiary"-->
+        <!--style="@style/text.huge"-->
+        <!--/>-->
+
+    <!--<View-->
+        <!--style="@style/divider_across"-->
+        <!--/>-->
+
+    <ListView
+        android:id="@android:id/list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/size_medium"
+        />
+
+    <View style="@style/divider_across"
+        />
+
+    <TextView
+        android:id="@+id/dialog_list_preference_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/size_large"
+        android:layout_gravity="right"
+        android:layout_margin="@dimen/size_medium"
+        android:text="@string/dialog_cancel"
+        style="@style/dialog_button"
+        />
+
+</LinearLayout>
