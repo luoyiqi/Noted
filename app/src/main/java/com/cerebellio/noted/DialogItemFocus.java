@@ -1,9 +1,11 @@
 package com.cerebellio.noted;
 
 import android.content.Context;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -54,6 +56,8 @@ public class DialogItemFocus extends DialogFragment
     RecyclerView mTagsRecycler;
     @InjectView(R.id.dialog_item_focus_edit_item_frame)
     LinearLayout mEditItemFrame;
+    @InjectView(R.id.dialog_item_focus_important)
+    ImageView mImportant;
     @InjectView(R.id.dialog_item_focus_pinboard)
     ImageView mPinboard;
     @InjectView(R.id.dialog_item_focus_archive)
@@ -185,7 +189,16 @@ public class DialogItemFocus extends DialogFragment
             }
         });
 
+        mImportant.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mItem.setIsImportant(!mItem.isImportant());
+                colourImportantView();
+            }
+        });
+
         updateTagTextView();
+        colourImportantView();
 
         return rootView;
     }
@@ -200,7 +213,6 @@ public class DialogItemFocus extends DialogFragment
 
     @Override
     public void onPause() {
-
         super.onPause();
 
         mDatabaseHelper.addOrEditItem(mItem);
@@ -276,6 +288,15 @@ public class DialogItemFocus extends DialogFragment
             dialogAddTag.setArguments(bundle);
             dialogAddTag.show(getChildFragmentManager(), null);
         }
+    }
+
+    private void colourImportantView() {
+        mImportant.setColorFilter(mItem.isImportant()
+                ? ContextCompat.getColor(getActivity(),
+                        UtilityFunctions.getResIdFromAttribute(R.attr.colorAccent, getActivity()))
+                : ContextCompat.getColor(getActivity(),
+                        UtilityFunctions.getResIdFromAttribute(R.attr.textColorPrimary, getActivity())),
+                PorterDuff.Mode.MULTIPLY);
     }
 
     /**
