@@ -10,6 +10,7 @@ import com.cerebellio.noted.models.CheckList;
 import com.cerebellio.noted.models.CheckListItem;
 import com.cerebellio.noted.models.Item;
 import com.cerebellio.noted.models.NavDrawerItem;
+import com.cerebellio.noted.models.NavDrawerItem.NavDrawerItemType;
 import com.cerebellio.noted.models.Note;
 import com.cerebellio.noted.models.Sketch;
 import com.cerebellio.noted.utils.Constants;
@@ -128,7 +129,6 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
     private Context mContext;
 
 
-
     public SqlDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         mContext = context;
@@ -146,7 +146,6 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
         //TODO write onUpgrade for db
     }
-
 
     /**
      * Find {@link Item} in the database by its ID
@@ -190,6 +189,23 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         items.addAll(getAllChecklists(type));
         items.addAll(getAllSketches(type));
 
+        return items;
+    }
+
+    /**
+     * Retrieve all {@link Item} marked as important
+     *
+     * @param type          {@link NavDrawerItemType#PINBOARD} etc
+     * @return              List of important {@link Item}
+     */
+    public List<Item> getImportantItems(NavDrawerItem.NavDrawerItemType type) {
+        List<Item> items = new ArrayList<>();
+
+        //e.g. WHERE status = 'PINBOARD' AND important = 1
+        String where = getItemTypeWhereString(type) + " AND " + COLUMN_IMPORTANT + " = 1";
+        items.addAll(getNotes(where));
+        items.addAll(getCheckLists(where));
+        items.addAll(getSketches(where));
         return items;
     }
 
@@ -404,7 +420,6 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
      * @return              created WHERE String
      */
     private String getItemTypeWhereString(NavDrawerItem.NavDrawerItemType type) {
-
         String itemStatus = convertItemType(type);
         return " WHERE " + COLUMN_STATUS + " = '" + itemStatus + "'";
     }
