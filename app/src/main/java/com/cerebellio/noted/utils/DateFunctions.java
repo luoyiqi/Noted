@@ -16,6 +16,24 @@ public abstract class DateFunctions {
     private static final String LOG_TAG = TextFunctions.makeLogTag(DateFunctions.class);
 
     /**
+     * Get the date and time for a given value
+     *
+     * @param prefix        String to prefix {@link PrettyTime}
+     * @param time          millis since Epoch
+     * @param context
+     * @return              time as a String
+     */
+    public static String getTime(String prefix, long time, Context context) {
+        if (PreferenceFunctions.getPrefDateFormat(context).equals(PreferenceFunctions.SETTINGS_DISPLAY_DATE_FORMAT_PRETTY)) {
+            return getPrettyTime(prefix, time, context);
+        } else if (PreferenceFunctions.getPrefDateFormat(context).equals(PreferenceFunctions.SETTINGS_DISPLAY_DATE_FORMAT_LONG)) {
+            return getDateString(prefix, time, "EEE, d MMM yyyy HH:mm:ss");
+        } else {
+            return getDateString(prefix, time, "dd MMM HH:mm");
+        }
+    }
+
+    /**
      * Creates a {@link PrettyTime} String
      * @param prefix        String to prefix {@link PrettyTime}
      * @param time          millis since Epoch
@@ -50,14 +68,16 @@ public abstract class DateFunctions {
 
     /**
      * Converts milliseconds to Date in format dd/MM/yy HH:mm:ss
+     * @param prefix        String to prefix
      * @param millis        millis since Epoch
+     * @param pattern       pattern to follow, i.e. dd MMM HH:mm
      * @return              formatted String
      */
-    public static String getDateString(long millis) {
-        return millis == 0
-                ? ""
-                : new SimpleDateFormat("dd/MM/yy HH:mm:ss", Locale.getDefault())
-                                        .format(new Date(millis));
+    public static String getDateString(String prefix, long millis, String pattern) {
+        return prefix
+                + " "
+                + (millis == 0 ? "": new SimpleDateFormat(pattern, Locale.getDefault())
+                                        .format(new Date(millis)));
     }
 
 }
