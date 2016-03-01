@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -248,16 +247,8 @@ public class ActivityMain extends ActivityBase
                 break;
             default:
             case SETTINGS:
-                PreferenceManager.getDefaultSharedPreferences(getBaseContext())
-                        .edit()
-                        .putInt(Constants.SHARED_PREFS_THEME_ID,
-                                PreferenceManager.getDefaultSharedPreferences(getBaseContext())
-                                        .getInt(Constants.SHARED_PREFS_THEME_ID,
-                                                Constants.DEFAULT_THEME_ID) == Constants.DEFAULT_THEME_ID
-                                        ? Constants.DARK_THEME_ID
-                                        : Constants.DEFAULT_THEME_ID)
-                        .commit();
-                recreate();
+                startActivity(new Intent(this, ActivitySettings.class));
+                mNavDrawer.closeDrawers();
                 break;
         }
     }
