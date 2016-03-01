@@ -19,6 +19,7 @@ import com.cerebellio.noted.models.NavDrawerItem;
 import com.cerebellio.noted.models.Note;
 import com.cerebellio.noted.models.Sketch;
 import com.cerebellio.noted.models.events.ItemWithListPositionEvent;
+import com.cerebellio.noted.utils.FeedbackFunctions;
 import com.cerebellio.noted.utils.TextFunctions;
 import com.squareup.picasso.Picasso;
 
@@ -55,14 +56,17 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         NONE,
         NOTE,
         CHECKLIST,
-        SKETCH
+        SKETCH,
+        IMPORTANT
     }
 
     public enum SortType {
         EDITED_ASC,
         EDITED_DESC,
         CREATED_ASC,
-        CREATED_DESC
+        CREATED_DESC,
+        TYPE_N_C_S,
+        TYPE_S_C_N
     }
 
     public ShowItemsAdapter(Context context) {
@@ -208,6 +212,8 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             case SKETCH:
                 allItems.addAll(sqlDatabaseHelper.getAllSketches(mNavType));
                 break;
+            case IMPORTANT:
+                allItems.addAll(sqlDatabaseHelper.getImportantItems(mNavType));
         }
 
         sqlDatabaseHelper.closeDB();
@@ -215,7 +221,17 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     private void sortItems(List<Item> allItems) {
-        //Sort Items depending on sortType
+
+        //Items come from database sorted Notes-Checklists-Sketches
+        //So if we're sorting by type we either do nothing or reverse the list
+        if (mSortType.equals(SortType.TYPE_N_C_S)) {
+            return;
+        } else if (mSortType.equals(SortType.TYPE_S_C_N)) {
+            Collections.reverse(allItems);
+            return;
+        }
+
+        //Sorting items by some values so we need to use a comparator
         Collections.sort(allItems, new Comparator<Item>() {
             @Override
             public int compare(Item item, Item item2) {
@@ -260,6 +276,7 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
      * @param position      position at which to remove item
      */
     public void removeItem(int position) {
+        mItems.remove(position);
         notifyItemRemoved(position);
     }
 
@@ -302,6 +319,10 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public void setNavType(NavDrawerItem.NavDrawerItemType navType) {
         mNavType = navType;
+
+        //Clear filters and sorts when making type transfer
+        mFilterType = FilterType.NONE;
+        mSortType = SortType.EDITED_DESC;
         refresh();
     }
 
@@ -309,7 +330,7 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         protected TextView mTextContent;
 
-        public ShowNotesAdapterViewHolder(View v) {
+        public ShowNotesAdapterViewHolder(final View v) {
             super(v);
 
             mTextContent = (TextView) v.findViewById(R.id.recycler_item_show_notes_content);
@@ -322,6 +343,7 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                                 ApplicationNoted.bus.post(
                                         new ItemWithListPositionEvent(mItems.get(getAdapterPosition()),
                                                 getAdapterPosition()));
+                                FeedbackFunctions.vibrate(v);
                             }
                         }
                     });
@@ -333,7 +355,7 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         protected TextView mTextContent;
 
 
-        public ShowChecklistsAdapterViewHolder(View v) {
+        public ShowChecklistsAdapterViewHolder(final View v) {
             super(v);
 
             mTextContent = (TextView) v.findViewById(R.id.recycler_item_show_checklist_items);
@@ -346,6 +368,7 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                                 ApplicationNoted.bus.post(
                                         new ItemWithListPositionEvent(mItems.get(getAdapterPosition()),
                                                 getAdapterPosition()));
+                                FeedbackFunctions.vibrate(v);
                             }
                         }
                     });
@@ -356,7 +379,7 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         protected ImageView mImageSketch;
 
-        public ShowSketchesAdapterViewHolder(View v) {
+        public ShowSketchesAdapterViewHolder(final View v) {
             super(v);
 
             mImageSketch = (ImageView) v.findViewById(R.id.recycler_item_show_sketch_sketch);
@@ -369,6 +392,7 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                                 ApplicationNoted.bus.post(
                                         new ItemWithListPositionEvent(mItems.get(getAdapterPosition()),
                                                 getAdapterPosition()));
+                                FeedbackFunctions.vibrate(v);
                             }
                         }
                     });
