@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -20,6 +21,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
+import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 
 import com.cerebellio.noted.database.SqlDatabaseHelper;
@@ -33,6 +35,9 @@ import com.cerebellio.noted.models.listeners.IOnItemFocusNeedsUpdatingListener;
 import com.cerebellio.noted.models.listeners.IOnItemSelectedToEditListener;
 import com.cerebellio.noted.utils.Constants;
 import com.cerebellio.noted.utils.FabShowHideRecyclerScroll;
+import com.cerebellio.noted.utils.FeedbackFunctions;
+import com.cerebellio.noted.utils.PreferenceFunctions;
+import com.cerebellio.noted.utils.TextFunctions;
 import com.cerebellio.noted.utils.UtilityFunctions;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
@@ -47,22 +52,33 @@ import butterknife.InjectView;
 public class FragmentShowItems extends FragmentBase
         implements IOnItemSelectedToEditListener, IOnItemFocusNeedsUpdatingListener {
 
-    @InjectView(R.id.fragment_show_items_recycler) RecyclerView mItemsRecycler;
-    @InjectView(R.id.fragment_show_items_floating_action_menu) FloatingActionsMenu mFloatingActionsMenu;
-    @InjectView(R.id.fragnent_show_items_floating_actions_menu_create_note) FloatingActionButton mCreateNote;
-    @InjectView(R.id.fragnent_show_items_floating_actions_menu_create_checklist) FloatingActionButton mCreateChecklist;
-    @InjectView(R.id.fragnent_show_items_floating_actions_menu_create_sketch) FloatingActionButton mCreateSketch;
-    @InjectView(R.id.fragment_show_items_empty) TextView mTextEmpty;
-    @InjectView(R.id.fragment_show_items_overlay) View mOverlay;
+    @InjectView(R.id.fragment_show_items_recycler)
+    RecyclerView mItemsRecycler;
+    @InjectView(R.id.fragment_show_items_floating_action_menu)
+    FloatingActionsMenu mFloatingActionsMenu;
+    @InjectView(R.id.fragnent_show_items_floating_actions_menu_create_note)
+    FloatingActionButton mCreateNote;
+    @InjectView(R.id.fragnent_show_items_floating_actions_menu_create_checklist)
+    FloatingActionButton mCreateChecklist;
+    @InjectView(R.id.fragnent_show_items_floating_actions_menu_create_sketch)
+    FloatingActionButton mCreateSketch;
+    @InjectView(R.id.fragment_show_items_empty)
+    TextView mTextEmpty;
+    @InjectView(R.id.fragment_show_items_overlay)
+    View mOverlay;
 
-    private static final int NUM_COLUMNS = 4;
+    private static final String LOG_TAG = TextFunctions.makeLogTag(FragmentShowItems.class);
 
     private IOnFloatingActionMenuOptionClickedListener mIOnFloatingActionMenuOptionClickedListener;
     private IOnItemSelectedToEditListener mIOnItemSelectedToEditListener;
     private ShowItemsAdapter mAdapter;
     private SqlDatabaseHelper mSqlDatabaseHelper;
+    private NavDrawerItem.NavDrawerItemType mType = NavDrawerItem.NavDrawerItemType.PINBOARD;
 
     private boolean mIsFabMenuVisible = true;
+    private boolean mIsEditedDescending = true;
+    private boolean mIsCreatedDescending = true;
+    private boolean mIsSortNCS = true;
 
     @Nullable
     @Override
@@ -83,14 +99,6 @@ public class FragmentShowItems extends FragmentBase
         mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeRemoved(int positionStart, int itemCount) {
-                for (int i = positionStart; i < positionStart + itemCount; i++) {
-                    Item item = mAdapter.getItems().get(i);
-
-                    mSqlDatabaseHelper.addOrEditItem(item);
-
-                    mAdapter.getItems().remove(i);
-                }
-
                 // TODO: 11/02/2016 Discover why this is needed to refresh Recyclerview on last item removed
                 if (mAdapter.getItems().size() == 0) {
                     mItemsRecycler.smoothScrollToPosition(0);
@@ -110,82 +118,36 @@ public class FragmentShowItems extends FragmentBase
             }
         });
 
-        UtilityFunctions.setUpStaggeredGridRecycler(mItemsRecycler, mAdapter, NUM_COLUMNS);
-
-        toggleEmptyText();
-
         mCreateNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fab_shrink);
-                mOverlay.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.shutter_up));
-                animation.setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        mIOnFloatingActionMenuOptionClickedListener.OnFabCreateItemClick(Item.Type.NOTE);
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-
-                    }
-                });
-                mFloatingActionsMenu.startAnimation(animation);
+                onCreateItemClick(view, Item.Type.NOTE);
             }
         });
 
         mCreateChecklist.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fab_shrink);
-                mOverlay.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.shutter_up));
-                animation.setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        mIOnFloatingActionMenuOptionClickedListener.OnFabCreateItemClick(Item.Type.CHECKLIST);
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-
-                    }
-                });
-                mFloatingActionsMenu.startAnimation(animation);
+                onCreateItemClick(view, Item.Type.CHECKLIST);
             }
         });
 
         mCreateSketch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fab_shrink);
-                mOverlay.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.shutter_up));
-                animation.setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
+                onCreateItemClick(view, Item.Type.SKETCH);
+            }
+        });
 
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        mIOnFloatingActionMenuOptionClickedListener.OnFabCreateItemClick(Item.Type.SKETCH);
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-
-                    }
-                });
-                mFloatingActionsMenu.startAnimation(animation);
+        mOverlay.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (mFloatingActionsMenu.isExpanded()) {
+                    FeedbackFunctions.vibrate(view);
+                    mFloatingActionsMenu.collapse();
+                    return true;
+                }
+                return false;
             }
         });
 
@@ -197,6 +159,7 @@ public class FragmentShowItems extends FragmentBase
                         mOverlay.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.shutter_down));
                         mAdapter.setEnabled(false);
                         mItemsRecycler.setLayoutFrozen(true);
+                        FeedbackFunctions.vibrate(mFloatingActionsMenu);
                     }
 
                     @Override
@@ -240,12 +203,33 @@ public class FragmentShowItems extends FragmentBase
         getActivity().getMenuInflater().inflate(R.menu.menu_fragment_show_items, menu);
 
         MenuItem searchItem = menu.findItem(R.id.menu_action_search);
+        final MenuItem filterItem = menu.findItem(R.id.menu_action_item_filter);
+        final MenuItem sortItem = menu.findItem(R.id.menu_action_item_sort);
+
         SearchManager searchManager =
                 (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView =
                 (SearchView) MenuItemCompat.getActionView(searchItem);
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getActivity().getComponentName()));
+        searchView.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
+
+        MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                filterItem.setVisible(false);
+                sortItem.setVisible(false);
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                filterItem.setVisible(true);
+                sortItem.setVisible(true);
+                mAdapter.refresh();
+                return true;
+            }
+        });
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -266,27 +250,19 @@ public class FragmentShowItems extends FragmentBase
             }
         });
 
-        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
-            @Override
-            public boolean onClose() {
-                mAdapter.refresh();
-                return false;
-            }
-        });
-
         //Ensure correct options are selected when menu refreshes
         switch (mAdapter.getSortType()) {
             case EDITED_ASC:
-                menu.findItem(R.id.menu_action_item_sort_submenu_edited_asc).setChecked(true);
-                break;
             case EDITED_DESC:
-                menu.findItem(R.id.menu_action_item_sort_submenu_edited_desc).setChecked(true);
+                menu.findItem(R.id.menu_action_item_sort_submenu_edited).setChecked(true);
                 break;
             case CREATED_ASC:
-                menu.findItem(R.id.menu_action_item_sort_submenu_created_asc).setChecked(true);
-                break;
             case CREATED_DESC:
-                menu.findItem(R.id.menu_action_item_sort_submenu_created_desc).setChecked(true);
+                menu.findItem(R.id.menu_action_item_sort_submenu_created).setChecked(true);
+                break;
+            case TYPE_N_C_S:
+            case TYPE_S_C_N:
+                menu.findItem(R.id.menu_action_item_sort_submenu_type).setChecked(true);
                 break;
         }
 
@@ -304,6 +280,9 @@ public class FragmentShowItems extends FragmentBase
             case SKETCH:
                 menu.findItem(R.id.menu_action_item_filter_submenu_sketch).setChecked(true);
                 break;
+            case IMPORTANT:
+                menu.findItem(R.id.menu_action_item_filter_submenu_important).setChecked(true);
+                break;
         }
     }
 
@@ -312,25 +291,42 @@ public class FragmentShowItems extends FragmentBase
 
         if (item.getItemId() == R.id.menu_action_item_filter_submenu_none) {
             mAdapter.setFilterType(ShowItemsAdapter.FilterType.NONE);
+            setToolbarTitleByType();
         } else if (item.getItemId() == R.id.menu_action_item_filter_submenu_note) {
             mAdapter.setFilterType(ShowItemsAdapter.FilterType.NOTE);
-        }  else if (item.getItemId() == R.id.menu_action_item_filter_submenu_checklist) {
+            ApplicationNoted.bus.post(new TitleChangedEvent(getString(R.string.title_filter_note)));
+        } else if (item.getItemId() == R.id.menu_action_item_filter_submenu_checklist) {
             mAdapter.setFilterType(ShowItemsAdapter.FilterType.CHECKLIST);
-        }  else if (item.getItemId() == R.id.menu_action_item_filter_submenu_sketch) {
+            ApplicationNoted.bus.post(new TitleChangedEvent(getString(R.string.title_filter_checklist)));
+        } else if (item.getItemId() == R.id.menu_action_item_filter_submenu_sketch) {
             mAdapter.setFilterType(ShowItemsAdapter.FilterType.SKETCH);
-        }  else if (item.getItemId() == R.id.menu_action_item_sort_submenu_edited_asc) {
-            mAdapter.setSortType(ShowItemsAdapter.SortType.EDITED_ASC);
-        }  else if (item.getItemId() == R.id.menu_action_item_sort_submenu_edited_desc) {
-            mAdapter.setSortType(ShowItemsAdapter.SortType.EDITED_DESC);
-        }  else if (item.getItemId() == R.id.menu_action_item_sort_submenu_created_asc) {
-            mAdapter.setSortType(ShowItemsAdapter.SortType.CREATED_ASC);
-        }   else if (item.getItemId() == R.id.menu_action_item_sort_submenu_created_desc) {
-            mAdapter.setSortType(ShowItemsAdapter.SortType.CREATED_DESC);
+            ApplicationNoted.bus.post(new TitleChangedEvent(getString(R.string.title_filter_sketch)));
+        } else if (item.getItemId() == R.id.menu_action_item_filter_submenu_important) {
+            mAdapter.setFilterType(ShowItemsAdapter.FilterType.IMPORTANT);
+            ApplicationNoted.bus.post(new TitleChangedEvent(getString(R.string.title_filter_important)));
+        } else if (item.getItemId() == R.id.menu_action_item_sort_submenu_edited) {
+            mIsEditedDescending = !mIsEditedDescending;
+            mAdapter.setSortType(mIsEditedDescending
+                    ? ShowItemsAdapter.SortType.EDITED_DESC
+                    : ShowItemsAdapter.SortType.EDITED_ASC);
+        } else if (item.getItemId() == R.id.menu_action_item_sort_submenu_created) {
+            mIsCreatedDescending = !mIsCreatedDescending;
+            mAdapter.setSortType(mIsCreatedDescending
+                    ? ShowItemsAdapter.SortType.CREATED_DESC
+                    : ShowItemsAdapter.SortType.CREATED_ASC);
+        } else if (item.getItemId() == R.id.menu_action_item_sort_submenu_type) {
+            mIsSortNCS = !mIsSortNCS;
+            mAdapter.setSortType(mIsSortNCS
+                    ? ShowItemsAdapter.SortType.TYPE_N_C_S
+                    : ShowItemsAdapter.SortType.TYPE_S_C_N);
         }
 
         item.setChecked(true);
-
         toggleEmptyText();
+
+        if (mFloatingActionsMenu.isExpanded()) {
+            mFloatingActionsMenu.collapse();
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -339,6 +335,9 @@ public class FragmentShowItems extends FragmentBase
     public void onResume() {
         super.onResume();
         ApplicationNoted.bus.register(this);
+        UtilityFunctions.setUpStaggeredGridRecycler(mItemsRecycler, mAdapter,
+                PreferenceFunctions.getPrefNumPinboardColumns(getActivity()));
+        toggleEmptyText();
         mSqlDatabaseHelper = new SqlDatabaseHelper(getActivity());
         mFloatingActionsMenu.collapse();
         mFloatingActionsMenu.startAnimation(AnimationUtils.loadAnimation(
@@ -413,6 +412,29 @@ public class FragmentShowItems extends FragmentBase
         }
     }
 
+    private void onCreateItemClick(View view, final Item.Type type) {
+        Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fab_shrink);
+        mOverlay.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.shutter_up));
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                mIOnFloatingActionMenuOptionClickedListener.OnFabCreateItemClick(type);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        mFloatingActionsMenu.startAnimation(animation);
+        FeedbackFunctions.vibrate(view);
+    }
+
     public void searchChanged(String searchQuery) {
         mAdapter.replaceItems(mSqlDatabaseHelper.searchItems(searchQuery, mAdapter.getNavType()));
     }
@@ -423,10 +445,17 @@ public class FragmentShowItems extends FragmentBase
     }
 
     public void setItemType(NavDrawerItem.NavDrawerItemType type) {
+        mType = type;
         mAdapter.setNavType(type);
         toggleEmptyText();
+        setToolbarTitleByType();
+    }
 
-        switch (type) {
+    /**
+     * Sets the Toolbar title depending on the current view we are in
+     */
+    private void setToolbarTitleByType() {
+        switch (mType) {
             default:
             case PINBOARD:
                 ApplicationNoted.bus.post(new TitleChangedEvent(getString(R.string.title_nav_drawer_pinboard)));
