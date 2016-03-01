@@ -20,12 +20,21 @@
         <!--This FrameLayout prevents TextView being invisible
             when it happens to be the same colour as the backround-->
 
+        <ImageView
+            android:id="@+id/dialog_item_focus_important"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/size_medium"
+            android:layout_alignParentLeft="true"
+            android:src="@drawable/ic_important"
+            />
+
         <FrameLayout
             android:id="@+id/dialog_item_focus_colour_frame"
             android:layout_width="@dimen/icon_size"
             android:layout_height="@dimen/icon_size"
+            android:layout_toRightOf="@id/dialog_item_focus_important"
             android:background="?textColorPrimary"
-            android:layout_alignParentLeft="true"
             >
 
             <TextView
@@ -72,13 +81,12 @@
             android:src="@drawable/ic_toolbar_pinboard"
             />
 
-
     </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/dialog_item_focus_add_tag_frame"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/size_very_large"
         android:layout_marginTop="@dimen/size_medium"
         android:orientation="horizontal"
         android:gravity="left|center"
@@ -127,7 +135,7 @@
     <LinearLayout
         android:id="@+id/dialog_item_focus_edit_item_frame"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/size_very_large"
         android:layout_marginTop="@dimen/size_medium"
         android:orientation="horizontal"
         android:gravity="left|center"
