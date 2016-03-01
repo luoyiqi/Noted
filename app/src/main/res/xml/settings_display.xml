@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+
+    <com.cerebellio.noted.views.NotedListPreference
+        android:key="settings_display_theme"
+        android:title="@string/settings_display_theme_title"
+        android:entries="@array/settings_display_theme_entries"
+        android:entryValues="@array/settings_display_theme_values"
+        android:defaultValue="settings_display_theme_light"
+        />
+
+    <com.cerebellio.noted.views.NotedListPreference
+        android:key="settings_display_columns"
+        android:title="@string/settings_display_columns_title"
+        android:entries="@array/settings_display_columns_entries"
+        android:entryValues="@array/settings_display_columns_values"
+        android:defaultValue="settings_display_columns_4"
+        />
+
+    <com.cerebellio.noted.views.NotedListPreference
+        android:key="settings_display_date_format"
+        android:title="@string/settings_display_date_format_title"
+        android:entries="@array/settings_display_date_format_entries"
+        android:entryValues="@array/settings_display_date_format_values"
+        android:defaultValue="settings_display_date_format_pretty"
+        />
+
+</PreferenceScreen>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+
+    <com.cerebellio.noted.views.NotedPreferenceCategory
+        android:title="@string/settings_category_settings"
+        >
+
+        <PreferenceScreen
+            android:key="settings_display"
+            android:title="@string/settings_header_display"
+            />
+
+        <PreferenceScreen
+            android:key="settings_feedback"
+            android:title="@string/settings_header_feedback"
+            />
+
+    </com.cerebellio.noted.views.NotedPreferenceCategory>
+
+    <com.cerebellio.noted.views.NotedPreferenceCategory
+        android:title="@string/settings_category_about"
+        >
+
+        <Preference
+            android:key="settings_header_source"
+            android:title="@string/settings_header_source"
+            >
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/jamtartley/Noted/"
+                />
+        </Preference>
+
+    </com.cerebellio.noted.views.NotedPreferenceCategory>
+
+</PreferenceScreen>
