@@ -43,9 +43,9 @@ public class FragmentCreationModifiedDates extends Fragment {
 
         Item item = databaseHelper.getItemById(id, type);
 
-        mCreatedDate.setText( DateFunctions.getPrettyTime(
+        mCreatedDate.setText( DateFunctions.getTime(
                 getString(R.string.date_created), item.getCreatedDate(), getActivity()));
-        mModifiedDate.setText(DateFunctions.getPrettyTime(
+        mModifiedDate.setText(DateFunctions.getTime(
                 getString(R.string.date_last_modified), item.getEditedDate(), getActivity()));
 
         databaseHelper.closeDB();
