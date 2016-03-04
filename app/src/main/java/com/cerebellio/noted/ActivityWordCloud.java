@@ -11,6 +11,7 @@ import com.cerebellio.noted.database.SqlDatabaseHelper;
 import com.cerebellio.noted.helpers.WordCloudBuilder;
 import com.cerebellio.noted.helpers.WordCloudBuilder.CloudColouringSystem;
 import com.cerebellio.noted.helpers.WordCloudBuilder.CloudDensity;
+import com.cerebellio.noted.models.WordCloud.CloudShape;
 import com.cerebellio.noted.models.WordCloud;
 import com.cerebellio.noted.utils.ColourFunctions;
 import com.cerebellio.noted.utils.PreferenceFunctions;
@@ -56,7 +57,6 @@ public class ActivityWordCloud extends ActivityBase {
         });
         setToolbarTitle(mToolbar, getString(R.string.title_nav_drawer_wordcloud));
 
-//        final String text = FileFunctions.readTextFileFromAssets(this, "dummy_german.txt");
         mCustomPalette = new int[] {
                 ColourFunctions.getColourFromAttr(this, R.attr.colorPrimary),
                 ColourFunctions.getColourFromAttr(this, R.attr.colorAccent),
@@ -77,30 +77,59 @@ public class ActivityWordCloud extends ActivityBase {
         overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 
+    /**
+     * Retrieve {@link CloudColouringSystem} from SharedPreferences
+     * @return          {@link CloudColouringSystem}
+     */
     private CloudColouringSystem getColouringSystemFromPrefs() {
         return PreferenceFunctions.getPrefWordCloudColour(this);
     }
 
+    /**
+     * Retrieve {@link CloudDensity} from SharedPreferences
+     * @return          {@link CloudDensity}
+     */
     private CloudDensity getCloudDensityFromPrefs() {
         return PreferenceFunctions.getPrefWordCloudDensity(this);
     }
 
+    /**
+     * Retrieve cloud animation flag from SharedPreferences
+     * @return          true if animations are needed
+     */
     private boolean getCloudAnimationFromPrefs() {
         return PreferenceFunctions.getPrefWordCloudAnimation(this);
     }
 
+    /**
+     * Retrieve {@link CloudShape} from SharedPreferences
+     * @return          {@link CloudShape}
+     */
     private WordCloud.CloudShape getCloudShapeFromPrefs() {
         return PreferenceFunctions.getPrefWordCloudShape(this);
     }
 
+    /**
+     * Retrieve number of words needed from SharedPreferences
+     * @return          number of words to display
+     */
     private int getWordCloudNumber() {
         return PreferenceFunctions.getPrefWordCloudNumber(this);
     }
 
+    /**
+     * Retrieve words to ignore
+     *
+     * @return          array of words to ignore
+     */
     private String[] getIgnoredWords() {
         return getResources().getStringArray(R.array.words_to_ignore_cloud);
     }
 
+    /**
+     * AsyncTask to create a {@link WordCloud}
+     * Needed because parsing the database can take time and hang the UI thread
+     */
     private class WordCloudCreatorAsync extends AsyncTask<Void, Void, WordCloud> {
 
         private String[] mIgnored;
