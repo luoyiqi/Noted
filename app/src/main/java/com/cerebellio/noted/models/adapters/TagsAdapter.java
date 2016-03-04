@@ -28,27 +28,34 @@ public class TagsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final int TYPE_ITEM = 0;
     private static final int TYPE_ADD = 1;
+    private static final int MAX_TAG_LENGTH = 8;
 
     private Context mContext;
     private List<String> mTags = new ArrayList<>();
 
     public TagsAdapter(Context context, String tagString) {
-
         mContext = context;
-        setTagsList(tagString);
+        mTags.addAll(TextFunctions.splitStringToList(tagString, Item.TAG_STRING_SEPARATOR));
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
+        TagsAdapterViewHolder viewHolder = ((TagsAdapterViewHolder) holder);
+
         if (getItemViewType(position) == TYPE_ADD) {
-            //Static layout
-            return;
+            viewHolder.mTextTag.setText(mContext.getString(R.string.tag_new));
+            ((GradientDrawable) viewHolder.mTextTag.getBackground()).setColor(
+                    ContextCompat.getColor(mContext,
+                            UtilityFunctions.getResIdFromAttribute(R.attr.colorAccent, mContext)));
+        } else {
+            String tag = mTags.get(position);
+            viewHolder.mTextTag.setText(TextFunctions.createTagString(tag, MAX_TAG_LENGTH));
+
+            ((GradientDrawable) viewHolder.mTextTag.getBackground()).setColor(
+                    ContextCompat.getColor(mContext,
+                            UtilityFunctions.getResIdFromAttribute(R.attr.colorTag, mContext)));
         }
-
-        String tag = mTags.get(position);
-
-        ((TagsAdapterViewHolder) holder).mTextTag.setText(tag);
     }
 
     @Override
@@ -75,8 +82,6 @@ public class TagsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void setTagsList(String tagString) {
         mTags.clear();
         mTags.addAll(TextFunctions.splitStringToList(tagString, Item.TAG_STRING_SEPARATOR));
-
-        notifyDataSetChanged();
     }
 
     private class TagsAdapterViewHolder extends RecyclerView.ViewHolder {
@@ -90,12 +95,7 @@ public class TagsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             mTextTag = (TextView) v.findViewById(R.id.recycler_item_tag_value);
 
             if (viewType == TYPE_ADD) {
-                mTextTag.setText(mContext.getString(R.string.tag_new));
-                ((GradientDrawable) mTextTag.getBackground()).setColor(
-                        ContextCompat.getColor(mContext,
-                                UtilityFunctions.getResIdFromAttribute(R.attr.colorAccent, mContext)));
-
-                //TagEvent to event bus for edit
+                //TagEvent to event bus for adding
                 mTextTag.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -103,13 +103,12 @@ public class TagsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     }
                 });
             } else {
-
                 //TagEvent to event bus for edit, along with new tag value
                 mTextTag.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         ApplicationNoted.bus.post(
-                                new TagEvent(TagEvent.Type.EDIT, mTextTag.getText().toString()));
+                                new TagEvent(TagEvent.Type.EDIT, mTags.get(getAdapterPosition())));
                     }
                 });
             }
