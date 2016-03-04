@@ -6,6 +6,7 @@ import com.cerebellio.noted.utils.UtilityFunctions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Represents an abstract item
@@ -52,6 +53,13 @@ public abstract class Item {
     public abstract boolean isEmpty();
 
     /**
+     * Get all text related to this {@link Item} including tags
+     *
+     * @return              retrieved text
+     */
+    public abstract String getText();
+
+    /**
      * Delete a tag
      * @param tag       tag to delete
      */
@@ -72,7 +80,7 @@ public abstract class Item {
 
         //Add tag if it doesn't already exist
         if (!isTagExisting(newTag.trim())) {
-            mTagList.add(newTag.trim());
+            mTagList.add(newTag.trim().toLowerCase(Locale.getDefault()));
         }
     }
 

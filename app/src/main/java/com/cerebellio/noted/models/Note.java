@@ -25,6 +25,11 @@ public class Note extends Item {
         return Type.NOTE;
     }
 
+    @Override
+    public String getText() {
+        return mContent + " " + getFormattedTagString();
+    }
+
     public String getContent() {
         return mContent;
     }

@@ -29,6 +29,17 @@ public class CheckList extends Item {
         return Type.CHECKLIST;
     }
 
+    @Override
+    public String getText() {
+        String text = "";
+
+        for (CheckListItem item : mItems) {
+            text += item.getText() + " ";
+        }
+
+        return text + " " + getFormattedTagString();
+    }
+
     /**
      * Add a {@link CheckListItem} to this {@link CheckList}
      *

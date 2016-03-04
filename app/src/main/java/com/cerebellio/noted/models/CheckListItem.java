@@ -32,6 +32,11 @@ public class CheckListItem extends Item implements Cloneable {
         return Type.CHECKLIST_ITEM;
     }
 
+    @Override
+    public String getText() {
+        return mContent;
+    }
+
     /**
      * Creates a deep copy of this object
      *

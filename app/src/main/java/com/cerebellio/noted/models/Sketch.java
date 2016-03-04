@@ -24,6 +24,11 @@ public class Sketch extends Item {
         return Type.SKETCH;
     }
 
+    @Override
+    public String getText() {
+        return getFormattedTagString();
+    }
+
     public String getImagePath() {
         return mImagePath;
     }
