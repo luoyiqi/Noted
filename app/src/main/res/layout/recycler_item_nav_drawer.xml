@@ -1,61 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<com.andexert.library.RippleView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:rv_color="?attr/colorPrimary"
-    app:rv_rippleDuration="@android:integer/config_shortAnimTime"
+    android:orientation="vertical"
+    android:gravity="center"
     >
 
+    <View
+        android:id="@+id/recycler_item_nav_drawer_divider"
+        android:layout_marginTop="@dimen/size_medium"
+        android:layout_marginBottom="@dimen/size_medium"
+        android:visibility="gone"
+        style="@style/divider_across"
+        />
+
     <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/recycler_item_nav_drawer_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_height="@dimen/size_very_large"
+        android:background="?attr/windowBackground"
+        android:orientation="horizontal"
         android:gravity="center"
         >
 
-        <View
-            android:id="@+id/recycler_item_nav_drawer_divider"
-            android:layout_marginTop="@dimen/size_medium"
-            android:layout_marginBottom="@dimen/size_medium"
-            android:visibility="gone"
-            style="@style/divider_across"
+        <com.cerebellio.noted.views.FilteredIconView
+            android:id="@+id/recycler_item_nav_drawer_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center"
+            android:layout_marginLeft="@dimen/size_medium"
+            android:layout_marginRight="@dimen/size_huge"
             />
 
-        <LinearLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/recycler_item_nav_drawer_container"
+        <TextView
+            android:id="@+id/recycler_item_nav_drawer_title"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/size_very_large"
-            android:background="?attr/windowBackground"
-            android:orientation="horizontal"
-            android:gravity="center"
-            >
-
-            <com.cerebellio.noted.views.FilteredIconView
-                android:id="@+id/recycler_item_nav_drawer_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left|center"
-                android:layout_marginLeft="@dimen/size_medium"
-                android:layout_marginRight="@dimen/size_huge"
-                />
-
-            <TextView
-                android:id="@+id/recycler_item_nav_drawer_title"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingRight="@dimen/size_medium"
-                android:gravity="left|center"
-                android:textStyle="bold"
-                android:textColor="?attr/textColorTertiary"
-                style="@style/text.medium"
-                />
-
-        </LinearLayout>
+            android:layout_height="match_parent"
+            android:paddingRight="@dimen/size_medium"
+            android:gravity="left|center"
+            android:textStyle="bold"
+            android:textColor="?attr/textColorTertiary"
+            style="@style/text.medium"
+            />
 
     </LinearLayout>
 
-</com.andexert.library.RippleView>
+</LinearLayout>
