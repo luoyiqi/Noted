@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
@@ -336,7 +337,7 @@ public class FragmentShowItems extends FragmentBase
         super.onResume();
         ApplicationNoted.bus.register(this);
         UtilityFunctions.setUpStaggeredGridRecycler(mItemsRecycler, mAdapter,
-                PreferenceFunctions.getPrefNumPinboardColumns(getActivity()));
+                PreferenceFunctions.getPrefPinboardColumns(getActivity()), LinearLayoutManager.VERTICAL);
         toggleEmptyText();
         mSqlDatabaseHelper = new SqlDatabaseHelper(getActivity());
         mFloatingActionsMenu.collapse();
