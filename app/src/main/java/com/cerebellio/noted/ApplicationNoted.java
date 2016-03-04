@@ -1,6 +1,7 @@
 package com.cerebellio.noted;
 
 import android.app.Application;
+import android.preference.PreferenceManager;
 
 import com.cerebellio.noted.utils.TextFunctions;
 import com.squareup.otto.Bus;
@@ -15,4 +16,11 @@ public class ApplicationNoted extends Application {
 
     public static Bus bus = new Bus(ThreadEnforcer.MAIN);
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        PreferenceManager.setDefaultValues(getApplicationContext(), R.xml.settings_display, false);
+        PreferenceManager.setDefaultValues(getApplicationContext(), R.xml.settings_wordcloud, false);
+        PreferenceManager.setDefaultValues(getApplicationContext(), R.xml.settings_feedback, false);
+    }
 }
