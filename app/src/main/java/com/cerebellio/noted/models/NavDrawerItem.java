@@ -19,11 +19,15 @@ public class NavDrawerItem {
         PINBOARD,
         ARCHIVE,
         TRASH,
-        SETTINGS
+        WORDCLOUD,
+        SETTINGS;
+
+        public static boolean isSelectable(NavDrawerItemType type) {
+            return type == PINBOARD || type == ARCHIVE || type == TRASH;
+        }
     }
 
     public NavDrawerItem(String title, int iconId, boolean isDividerNeeded, NavDrawerItemType type) {
-
         mTitle = title;
         mIconId = iconId;
         mIsDividerNeeded = isDividerNeeded;
