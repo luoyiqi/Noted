@@ -1,11 +1,15 @@
 package com.cerebellio.noted.utils;
 
+import android.content.Context;
 import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 
 /**
  * Commonly used colour functions
  */
-public abstract class ColourFunctions {
+public class ColourFunctions {
+
+    private ColourFunctions() {}
 
     private static final String LOG_TAG = TextFunctions.makeLogTag(ColourFunctions.class);
 
@@ -31,5 +35,22 @@ public abstract class ColourFunctions {
                 Color.blue(colour));
     }
 
+    /**
+     * Retrieve a colour attribute from resources
+     *
+     * @param context
+     * @param attr          attribute ID
+     * @return              colour
+     */
+    public static int getColourFromAttr(Context context, int attr) {
+        return ContextCompat.getColor(context, UtilityFunctions.getResIdFromAttribute(attr, context));
+    }
 
+    /**
+     *
+     * @return              random Material colour
+     */
+    public static int getRandomMaterialColour() {
+        return UtilityFunctions.getRandomIntegerFromArray(Constants.MATERIAL_COLOURS);
+    }
 }
