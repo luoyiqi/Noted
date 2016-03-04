@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 
 import com.cerebellio.noted.utils.PreferenceFunctions;
 import com.cerebellio.noted.utils.TextFunctions;
@@ -19,7 +20,7 @@ public abstract class ActivityBase extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (PreferenceFunctions.getPrefTheme(getApplicationContext())
+        if (PreferenceFunctions.getPrefThemeValue(getApplicationContext())
                 .equals(PreferenceFunctions.SETTINGS_DISPLAY_THEME_LIGHT)) {
             setTheme(R.style.NotedTheme_Default);
         } else {
@@ -52,5 +53,12 @@ public abstract class ActivityBase extends AppCompatActivity {
      */
     protected boolean isCurrentFragment(Fragment fragment) {
         return fragment != null && fragment.isVisible();
+    }
+
+
+    protected void setToolbarTitle(Toolbar toolbar, String title) {
+        if (toolbar != null) {
+            toolbar.setTitle(title);
+        }
     }
 }
