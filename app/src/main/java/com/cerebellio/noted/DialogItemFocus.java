@@ -73,6 +73,8 @@ public class DialogItemFocus extends DialogFragment
 
     private static final String LOG_TAG = TextFunctions.makeLogTag(DialogItemFocus.class);
 
+    private static final int NUM_TAG_COLUMNS = 4;
+
     private IOnItemSelectedToEditListener mIOnItemSelectedToEditListener;
     private IOnItemFocusNeedsUpdatingListener mIOnItemFocusNeedsUpdatingListener;
 
@@ -104,7 +106,8 @@ public class DialogItemFocus extends DialogFragment
 
         //Pass tag string to adapter and display in RecyclerView
         mAdapter = new TagsAdapter(getActivity(), mItem.getRawTagString());
-        UtilityFunctions.setUpWrapContentGridRecycler(getActivity(), mTagsRecycler, mAdapter, 3);
+        UtilityFunctions.setUpWrapContentGridRecycler(
+                getActivity(), mTagsRecycler, mAdapter, NUM_TAG_COLUMNS);
 
         mTextColour.setBackgroundColor(mItem.getColour());
         mTextColour.setOnClickListener(new View.OnClickListener() {
@@ -136,7 +139,6 @@ public class DialogItemFocus extends DialogFragment
                 mTagExpandCollapse.startAnimation(animation);
             }
         });
-
 
         mEditItemFrame.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -234,7 +236,6 @@ public class DialogItemFocus extends DialogFragment
 
     @Override
     public void onTagAdded(String tag) {
-
         mItem.addTag(tag);
         mAdapter.setTagsList(mItem.getRawTagString());
         updateTagTextView();
@@ -242,7 +243,6 @@ public class DialogItemFocus extends DialogFragment
 
     @Override
     public void onTagEdited(String originalTag, String newTag) {
-
         mItem.editTag(originalTag, newTag);
         mAdapter.setTagsList(mItem.getRawTagString());
         updateTagTextView();
@@ -250,7 +250,6 @@ public class DialogItemFocus extends DialogFragment
 
     @Override
     public void onTagDeleted(String tag) {
-
         mItem.deleteTag(tag);
         mAdapter.setTagsList(mItem.getRawTagString());
         updateTagTextView();
