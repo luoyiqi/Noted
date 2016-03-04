@@ -102,7 +102,6 @@ public class ActivityMain extends ActivityBase
         //Setup Toolbar
         setSupportActionBar(mToolbar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
@@ -138,7 +137,7 @@ public class ActivityMain extends ActivityBase
         initShowItemsFragment();
         initNavDrawer();
         handleIntent(getIntent());
-        setToolbarTitle(getString(R.string.title_nav_drawer_pinboard));
+        setToolbarTitle(mToolbar, getString(R.string.title_nav_drawer_pinboard));
     }
 
     @Override
@@ -245,6 +244,10 @@ public class ActivityMain extends ActivityBase
             case TRASH:
                 setItemType(NavDrawerItem.NavDrawerItemType.TRASH);
                 break;
+            case WORDCLOUD:
+                startActivity(new Intent(this, ActivityWordCloud.class));
+                mNavDrawer.closeDrawers();
+                break;
             default:
             case SETTINGS:
                 startActivity(new Intent(this, ActivitySettings.class));
@@ -255,7 +258,7 @@ public class ActivityMain extends ActivityBase
 
     @Subscribe
     public void onTitleChanged(TitleChangedEvent event) {
-        setToolbarTitle(event.getTitle());
+        setToolbarTitle(mToolbar, event.getTitle());
     }
 
     /**
@@ -344,7 +347,8 @@ public class ActivityMain extends ActivityBase
         items.add(new NavDrawerItem(getString(R.string.nav_drawer_pinboard), R.drawable.ic_pinboard, false, NavDrawerItem.NavDrawerItemType.PINBOARD));
         items.add(new NavDrawerItem(getString(R.string.nav_drawer_archive), R.drawable.ic_archive, false, NavDrawerItem.NavDrawerItemType.ARCHIVE));
         items.add(new NavDrawerItem(getString(R.string.nav_drawer_trash), R.drawable.ic_trash, false, NavDrawerItem.NavDrawerItemType.TRASH));
-        items.add(new NavDrawerItem(getString(R.string.nav_drawer_settings), R.drawable.ic_settings, true, NavDrawerItem.NavDrawerItemType.SETTINGS));
+        items.add(new NavDrawerItem(getString(R.string.nav_drawer_wordcloud), R.drawable.ic_wordcloud, true, NavDrawerItem.NavDrawerItemType.WORDCLOUD));
+        items.add(new NavDrawerItem(getString(R.string.nav_drawer_settings), R.drawable.ic_settings, false, NavDrawerItem.NavDrawerItemType.SETTINGS));
 
         UtilityFunctions.setUpLinearRecycler(this, mNavDrawerRecycler,
                 new NavDrawerAdapter(items, this), LinearLayoutManager.VERTICAL);
@@ -368,9 +372,4 @@ public class ActivityMain extends ActivityBase
         }
     }
 
-    private void setToolbarTitle(String title) {
-        if (mToolbar != null) {
-            mToolbar.setTitle(title);
-        }
-    }
 }
