@@ -12,6 +12,12 @@
             android:title="@string/settings_header_display"
             />
 
+
+        <PreferenceScreen
+            android:key="settings_wordcloud"
+            android:title="@string/settings_header_wordcloud"
+            />
+
         <PreferenceScreen
             android:key="settings_feedback"
             android:title="@string/settings_header_feedback"
