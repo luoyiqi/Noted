@@ -20,8 +20,6 @@ import com.cerebellio.noted.models.listeners.IOnTagOperationListener;
 import com.cerebellio.noted.utils.Constants;
 import com.cerebellio.noted.utils.TextFunctions;
 
-import java.util.Locale;
-
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
@@ -66,9 +64,9 @@ public class DialogAddTag extends DialogFragment{
             public void onClick(View view) {
                 if (getArguments() != null) {
                     mIOnTagOperationListener.onTagEdited(
-                            mOriginalTag, mEditTag.getText().toString().toLowerCase(Locale.getDefault()));
+                            mOriginalTag, mEditTag.getText().toString());
                 } else {
-                    mIOnTagOperationListener.onTagAdded(mEditTag.getText().toString().toLowerCase(Locale.getDefault()));
+                    mIOnTagOperationListener.onTagAdded(mEditTag.getText().toString());
                 }
                 dismiss();
             }
@@ -85,14 +83,13 @@ public class DialogAddTag extends DialogFragment{
         mEditTag.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
-
                 //If user presses 'Done' on keyboard, save the tag
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     if (getArguments() != null) {
                         mIOnTagOperationListener.onTagEdited(
-                                mOriginalTag, mEditTag.getText().toString().toLowerCase(Locale.getDefault()));
+                                mOriginalTag, mEditTag.getText().toString());
                     } else {
-                        mIOnTagOperationListener.onTagAdded(mEditTag.getText().toString().toLowerCase(Locale.getDefault()));
+                        mIOnTagOperationListener.onTagAdded(mEditTag.getText().toString());
                     }
                     dismiss();
                 }
