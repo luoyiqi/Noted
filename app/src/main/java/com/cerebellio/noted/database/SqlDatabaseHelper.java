@@ -176,8 +176,8 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * Get all {@link Item} from the database for a specific type, i.e. items
-     *
      * which have been trashed
+     *
      * @param type          {@link com.cerebellio.noted.models.NavDrawerItem.NavDrawerItemType} type to search for
      * @return              List of returned {@link Item}
      */
@@ -190,6 +190,30 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         items.addAll(getAllSketches(type));
 
         return items;
+    }
+
+    /**
+     * Get all non deleted words in database
+     *
+     * @return         all words
+     */
+    public String getAllWords() {
+        List<Item> items = new ArrayList<>();
+        for (NavDrawerItemType type : NavDrawerItemType.values()) {
+            if (!NavDrawerItemType.isSelectable(type)) {
+                continue;
+            }
+            items.addAll(getAllNotes(type));
+            items.addAll(getAllChecklists(type));
+            items.addAll(getAllSketches(type));
+        }
+
+        String text = "";
+        for (Item item : items) {
+            text += TextFunctions.replaceNewlineReturnTabWithSpace(item.getText()) + " ";
+        }
+
+        return text;
     }
 
     /**
