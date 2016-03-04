@@ -174,8 +174,8 @@ public class FragmentAddEditSketch extends FragmentBase implements IOnColourSele
     @Override
     public void onChange() {
 
-        Animation popOut = AnimationUtils.loadAnimation(getActivity(), R.anim.pop_out);
-        Animation popIn = AnimationUtils.loadAnimation(getActivity(), R.anim.pop_in);
+        Animation popOut = AnimationUtils.loadAnimation(getActivity(), R.anim.jump_out);
+        Animation popIn = AnimationUtils.loadAnimation(getActivity(), R.anim.jump_in);
 
         if (mSketchView.isUndoAvailable()) {
             if (!mUndo.isEnabled()) {
@@ -314,8 +314,8 @@ public class FragmentAddEditSketch extends FragmentBase implements IOnColourSele
      */
     private void toggleStrokeTypeViews(SketchView.StrokeType requestedType) {
 
-        Animation popOut = AnimationUtils.loadAnimation(getActivity(), R.anim.pop_out);
-        Animation popIn = AnimationUtils.loadAnimation(getActivity(), R.anim.pop_in);
+        Animation popOut = AnimationUtils.loadAnimation(getActivity(), R.anim.jump_out);
+        Animation popIn = AnimationUtils.loadAnimation(getActivity(), R.anim.jump_in);
 
         if (requestedType.equals(SketchView.StrokeType.STROKE)) {
             mPaintbrush.startAnimation(popOut);
