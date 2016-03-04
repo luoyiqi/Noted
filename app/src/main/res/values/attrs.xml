@@ -12,6 +12,7 @@
     <attr name="colorCardBackground" format="color"/>
     <attr name="colorDivider" format="color"/>
     <attr name="colorFilter" format="color"/>
+    <attr name="colorTag" format="color"/>
 
     <attr name="editTextBackgroundDrawable" format="reference"/>
     <attr name="seekbar" format="reference"/>
