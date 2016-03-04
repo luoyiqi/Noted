@@ -7,19 +7,24 @@ import android.graphics.BitmapFactory;
 import android.text.format.DateFormat;
 import android.util.Log;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Date;
 
 /**
  * Commonly used File functions
  */
-public abstract class FileFunctions {
+public class FileFunctions {
 
     private static final String LOG_TAG = TextFunctions.makeLogTag(FileFunctions.class);
+
+    private FileFunctions(){}
 
     /**
      * Retrieve a bitmap from a given file
@@ -84,6 +89,37 @@ public abstract class FileFunctions {
      */
     public static boolean deleteSketchFromStorage(String path) {
         return new File(path).delete();
+    }
+
+    /**
+     * Read in a text file from the assets directory and convert to a String
+     *
+     * @param context
+     * @param fileName          file name of the text file to read
+     * @return                  created String
+     */
+    public static String readTextFileFromAssets(Context context, String fileName) {
+        String text = "";
+
+        try {
+            InputStream inputStream = context.getResources().getAssets().open(fileName);
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+            String line;
+
+            try {
+                while ((line = bufferedReader.readLine()) != null)
+                    text += line;
+            } catch (Exception e) {
+                Log.e(LOG_TAG, e.getMessage());
+            }
+
+        } catch (Exception e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
+
+        return text;
     }
 
 }

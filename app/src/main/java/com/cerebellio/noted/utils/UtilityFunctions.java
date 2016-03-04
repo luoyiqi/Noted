@@ -13,9 +13,11 @@ import java.util.Random;
 /**
  * Contains a number of functions used throughout the app
  */
-public abstract class UtilityFunctions {
+public class UtilityFunctions {
 
     private static final String LOG_TAG = TextFunctions.makeLogTag(UtilityFunctions.class);
+
+    private UtilityFunctions(){}
 
     /**
      * Sets up a given RecyclerView with a {@link LinearLayoutManager}
@@ -58,11 +60,12 @@ public abstract class UtilityFunctions {
      * @param recyclerView      RecyclerView to set up
      * @param adapter           {@link android.support.v7.widget.RecyclerView.Adapter} to assign
      * @param columns           number of columns
+     * @param orientation       {@link LinearLayoutManager#HORIZONTAL}, {@link LinearLayoutManager#VERTICAL}
      */
     public static void setUpStaggeredGridRecycler(
-            RecyclerView recyclerView, RecyclerView.Adapter adapter, int columns) {
+            RecyclerView recyclerView, RecyclerView.Adapter adapter, int columns, int orientation) {
         StaggeredGridLayoutManager staggeredLayout = new StaggeredGridLayoutManager(columns, StaggeredGridLayoutManager.VERTICAL);
-        staggeredLayout.setOrientation(LinearLayoutManager.VERTICAL);
+        staggeredLayout.setOrientation(orientation);
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(staggeredLayout);
@@ -91,6 +94,18 @@ public abstract class UtilityFunctions {
      */
     public static Integer getRandomIntegerFromArray(Integer[] fullList) {
         return fullList[new Random().nextInt(fullList.length)];
+    }
+
+    /**
+     * Convert a given number of pixels to dp
+     *
+     * @param context
+     * @param pixels        number to convert
+     * @return              DiP equivalent
+     */
+    public static float convertPixelsToDp(Context context, int pixels) {
+        return TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, pixels, context.getResources().getDisplayMetrics());
     }
 
 }

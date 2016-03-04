@@ -6,7 +6,11 @@ import android.view.View;
 /**
  * Commonly used feedback functions
  */
-public abstract class FeedbackFunctions {
+public class FeedbackFunctions {
+
+    private static final String LOG_TAG = TextFunctions.makeLogTag(FeedbackFunctions.class);
+
+    private FeedbackFunctions(){}
 
     /**
      * Checks whether vibration is enabled and vibrates the given View if so

@@ -11,9 +11,11 @@ import java.util.Locale;
 /**
  * Commonly used Date functions
  */
-public abstract class DateFunctions {
+public class DateFunctions {
 
     private static final String LOG_TAG = TextFunctions.makeLogTag(DateFunctions.class);
+
+    private DateFunctions(){}
 
     /**
      * Get the date and time for a given value
@@ -24,9 +26,9 @@ public abstract class DateFunctions {
      * @return              time as a String
      */
     public static String getTime(String prefix, long time, Context context) {
-        if (PreferenceFunctions.getPrefDateFormat(context).equals(PreferenceFunctions.SETTINGS_DISPLAY_DATE_FORMAT_PRETTY)) {
+        if (PreferenceFunctions.getPrefDateFormatValue(context).equals(PreferenceFunctions.SETTINGS_DISPLAY_DATE_FORMAT_PRETTY)) {
             return getPrettyTime(prefix, time, context);
-        } else if (PreferenceFunctions.getPrefDateFormat(context).equals(PreferenceFunctions.SETTINGS_DISPLAY_DATE_FORMAT_LONG)) {
+        } else if (PreferenceFunctions.getPrefDateFormatValue(context).equals(PreferenceFunctions.SETTINGS_DISPLAY_DATE_FORMAT_LONG)) {
             return getDateString(prefix, time, "EEE, d MMM yyyy HH:mm:ss");
         } else {
             return getDateString(prefix, time, "dd MMM HH:mm");

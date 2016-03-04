@@ -4,15 +4,19 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.StrikethroughSpan;
 
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Commonly used Text functions
  */
-public abstract class TextFunctions {
+public class TextFunctions {
 
     private static final String LOG_TAG = TextFunctions.makeLogTag(TextFunctions.class);
+
+    private TextFunctions(){}
 
     /**
      * Make a log tag
@@ -93,6 +97,71 @@ public abstract class TextFunctions {
         }
 
         return tagString;
+    }
+
+    /**
+     * Creates a tag from a given string, i.e. no spaces, lowercase
+     *
+     * @param string        String to modify
+     * @param maxLength     if string is greater than this length, it is truncated with an ellipse
+     * @return              given String as tag
+     */
+    public static String createTagString(String string, int maxLength) {
+        return string.length() <= maxLength
+                ? string.toLowerCase(Locale.getDefault())
+                : string.toLowerCase(Locale.getDefault()).substring(0, maxLength - 1) + "\u2026";
+    }
+
+    /**
+     * Strip special characters from the given passage
+     *
+     * @param string            passage to operate on
+     * @param isUpperCase       true if return should be upper case, false if to be left alone
+     * @return                  String without special characters
+     */
+    public static String stripSpecialCharacters(String string, boolean isUpperCase) {
+        return isUpperCase ? string.replaceAll("[^\\p{L} ]", "").toUpperCase()
+                : string.replaceAll("[^\\p{L} ]", "");
+    }
+
+    /**
+     * Replace tabs, returns and newlines with a space
+     *
+     * @param string            string to edit
+     * @return                  edited string
+     */
+    public static String replaceNewlineReturnTabWithSpace(String string) {
+        return string.replaceAll("[\\t\\n\\r]"," ");
+    }
+
+    /**
+     * Splits a given String into words
+     *
+     * @param string            String to split
+     * @return                  Array of words
+     */
+    public static String[] splitStringToWords(String string) {
+        return string.split("\\s+");
+    }
+
+    /**
+     * Check if given array contains given String
+     *
+     * @param array             Array to look in
+     * @param toCheck           String to check for
+     * @return                  true iff found
+     */
+    public static boolean arrayContains(String[] array, String toCheck) {
+        Collator collator = Collator.getInstance(Locale.getDefault());
+
+        //Ignore case but don't ignore accents etc.
+        collator.setStrength(Collator.SECONDARY);
+        for (String string : array) {
+            if (collator.compare(string, toCheck) == 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
