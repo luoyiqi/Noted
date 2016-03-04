@@ -5,7 +5,7 @@ import com.cerebellio.noted.R;
 /**
  * Commonly used constant values
  */
-public abstract class Constants {
+public class Constants {
 
     private static final String LOG_TAG = TextFunctions.makeLogTag(Constants.class);
 
@@ -20,6 +20,9 @@ public abstract class Constants {
     public static final String BUNDLE_ITEM_TYPE = "item_type";
     public static final String BUNDLE_ITEM_TO_EDIT_ID = "item_to_edit_id";
     public static final String BUNDLE_TAG_VALUE = "tag_value";
+
+    public static final String BUNDLE_SETTINGS_XML = "settings_xml";
+    public static final String BUNDLE_SETTINGS_TITLE = "settings_title";
 
     public static final String INTENT_ITEM_ID = "item_id";
     public static final String INTENT_ITEM_TYPE = "type";
@@ -92,4 +95,28 @@ public abstract class Constants {
     };
     //endregion
 
+    //region Material Colours
+    public static final Integer[] MATERIAL_COLOURS = new Integer[]{
+            0xFFF44336,
+            0xFFE91E63,
+            0xFF9C27B0,
+            0xFF3F51B5,
+            0xFF2196F3,
+            0xFF03A9F4,
+            0xFF00BCD4,
+            0xFF009688,
+            0xFF8BC34A,
+            0xFFCDDC39,
+            0xFFCDDC39,
+            0xFFFFC107,
+            0xFFFF9800,
+            0xFFFF5722,
+            0xFF795548,
+            0xFF455A64,
+    };
+    //endregion
+
+    private Constants() {}
+
 }
+
