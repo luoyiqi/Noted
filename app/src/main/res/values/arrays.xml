@@ -1,24 +1,175 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string-array name="settings_display_theme">
-        <item>settings_theme_light</item>
-        <item>settings_theme_dark</item>
+    <string-array name="words_to_ignore_cloud">
+        <item>the</item>
+        <item>he</item>
+        <item>at</item>
+        <item>but</item>
+        <item>there</item>
+        <item>of</item>
+        <item>was</item>
+        <item>be</item>
+        <item>not</item>
+        <item>use</item>
+        <item>and</item>
+        <item>for</item>
+        <item>this</item>
+        <item>what</item>
+        <item>an</item>
+        <item>a</item>
+        <item>on</item>
+        <item>have</item>
+        <item>all</item>
+        <item>each</item>
+        <item>to</item>
+        <item>are</item>
+        <item>from</item>
+        <item>where</item>
+        <item>which</item>
+        <item>in</item>
+        <item>as</item>
+        <item>or</item>
+        <item>we</item>
+        <item>she</item>
+        <item>is</item>
+        <item>with</item>
+        <item>when</item>
+        <item>do</item>
+        <item>you</item>
+        <item>his</item>
+        <item>had</item>
+        <item>your</item>
+        <item>how</item>
+        <item>that</item>
+        <item>they</item>
+        <item>by</item>
+        <item>can</item>
+        <item>their</item>
+        <item>it</item>
+        <item>I</item>
+        <item>word</item>
+        <item>said</item>
+        <item>if</item>
+        <item>didnt</item>
+        <item>im</item>
+        <item>like</item>
+        <item>just</item>
+        <item>him</item>
+        <item>so</item>
+        <item>then</item>
+        <item>gonna</item>
+        <item>dont</item>
+        <item>would</item>
+        <item>cant</item>
+        <item>more</item>
+        <item>its</item>
+        <item>out</item>
+        <item>them</item>
+        <item>thats</item>
+        <item>know</item>
+        <item>me</item>
+        <item>get</item>
+        <item>da</item>
+        <item>ja</item>
+        <item>wo</item>
+        <item>es</item>
+        <item>zu</item>
+        <item>sa</item>
+        <item>du</item>
+        <item>er</item>
+        <item>am</item>
+        <item>um</item>
+    </string-array>
+
+    <string-array name="settings_display_theme_entries">
+        <item>@string/settings_display_theme_light</item>
+        <item>@string/settings_display_theme_dark</item>
     </string-array>
 
     <string-array name="settings_display_theme_values">
-        <item>Light</item>
-        <item>Dark</item>
+        <item>settings_display_theme_light</item>
+        <item>settings_display_theme_dark</item>
     </string-array>
 
-    <string-array name="settings_display_columns">
-        <item>settings_theme_light</item>
-        <item>settings_theme_dark</item>
+    <string-array name="settings_display_columns_entries">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
     </string-array>
 
-    <string-array name="settings_display_columns_values_values">
-        <item>Light</item>
-        <item>Dark</item>
+    <string-array name="settings_display_columns_values">
+        <item>settings_display_columns_1</item>
+        <item>settings_display_columns_2</item>
+        <item>settings_display_columns_3</item>
+        <item>settings_display_columns_4</item>
+        <item>settings_display_columns_5</item>
+    </string-array>
+
+    <string-array name="settings_display_date_format_entries">
+        <item>@string/settings_display_date_format_pretty</item>
+        <item>@string/settings_display_date_format_short</item>
+        <item>@string/settings_display_date_format_long</item>
+    </string-array>
+
+    <string-array name="settings_display_date_format_values">
+        <item>settings_display_date_format_pretty</item>
+        <item>settings_display_date_format_short</item>
+        <item>settings_display_date_format_long</item>
+    </string-array>
+
+    <string-array name="settings_wordcloud_colour_entries">
+        <item>@string/settings_wordcloud_colour_material</item>
+        <item>@string/settings_wordcloud_colour_current</item>
+        <item>@string/settings_wordcloud_colour_monotone</item>
+    </string-array>
+
+    <string-array name="settings_wordcloud_colour_values">
+        <item>settings_wordcloud_colour_material</item>
+        <item>settings_wordcloud_colour_current</item>
+        <item>settings_wordcloud_colour_monotone</item>
+    </string-array>
+
+    <string-array name="settings_wordcloud_shape_entries">
+        <item>@string/settings_wordcloud_shape_circle</item>
+        <item>@string/settings_wordcloud_shape_horizontal_line</item>
+        <item>@string/settings_wordcloud_shape_vertical_line</item>
+    </string-array>
+
+    <string-array name="settings_wordcloud_shape_values">
+        <item>settings_wordcloud_shape_circle</item>
+        <item>settings_wordcloud_shape_horizontal_line</item>
+        <item>settings_wordcloud_shape_vertical_line</item>
+    </string-array>
+
+    <string-array name="settings_wordcloud_density_entries">
+        <item>@string/settings_wordcloud_density_dense</item>
+        <item>@string/settings_wordcloud_density_normal</item>
+        <item>@string/settings_wordcloud_density_loose</item>
+    </string-array>
+
+    <string-array name="settings_wordcloud_density_values">
+        <item>settings_wordcloud_density_dense</item>
+        <item>settings_wordcloud_density_normal</item>
+        <item>settings_wordcloud_density_loose</item>
+    </string-array>
+
+    <string-array name="settings_wordcloud_number_entries">
+        <item>10</item>
+        <item>50</item>
+        <item>100</item>
+        <item>500</item>
+        <item>1000</item>
+    </string-array>
+
+    <string-array name="settings_wordcloud_number_values">
+        <item>settings_wordcloud_number_10</item>
+        <item>settings_wordcloud_number_50</item>
+        <item>settings_wordcloud_number_100</item>
+        <item>settings_wordcloud_number_500</item>
+        <item>settings_wordcloud_number_1000</item>
     </string-array>
 
 </resources>
