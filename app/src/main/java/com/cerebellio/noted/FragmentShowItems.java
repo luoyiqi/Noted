@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,14 +19,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.cerebellio.noted.database.SqlDatabaseHelper;
+import com.cerebellio.noted.helpers.AnimationsHelper;
 import com.cerebellio.noted.models.Item;
 import com.cerebellio.noted.models.NavDrawerItem;
 import com.cerebellio.noted.models.adapters.ShowItemsAdapter;
@@ -34,6 +34,7 @@ import com.cerebellio.noted.models.events.TitleChangedEvent;
 import com.cerebellio.noted.models.listeners.IOnFloatingActionMenuOptionClickedListener;
 import com.cerebellio.noted.models.listeners.IOnItemFocusNeedsUpdatingListener;
 import com.cerebellio.noted.models.listeners.IOnItemSelectedToEditListener;
+import com.cerebellio.noted.utils.ColourFunctions;
 import com.cerebellio.noted.utils.Constants;
 import com.cerebellio.noted.utils.FabShowHideRecyclerScroll;
 import com.cerebellio.noted.utils.FeedbackFunctions;
@@ -53,6 +54,8 @@ import butterknife.InjectView;
 public class FragmentShowItems extends FragmentBase
         implements IOnItemSelectedToEditListener, IOnItemFocusNeedsUpdatingListener {
 
+    @InjectView(R.id.fragment_show_items_container)
+    FrameLayout mContainer;
     @InjectView(R.id.fragment_show_items_recycler)
     RecyclerView mItemsRecycler;
     @InjectView(R.id.fragment_show_items_floating_action_menu)
@@ -91,7 +94,7 @@ public class FragmentShowItems extends FragmentBase
         mFloatingActionsMenu.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                mFloatingActionsMenu.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.fab_grow));
+                AnimationsHelper.showFloatingActionsMenu(mFloatingActionsMenu);
                 mFloatingActionsMenu.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
@@ -175,26 +178,30 @@ public class FragmentShowItems extends FragmentBase
         mItemsRecycler.addOnScrollListener(new FabShowHideRecyclerScroll() {
             @Override
             public void hide() {
-                mFloatingActionsMenu
-                        .animate()
-                        .translationY(mFloatingActionsMenu.getHeight() + getResources().getDimension(R.dimen.size_medium))
-                        .setInterpolator(new AccelerateInterpolator(2))
-                        .start();
+                AnimationsHelper.hideFloatingActionsMenu(mFloatingActionsMenu);
                 mIsFabMenuVisible = false;
             }
 
             @Override
             public void show() {
-                mFloatingActionsMenu
-                        .animate()
-                        .translationY(0)
-                        .setInterpolator(new DecelerateInterpolator(2))
-                        .start();
-                mIsFabMenuVisible = false;
+                if (!mType.equals(NavDrawerItem.NavDrawerItemType.PINBOARD)) {
+                    return;
+                }
+
+                AnimationsHelper.showFloatingActionsMenu(mFloatingActionsMenu);
+                mIsFabMenuVisible = true;
             }
         });
 
         setItemType(NavDrawerItem.NavDrawerItemType.PINBOARD);
+
+        //Check if we're in a dark theme,
+        //if not then apply the 54% opacity Material Design rule to the TextView
+        if (!UtilityFunctions.isConsideredDarkTheme(getActivity())) {
+            mTextEmpty.setTextColor(ColourFunctions.adjustAlpha(
+                    ColourFunctions.getTertiaryTextColour(getActivity()),
+                    ColourFunctions.MATERIAL_ALPHA_54_PER_CENT));
+        }
 
         return rootView;
     }
@@ -341,8 +348,9 @@ public class FragmentShowItems extends FragmentBase
         toggleEmptyText();
         mSqlDatabaseHelper = new SqlDatabaseHelper(getActivity());
         mFloatingActionsMenu.collapse();
-        mFloatingActionsMenu.startAnimation(AnimationUtils.loadAnimation(
-                getActivity(), R.anim.fab_grow));
+        if (mType.equals(NavDrawerItem.NavDrawerItemType.PINBOARD)) {
+            AnimationsHelper.showFloatingActionsMenu(mFloatingActionsMenu);
+        }
     }
 
     @Override
@@ -370,8 +378,48 @@ public class FragmentShowItems extends FragmentBase
     }
 
     @Override
-    public void onRemove(int position) {
+    public void onRemove(final Item.Status prevStatus, final Item.Status newStatus,
+                         final Item item, final int position) {
         mAdapter.removeItem(position);
+        mSqlDatabaseHelper.addOrEditItem(item);
+
+        //Don't show SnackBar if user has asked not to be notified on status changes
+        if (!PreferenceFunctions.getPrefBehaviourNotifyStatusChange(getActivity())) {
+            return;
+        }
+
+        String message = "";
+
+        switch (newStatus) {
+            case PINBOARD:
+                message = getString(R.string.snackbar_restored);
+                break;
+            case ARCHIVED:
+                message = getString(R.string.snackbar_archived);
+                break;
+            case TRASHED:
+                message = getString(R.string.snackbar_trashed);
+                break;
+            case DELETED:
+                message = getString(R.string.snackbar_deleted);
+                break;
+        }
+
+        Snackbar snackbar = Snackbar.make(mContainer, message, Snackbar.LENGTH_LONG);
+        customiseSnackbar(getActivity(), snackbar);
+
+        if (!newStatus.equals(Item.Status.DELETED)) {
+            snackbar.setAction(getString(R.string.snackbar_undo), new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    item.setStatus(prevStatus);
+                    mAdapter.addItem(item, position);
+                    mSqlDatabaseHelper.addOrEditItem(item);
+                }
+            });
+        }
+
+        snackbar.show();
     }
 
     @Override
@@ -396,14 +444,6 @@ public class FragmentShowItems extends FragmentBase
      */
     @UiThread
     private void toggleEmptyText() {
-        if (!mIsFabMenuVisible) {
-            mFloatingActionsMenu
-                    .animate()
-                    .translationY(0)
-                    .setInterpolator(new DecelerateInterpolator(2))
-                    .start();
-        }
-
         if (mAdapter.getItemCount() == 0) {
             mTextEmpty.setVisibility(View.VISIBLE);
             mItemsRecycler.setVisibility(View.GONE);
@@ -414,25 +454,8 @@ public class FragmentShowItems extends FragmentBase
     }
 
     private void onCreateItemClick(View view, final Item.Type type) {
-        Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fab_shrink);
         mOverlay.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.shutter_up));
-        animation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                mIOnFloatingActionMenuOptionClickedListener.OnFabCreateItemClick(type);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        mFloatingActionsMenu.startAnimation(animation);
+        mIOnFloatingActionMenuOptionClickedListener.OnFabCreateItemClick(type);
         FeedbackFunctions.vibrate(view);
     }
 
@@ -450,6 +473,19 @@ public class FragmentShowItems extends FragmentBase
         mAdapter.setNavType(type);
         toggleEmptyText();
         setToolbarTitleByType();
+
+        //Don't want user to add items when we're not in main view
+        if (type.equals(NavDrawerItem.NavDrawerItemType.PINBOARD)) {
+            if (!mIsFabMenuVisible) {
+                AnimationsHelper.showFloatingActionsMenu(mFloatingActionsMenu);
+            }
+            mIsFabMenuVisible = true;
+        } else {
+            if (mIsFabMenuVisible) {
+                AnimationsHelper.hideFloatingActionsMenu(mFloatingActionsMenu);
+            }
+            mIsFabMenuVisible = false;
+        }
     }
 
     /**
