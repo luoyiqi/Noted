@@ -1,8 +1,10 @@
 package com.cerebellio.noted.models.adapters;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,8 +21,11 @@ import com.cerebellio.noted.models.NavDrawerItem;
 import com.cerebellio.noted.models.Note;
 import com.cerebellio.noted.models.Sketch;
 import com.cerebellio.noted.models.events.ItemWithListPositionEvent;
+import com.cerebellio.noted.utils.ColourFunctions;
 import com.cerebellio.noted.utils.FeedbackFunctions;
+import com.cerebellio.noted.utils.PreferenceFunctions;
 import com.cerebellio.noted.utils.TextFunctions;
+import com.cerebellio.noted.utils.UtilityFunctions;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -85,6 +90,8 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                 notesHolder.mTextContent.setBackgroundColor(note.getColour());
                 notesHolder.mTextContent.setText(note.getContent());
+
+                notesHolder.mTextContent.setMaxHeight(PreferenceFunctions.getPrefTruncateItem(mContext));
                 break;
             case TYPE_CHECKLIST:
                 CheckList checkList = (CheckList) mItems.get(position);
@@ -116,12 +123,29 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     SpannableString content = TextFunctions.convertStringToSpannable(item.getContent());
 
                     if (item.isCompleted()) {
-                        TextFunctions.strikeThrough(content);
+
+                        //Fade out completed items
+                        content.setSpan(new ForegroundColorSpan(
+                                        ColourFunctions.adjustAlpha(ContextCompat.getColor(mContext,
+                                                        UtilityFunctions.getResIdFromAttribute(R.attr.textColorPrimary, mContext)),
+                                                ColourFunctions.MATERIAL_ALPHA_54_PER_CENT)), 0, content.length(),
+                                SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                        //Should we strike through completed items?
+                        if (PreferenceFunctions.getPrefBehaviourStrikethroughChecked(mContext)) {
+                            TextFunctions.strikeThrough(content);
+                        }
+
+                        //Should we italicise completed items?
+                        if (PreferenceFunctions.getPrefBehaviourItaliciseChecked(mContext)) {
+                            TextFunctions.italicise(content);
+                        }
                     }
 
                     checklistHolder.mTextContent.append(content);
                 }
 
+                checklistHolder.mTextContent.setMaxHeight(PreferenceFunctions.getPrefTruncateItem(mContext));
                 break;
             case TYPE_SKETCH:
                 Sketch sketch = (Sketch) mItems.get(position);
@@ -278,6 +302,17 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void removeItem(int position) {
         mItems.remove(position);
         notifyItemRemoved(position);
+    }
+
+    /**
+     * Add an item with the given position
+     *
+     * @param item          {@link Item} to add
+     * @param position      position at which to add item
+     */
+    public void addItem(Item item, int position) {
+        mItems.add(position, item);
+        notifyItemInserted(position);
     }
 
     /**
