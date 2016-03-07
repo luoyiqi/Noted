@@ -4,8 +4,10 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Environment;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.View;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -58,7 +60,7 @@ public class FileFunctions {
     public static String saveSketchToStorage(Bitmap sketch, String dirName, Context context) throws IOException {
 
         //save file with current date and time for uniqueness
-        String  fileName = DateFormat.format("MM-dd-yy HH-mm-ss", new Date().getTime()).toString();
+        String  fileName = getFileNameForCurrentTime();
 
         ContextWrapper contextWrapper = new ContextWrapper(context.getApplicationContext());
         File directory = contextWrapper.getDir(dirName, Context.MODE_PRIVATE);
@@ -91,6 +93,10 @@ public class FileFunctions {
         return new File(path).delete();
     }
 
+    public static String getFileNameForCurrentTime() {
+        return DateFormat.format("MM-dd-yy HH-mm-ss", new Date().getTime()).toString();
+    }
+
     /**
      * Read in a text file from the assets directory and convert to a String
      *
@@ -120,6 +126,40 @@ public class FileFunctions {
         }
 
         return text;
+    }
+
+    public static Bitmap takeScreenshot(View view) {
+        View rootView = view.getRootView();
+        rootView.setDrawingCacheEnabled(true);
+        Bitmap bitmap = Bitmap.createBitmap(rootView.getDrawingCache());
+        rootView.setDrawingCacheEnabled(false);
+        return bitmap;
+    }
+
+    public static boolean saveScreenshotToStorage(Bitmap screenshot) {
+        File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+
+        if (!path.isDirectory()) {
+            path.mkdir();
+            File image = new File(path, "Noted/" + getFileNameForCurrentTime() + ".png");
+
+            FileOutputStream fileOutputStream;
+
+            try {
+                fileOutputStream = new FileOutputStream(image.getAbsolutePath());
+                screenshot.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
+                fileOutputStream.flush();
+                fileOutputStream.close();
+            } catch (FileNotFoundException fnfe) {
+                Log.e(LOG_TAG, fnfe.getMessage());
+                return false;
+            } catch (IOException ioe) {
+                Log.e(LOG_TAG, ioe.getMessage());
+                return false;
+            }
+        }
+
+        return true;
     }
 
 }
