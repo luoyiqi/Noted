@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.AsyncTask;
-import android.support.v4.content.ContextCompat;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +18,6 @@ import com.cerebellio.noted.models.WordCloud;
 import com.cerebellio.noted.models.WordWithTextView;
 import com.cerebellio.noted.utils.ColourFunctions;
 import com.cerebellio.noted.utils.TextFunctions;
-import com.cerebellio.noted.utils.UtilityFunctions;
 import com.cerebellio.noted.views.NoPaddingTextView;
 
 import java.util.ArrayList;
@@ -36,8 +34,8 @@ public class WordCloudBuilder {
     private static final int INITIAL_CIRCLE_RADIUS = 1;
 
     private static final int DENSE_RADIUS_INCREASE_FACTOR = 1;
-    private static final int NORMAL_RADIUS_INCREASE_FACTOR = 20;
-    private static final int LOOSE_RADIUS_INCREASE_FACTOR = 50;
+    private static final int NORMAL_RADIUS_INCREASE_FACTOR = 13;
+    private static final int LOOSE_RADIUS_INCREASE_FACTOR = 25;
 
     private Context mContext;
     private WordCloud mWordCloud;
@@ -66,7 +64,9 @@ public class WordCloudBuilder {
     public enum CloudColouringSystem {
         MATERIAL,
         MONOTONE,
-        CUSTOM_PALETTE
+        CUSTOM_PALETTE,
+        PASTEL,
+        RANDOM
     }
 
     public enum CloudDensity {
@@ -111,10 +111,8 @@ public class WordCloudBuilder {
             mMaxTextSize = mContext.getResources().getDimension(R.dimen.text_wordcloud_max_50_items);
         } else if (mWordCloud.getWords().size() <= 100) {
             mMaxTextSize = mContext.getResources().getDimension(R.dimen.text_wordcloud_max_100_items);
-        } else if (mWordCloud.getWords().size() <= 500) {
-            mMaxTextSize = mContext.getResources().getDimension(R.dimen.text_wordcloud_max_500_items);
         } else {
-            mMaxTextSize = mContext.getResources().getDimension(R.dimen.text_wordcloud_max_1000_items);
+            mMaxTextSize = mContext.getResources().getDimension(R.dimen.text_wordcloud_max_500_items);
         }
 
         //Rectangle designating the bounds of the container frame
@@ -157,7 +155,6 @@ public class WordCloudBuilder {
      * @return              built TextView
      */
     private TextView buildTextView(Word word) {
-
         //Words greater than this size will be assigned
         //a smaller textsize proportional to the amount over it they are
         final int MAX_LENGTH_AT_FULL_SIZE = 4;
@@ -194,14 +191,17 @@ public class WordCloudBuilder {
             case MATERIAL:
                 return ColourFunctions.getRandomMaterialColour();
             case MONOTONE:
-                return ContextCompat.getColor(mContext,
-                        UtilityFunctions.getResIdFromAttribute(R.attr.textColorTertiary, mContext));
+                return ColourFunctions.getTertiaryTextColour(mContext);
             case CUSTOM_PALETTE:
                 if (mCustomPalette == null) {
                     return ColourFunctions.getRandomMaterialColour();
                 } else  {
                     return mCustomPalette[mRandom.nextInt(mCustomPalette.length)];
                 }
+            case PASTEL:
+                return ColourFunctions.getRandomPastelColour();
+            case RANDOM:
+                return ColourFunctions.getRandomColour();
         }
     }
 
@@ -345,6 +345,7 @@ public class WordCloudBuilder {
             }
 
             float radius = INITIAL_CIRCLE_RADIUS;
+            int angle = mRandom.nextInt(361);
 
             Rect rect = new Rect(left, top, right, bottom);
 
@@ -356,9 +357,9 @@ public class WordCloudBuilder {
                     //Set back to initial values because we know these were on the screen
                     rect.set(left, top, right, bottom);
                 } else {
-                    //Move out in a gradually increase circle until
+                    //Move out in a gradually increasing spiral until
                     //we hit upon a valid position
-                    Point nextPoint = getPointOnCircle(left, top, mRandom.nextInt(361), radius);
+                    Point nextPoint = getPointOnCircle(left, top, angle++, radius);
                     int nextLeft = nextPoint.x;
                     int nextTop = nextPoint.y;
 
