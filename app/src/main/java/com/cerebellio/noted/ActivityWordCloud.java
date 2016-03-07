@@ -6,13 +6,14 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import com.cerebellio.noted.database.SqlDatabaseHelper;
 import com.cerebellio.noted.helpers.WordCloudBuilder;
 import com.cerebellio.noted.helpers.WordCloudBuilder.CloudColouringSystem;
 import com.cerebellio.noted.helpers.WordCloudBuilder.CloudDensity;
-import com.cerebellio.noted.models.WordCloud.CloudShape;
 import com.cerebellio.noted.models.WordCloud;
+import com.cerebellio.noted.models.WordCloud.CloudShape;
 import com.cerebellio.noted.utils.ColourFunctions;
 import com.cerebellio.noted.utils.PreferenceFunctions;
 import com.cerebellio.noted.utils.TextFunctions;
@@ -29,6 +30,8 @@ public class ActivityWordCloud extends ActivityBase {
     Toolbar mToolbar;
     @InjectView(R.id.activity_wordcloud_frame)
     FrameLayout mFrameLayout;
+    @InjectView(R.id.activity_wordcloud_empty)
+    TextView mTextEmpty;
 
     private static final String LOG_TAG = TextFunctions.makeLogTag(ActivityWordCloud.class);
 
@@ -160,8 +163,13 @@ public class ActivityWordCloud extends ActivityBase {
         @Override
         protected void onPostExecute(WordCloud wordCloud) {
             super.onPostExecute(wordCloud);
-
             mWordCloud = wordCloud;
+
+            //No words to display
+            if (wordCloud.isEmpty()) {
+                mTextEmpty.setVisibility(View.VISIBLE);
+            }
+
             new WordCloudBuilder(mContext, mWordCloud,
                     mFrameLayout, getColouringSystemFromPrefs(),
                     getCloudDensityFromPrefs(), getCloudAnimationFromPrefs(), mCustomPalette);
