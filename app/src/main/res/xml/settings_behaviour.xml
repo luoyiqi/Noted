@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <com.cerebellio.noted.views.NotedPreferenceCategory
+        android:title="@string/settings_category_general"
+        >
+
+        <com.cerebellio.noted.views.NotedCheckBoxPreference
+            android:key="settings_behaviour_notify_status_change"
+            android:title="@string/settings_behaviour_notify_status_change"
+            android:defaultValue="true"
+            />
+
+        <com.cerebellio.noted.views.NotedCheckBoxPreference
+            android:key="settings_behaviour_confirm_delete"
+            android:title="@string/settings_behaviour_confirm_delete"
+            android:defaultValue="true"
+            />
+
+    </com.cerebellio.noted.views.NotedPreferenceCategory>
+
+    <com.cerebellio.noted.views.NotedPreferenceCategory
+        android:title="@string/settings_category_checklist"
+        >
+
+        <com.cerebellio.noted.views.NotedCheckBoxPreference
+            android:key="settings_behaviour_checklist_delete_checked"
+            android:title="@string/settings_behaviour_checklist_delete_checked_title"
+            android:defaultValue="false"
+            />
+
+        <com.cerebellio.noted.views.NotedCheckBoxPreference
+            android:key="settings_behaviour_checklist_swipe_to_delete"
+            android:title="@string/settings_behaviour_checklist_swipe_to_delete_title"
+            android:defaultValue="true"
+            />
+
+        <com.cerebellio.noted.views.NotedCheckBoxPreference
+            android:key="settings_behaviour_checklist_italicise_checked"
+            android:title="@string/settings_behaviour_checklist_italicise_checked_title"
+            android:defaultValue="true"
+            />
+
+        <com.cerebellio.noted.views.NotedCheckBoxPreference
+            android:key="settings_behaviour_checklist_strikethrough_checked"
+            android:title="@string/settings_behaviour_checklist_strikethrough_checked_title"
+            android:defaultValue="true"
+            />
+
+    </com.cerebellio.noted.views.NotedPreferenceCategory>
+
+</PreferenceScreen>
