@@ -21,6 +21,7 @@ import com.cerebellio.noted.models.CheckList;
 import com.cerebellio.noted.models.CheckListItem;
 import com.cerebellio.noted.models.Item;
 import com.cerebellio.noted.models.listeners.IOnStartDragListener;
+import com.cerebellio.noted.utils.PreferenceFunctions;
 import com.cerebellio.noted.utils.TextFunctions;
 import com.cerebellio.noted.views.FilteredIconView;
 
@@ -42,7 +43,6 @@ public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     public ChecklistItemsAdapter(
             CheckList checkList, Context context, IOnStartDragListener iOnStartDragListener) {
-
         mCheckList = checkList;
         mItems = checkList.getItems();
         mContext = context;
@@ -55,23 +55,12 @@ public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         CheckListItem item = mItems.get(position);
         final ChecklistItemsAdapterViewHolder viewHolder = ((ChecklistItemsAdapterViewHolder) holder);
 
         viewHolder.mEditContent.setText(item.getContent());
         viewHolder.mCheckCompleted.setChecked(item.isCompleted());
-
-        viewHolder.mDrag.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (MotionEventCompat.getActionMasked(motionEvent) == MotionEvent.ACTION_DOWN) {
-                    mIOnStartDragListener.onStartDrag(viewHolder);
-                }
-                return false;
-            }
-        });
 
         //Don't want to be able to drag or mark as completed an empty item
         viewHolder.mDrag.setVisibility(item.isEmpty() ? View.INVISIBLE : View.VISIBLE);
@@ -93,7 +82,6 @@ public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     public void swap(int sourcePosition, int targetPosition)  {
-
         //Don't want to be able to swap final item
         if (sourcePosition == mItems.size() - 1 || targetPosition == mItems.size() - 1) {
             return;
@@ -105,7 +93,6 @@ public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     public void remove(int position) {
-
         //Don't want to delete the final item because user couldn't enter new item
         if (position == mItems.size() - 1) {
             return;
@@ -131,10 +118,17 @@ public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             mEditContent = (EditText) v.findViewById(R.id.recycler_item_checklist_items_content);
             mCheckCompleted = (CheckBox) v.findViewById(R.id.recycler_item_checklist_items_completed);
 
+
             mCheckCompleted.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                     mItems.get(getAdapterPosition()).setIsCompleted(isChecked);
+
+                    if (isChecked) {
+                        if (PreferenceFunctions.getPrefBehaviourDeleteChecked(mContext)) {
+                            remove(getAdapterPosition());
+                        }
+                    }
                 }
             });
 
@@ -189,9 +183,20 @@ public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                             mItems.get(getAdapterPosition()).isEmpty() ? View.INVISIBLE : View.VISIBLE);
                     mCheckCompleted.setVisibility(
                             mItems.get(getAdapterPosition()).isEmpty() ? View.INVISIBLE : View.VISIBLE);
-
                 }
             });
+
+
+            mDrag.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    if (MotionEventCompat.getActionMasked(motionEvent) == MotionEvent.ACTION_DOWN) {
+                        mIOnStartDragListener.onStartDrag(ChecklistItemsAdapterViewHolder.this);
+                    }
+                    return false;
+                }
+            });
+
 
         }
     }
