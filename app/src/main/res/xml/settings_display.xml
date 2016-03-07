@@ -3,28 +3,48 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     >
 
-    <com.cerebellio.noted.views.NotedListPreference
-        android:key="settings_display_theme"
-        android:title="@string/settings_display_theme_title"
-        android:entries="@array/settings_display_theme_entries"
-        android:entryValues="@array/settings_display_theme_values"
-        android:defaultValue="settings_display_theme_light"
-        />
+    <com.cerebellio.noted.views.NotedPreferenceCategory
+        android:title="@string/settings_category_general"
+        >
 
-    <com.cerebellio.noted.views.NotedListPreference
-        android:key="settings_display_columns"
-        android:title="@string/settings_display_columns_title"
-        android:entries="@array/settings_display_columns_entries"
-        android:entryValues="@array/settings_display_columns_values"
-        android:defaultValue="settings_display_columns_4"
-        />
+        <com.cerebellio.noted.views.NotedListPreference
+            android:key="settings_display_theme"
+            android:title="@string/settings_display_theme_title"
+            android:entries="@array/settings_display_theme_entries"
+            android:entryValues="@array/settings_display_theme_values"
+            android:defaultValue="settings_display_theme_light"
+            />
 
-    <com.cerebellio.noted.views.NotedListPreference
-        android:key="settings_display_date_format"
-        android:title="@string/settings_display_date_format_title"
-        android:entries="@array/settings_display_date_format_entries"
-        android:entryValues="@array/settings_display_date_format_values"
-        android:defaultValue="settings_display_date_format_pretty"
-        />
+        <com.cerebellio.noted.views.NotedListPreference
+            android:key="settings_display_columns"
+            android:title="@string/settings_display_columns_title"
+            android:entries="@array/settings_display_columns_entries"
+            android:entryValues="@array/settings_display_columns_values"
+            android:defaultValue="settings_display_columns_3"
+            />
+
+    </com.cerebellio.noted.views.NotedPreferenceCategory>
+
+    <com.cerebellio.noted.views.NotedPreferenceCategory
+        android:title="@string/settings_category_items"
+        >
+
+        <com.cerebellio.noted.views.NotedListPreference
+            android:key="settings_display_date_format"
+            android:title="@string/settings_display_date_format_title"
+            android:entries="@array/settings_display_date_format_entries"
+            android:entryValues="@array/settings_display_date_format_values"
+            android:defaultValue="settings_display_date_format_pretty"
+            />
+
+        <com.cerebellio.noted.views.NotedListPreference
+            android:key="settings_display_truncate_item"
+            android:title="@string/settings_display_truncate_item_title"
+            android:entries="@array/settings_display_truncate_item_entries"
+            android:entryValues="@array/settings_display_truncate_item_values"
+            android:defaultValue="settings_display_truncate_item_none"
+            />
+
+    </com.cerebellio.noted.views.NotedPreferenceCategory>
 
 </PreferenceScreen>

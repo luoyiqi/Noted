@@ -1,50 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <com.cerebellio.noted.views.NotedListPreference
-        android:key="settings_wordcloud_colour"
-        android:title="@string/settings_wordcloud_colour_title"
-        android:entries="@array/settings_wordcloud_colour_entries"
-        android:entryValues="@array/settings_wordcloud_colour_values"
-        android:defaultValue="settings_wordcloud_colour_material"
-        />
+    <com.cerebellio.noted.views.NotedPreferenceCategory
+        android:title="@string/settings_category_appearance"
+        >
 
-    <com.cerebellio.noted.views.NotedListPreference
-        android:key="settings_wordcloud_shape"
-        android:title="@string/settings_wordcloud_shape_title"
-        android:entries="@array/settings_wordcloud_shape_entries"
-        android:entryValues="@array/settings_wordcloud_shape_values"
-        android:defaultValue="settings_wordcloud_shape_circle"
-        />
+        <com.cerebellio.noted.views.NotedListPreference
+            android:key="settings_wordcloud_colour"
+            android:title="@string/settings_wordcloud_colour_title"
+            android:entries="@array/settings_wordcloud_colour_entries"
+            android:entryValues="@array/settings_wordcloud_colour_values"
+            android:defaultValue="settings_wordcloud_colour_material"
+            />
 
-    <com.cerebellio.noted.views.NotedListPreference
-        android:key="settings_wordcloud_density"
-        android:title="@string/settings_wordcloud_density_title"
-        android:entries="@array/settings_wordcloud_density_entries"
-        android:entryValues="@array/settings_wordcloud_density_values"
-        android:defaultValue="settings_wordcloud_density_dense"
-        />
+        <com.cerebellio.noted.views.NotedListPreference
+            android:key="settings_wordcloud_shape"
+            android:title="@string/settings_wordcloud_shape_title"
+            android:entries="@array/settings_wordcloud_shape_entries"
+            android:entryValues="@array/settings_wordcloud_shape_values"
+            android:defaultValue="settings_wordcloud_shape_circle"
+            />
 
-    <com.cerebellio.noted.views.NotedListPreference
-        android:key="settings_wordcloud_number"
-        android:title="@string/settings_wordcloud_number_title"
-        android:entries="@array/settings_wordcloud_number_entries"
-        android:entryValues="@array/settings_wordcloud_number_values"
-        android:defaultValue="settings_wordcloud_number_100"
-        />
+        <com.cerebellio.noted.views.NotedListPreference
+            android:key="settings_wordcloud_density"
+            android:title="@string/settings_wordcloud_density_title"
+            android:entries="@array/settings_wordcloud_density_entries"
+            android:entryValues="@array/settings_wordcloud_density_values"
+            android:defaultValue="settings_wordcloud_density_dense"
+            />
 
-    <com.cerebellio.noted.views.NotedSwitchPreference
-        android:key="settings_wordcloud_animation"
-        android:title="@string/settings_wordcloud_animation_title"
-        android:defaultValue="false"
-        android:widgetLayout="@layout/preference_switch"
-        />
+        <com.cerebellio.noted.views.NotedListPreference
+            android:key="settings_wordcloud_number"
+            android:title="@string/settings_wordcloud_number_title"
+            android:entries="@array/settings_wordcloud_number_entries"
+            android:entryValues="@array/settings_wordcloud_number_values"
+            android:defaultValue="settings_wordcloud_number_100"
+            />
 
-    <com.cerebellio.noted.views.NotedSwitchPreference
-        android:key="settings_wordcloud_include_common_words"
-        android:title="@string/settings_wordcloud_include_common_words_title"
-        android:defaultValue="false"
-        android:widgetLayout="@layout/preference_switch"
-        />
+    </com.cerebellio.noted.views.NotedPreferenceCategory>
+
+    <com.cerebellio.noted.views.NotedPreferenceCategory
+        android:title="@string/settings_category_other"
+        >
+
+        <com.cerebellio.noted.views.NotedCheckBoxPreference
+            android:key="settings_wordcloud_animation"
+            android:title="@string/settings_wordcloud_animation_title"
+            android:defaultValue="true"
+            />
+
+        <com.cerebellio.noted.views.NotedCheckBoxPreference
+            android:key="settings_wordcloud_include_common_words"
+            android:title="@string/settings_wordcloud_include_common_words_title"
+            android:defaultValue="false"
+            />
+
+    </com.cerebellio.noted.views.NotedPreferenceCategory>
 
 </PreferenceScreen>

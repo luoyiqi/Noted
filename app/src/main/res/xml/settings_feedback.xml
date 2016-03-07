@@ -3,11 +3,17 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     >
 
-    <com.cerebellio.noted.views.NotedSwitchPreference
-        android:key="settings_feedback_vibration"
-        android:defaultValue="false"
-        android:widgetLayout="@layout/preference_switch"
-        android:title="Vibration"
-        />
+    <com.cerebellio.noted.views.NotedPreferenceCategory
+        android:title="@string/settings_category_general"
+        >
+
+        <com.cerebellio.noted.views.NotedSwitchPreference
+            android:key="settings_feedback_vibration"
+            android:defaultValue="false"
+            android:widgetLayout="@layout/preference_switch"
+            android:title="Vibration"
+            />
+
+    </com.cerebellio.noted.views.NotedPreferenceCategory>
 
 </PreferenceScreen>
