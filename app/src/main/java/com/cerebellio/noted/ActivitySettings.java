@@ -93,6 +93,9 @@ public class ActivitySettings extends ActivityBase {
         } else if (key.equals("settings_wordcloud")) {
             bundle.putInt(Constants.BUNDLE_SETTINGS_XML, R.xml.settings_wordcloud);
             bundle.putString(Constants.BUNDLE_SETTINGS_TITLE, getString(R.string.settings_header_wordcloud));
+        } else if (key.equals("settings_behaviour")) {
+            bundle.putInt(Constants.BUNDLE_SETTINGS_XML, R.xml.settings_behaviour);
+            bundle.putString(Constants.BUNDLE_SETTINGS_TITLE, getString(R.string.settings_header_behaviour));
         } else if (key.equals("settings_feedback")) {
             bundle.putInt(Constants.BUNDLE_SETTINGS_XML, R.xml.settings_feedback);
             bundle.putString(Constants.BUNDLE_SETTINGS_TITLE, getString(R.string.settings_header_feedback));
@@ -219,6 +222,22 @@ public class ActivitySettings extends ActivityBase {
                         dateFormat.setSummary(getResources().getStringArray(R.array.settings_display_date_format_entries)[index]);
                         mPrefs.edit().putString(PreferenceFunctions.SETTINGS_DISPLAY_DATE_FORMAT, o.toString()).commit();
                         dateFormat.setValueIndex(index);
+                        return false;
+                    }
+                });
+            }
+
+            final ListPreference itemLength = (ListPreference) findPreference(PreferenceFunctions.SETTINGS_DISPLAY_TRUNCATE_ITEM);
+            if (itemLength != null) {
+                int columnIndex = itemLength.findIndexOfValue(PreferenceFunctions.getPrefTruncateItemValue(getActivity()));
+                itemLength.setSummary(getResources().getStringArray(R.array.settings_display_truncate_item_entries)[columnIndex]);
+                itemLength.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object o) {
+                        int index = itemLength.findIndexOfValue((String) o);
+                        itemLength.setSummary(getResources().getStringArray(R.array.settings_display_truncate_item_entries)[index]);
+                        mPrefs.edit().putString(PreferenceFunctions.SETTINGS_DISPLAY_TRUNCATE_ITEM, o.toString()).commit();
+                        itemLength.setValueIndex(index);
                         return false;
                     }
                 });
