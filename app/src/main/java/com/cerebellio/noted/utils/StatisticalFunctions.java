@@ -1,5 +1,7 @@
 package com.cerebellio.noted.utils;
 
+import com.cerebellio.noted.ApplicationNoted;
+
 /**
  * Helper for common statistical functions, mean, variance, standard deviation etc.
  */
@@ -47,6 +49,35 @@ public class StatisticalFunctions {
         }
 
         return transformed;
+    }
+
+    public static float randomAverageOfXFloats(int x) {
+        float total = 0f;
+
+        for (int i = 0; i < x; i++) {
+            total += ApplicationNoted.random.nextFloat();
+        }
+
+        return total / (float) x;
+    }
+
+    public static boolean coinToss() {
+        return ApplicationNoted.random.nextInt(2) == 1;
+    }
+
+    /**
+     * Get a random integer in a given inclusive range
+     *
+     * @param minInclusive      min random value
+     * @param maxInclusive      max random value
+     * @return                  random value created
+     */
+    public static int getRandomIntegerInInclusiveRange(int minInclusive, int maxInclusive) {
+        return ApplicationNoted.random.nextInt((maxInclusive - minInclusive) + minInclusive);
+    }
+
+    public static float getRandomFloatInInclusiveRange(float minInclusive, float maxInclusive) {
+        return ApplicationNoted.random.nextFloat() * (maxInclusive - minInclusive) + minInclusive;
     }
 
 }
