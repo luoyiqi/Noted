@@ -1,8 +1,10 @@
 package com.cerebellio.noted.utils;
 
+import android.graphics.Typeface;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.StrikethroughSpan;
+import android.text.style.StyleSpan;
 
 import java.text.Collator;
 import java.util.ArrayList;
@@ -31,20 +33,29 @@ public class TextFunctions {
     /**
      * Converts a String to an equivalent {@link SpannableString}
      *
-     * @param s         String to convert
+     * @param string         String to convert
      * @return          equivalent {@link SpannableString}
      */
-    public static SpannableString convertStringToSpannable(String s) {
-        return new SpannableString(s);
+    public static SpannableString convertStringToSpannable(String string) {
+        return new SpannableString(string);
     }
 
     /**
      * Strike through given {@link SpannableString}
      *
-     * @param s    {@link SpannableString} to strike through
+     * @param string    {@link SpannableString} to strike through
      */
-    public static void strikeThrough(SpannableString s) {
-        s.setSpan(new StrikethroughSpan(), 0, s.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    public static void strikeThrough(SpannableString string) {
+        string.setSpan(new StrikethroughSpan(), 0, string.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+
+    /**
+     * Italicise given {@link SpannableString}
+     *
+     * @param string    {@link SpannableString} to italicise
+     */
+    public static void italicise(SpannableString string) {
+        string.setSpan(new StyleSpan(Typeface.ITALIC), 0, string.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     /**
@@ -106,10 +117,35 @@ public class TextFunctions {
      * @param maxLength     if string is greater than this length, it is truncated with an ellipse
      * @return              given String as tag
      */
-    public static String createTagString(String string, int maxLength) {
+    public static String truncateWithEllipse(String string, int maxLength) {
         return string.length() <= maxLength
-                ? string.toLowerCase(Locale.getDefault())
-                : string.toLowerCase(Locale.getDefault()).substring(0, maxLength - 1) + "\u2026";
+                ? string
+                : string.substring(0, maxLength - 1) + "\u2026";
+    }
+
+    /**
+     * Creates a tag from a given string, i.e. no spaces, lowercase
+     *
+     * @param string        String to modify
+     * @param maxLength     if string is greater than this length, it is truncated with an ellipse
+     * @return              given String as tag
+     */
+    public static SpannableString truncateWithEllipse(SpannableString string, int maxLength) {
+        return string.length() <= maxLength
+                ? string
+                : convertStringToSpannable(string.subSequence(0, maxLength - 1) + "\u2026");
+    }
+
+    /**
+     * Creates a tag from a given string, i.e. no spaces, lowercase
+     *
+     * @param string        String to modify
+     * @param maxLength     if string is greater than this length, it is truncated with an ellipse
+     * @param makeLowerCase true if string should be converted to lower case
+     * @return              given String as tag
+     */
+    public static String truncateWithEllipse(String string, int maxLength, boolean makeLowerCase) {
+        return truncateWithEllipse(string, maxLength).toLowerCase(Locale.getDefault());
     }
 
     /**
