@@ -12,6 +12,19 @@
     <include layout="@layout/toolbar"
              />
 
+
+    <TextView
+        android:id="@+id/activity_wordcloud_empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/size_huge"
+        android:text="@string/activity_wordcloud_empty"
+        android:textColor="?attr/textColorTertiary"
+        android:gravity="center"
+        android:visibility="gone"
+        style="@style/text.huge"
+        />
+
     <com.cerebellio.noted.views.ZoomFrame
         android:layout_width="match_parent"
         android:layout_height="match_parent">
