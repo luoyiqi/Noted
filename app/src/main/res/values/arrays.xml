@@ -70,16 +70,10 @@
         <item>know</item>
         <item>me</item>
         <item>get</item>
-        <item>da</item>
-        <item>ja</item>
-        <item>wo</item>
-        <item>es</item>
-        <item>zu</item>
-        <item>sa</item>
-        <item>du</item>
-        <item>er</item>
-        <item>am</item>
-        <item>um</item>
+        <item>my</item>
+        <item>will</item>
+        <item>now</item>
+        <item>mine</item>
     </string-array>
 
     <string-array name="settings_display_theme_entries">
@@ -120,28 +114,54 @@
         <item>settings_display_date_format_long</item>
     </string-array>
 
+    <string-array name="settings_display_truncate_item_entries">
+        <item>@string/settings_display_truncate_item_none</item>
+        <item>@string/settings_display_truncate_item_short</item>
+        <item>@string/settings_display_truncate_item_medium</item>
+        <item>@string/settings_display_truncate_item_long</item>
+    </string-array>
+
+    <string-array name="settings_display_truncate_item_values">
+        <item>settings_display_truncate_item_none</item>
+        <item>settings_display_truncate_item_short</item>
+        <item>settings_display_truncate_item_medium</item>
+        <item>settings_display_truncate_item_long</item>
+    </string-array>
+
     <string-array name="settings_wordcloud_colour_entries">
         <item>@string/settings_wordcloud_colour_material</item>
         <item>@string/settings_wordcloud_colour_current</item>
         <item>@string/settings_wordcloud_colour_monotone</item>
+        <item>@string/settings_wordcloud_colour_pastel</item>
+        <item>@string/settings_wordcloud_colour_random</item>
     </string-array>
 
     <string-array name="settings_wordcloud_colour_values">
         <item>settings_wordcloud_colour_material</item>
         <item>settings_wordcloud_colour_current</item>
         <item>settings_wordcloud_colour_monotone</item>
+        <item>settings_wordcloud_colour_pastel</item>
+        <item>settings_wordcloud_colour_random</item>
     </string-array>
 
     <string-array name="settings_wordcloud_shape_entries">
         <item>@string/settings_wordcloud_shape_circle</item>
         <item>@string/settings_wordcloud_shape_horizontal_line</item>
         <item>@string/settings_wordcloud_shape_vertical_line</item>
+        <item>@string/settings_wordcloud_shape_cross</item>
+        <item>@string/settings_wordcloud_shape_diamond</item>
+        <item>@string/settings_wordcloud_shape_picture_frame</item>
+        <item>@string/settings_wordcloud_shape_war_formation</item>
     </string-array>
 
     <string-array name="settings_wordcloud_shape_values">
         <item>settings_wordcloud_shape_circle</item>
         <item>settings_wordcloud_shape_horizontal_line</item>
         <item>settings_wordcloud_shape_vertical_line</item>
+        <item>settings_wordcloud_shape_cross</item>
+        <item>settings_wordcloud_shape_diamond</item>
+        <item>settings_wordcloud_shape_picture_frame</item>
+        <item>settings_wordcloud_shape_war_formation</item>
     </string-array>
 
     <string-array name="settings_wordcloud_density_entries">
@@ -161,7 +181,6 @@
         <item>50</item>
         <item>100</item>
         <item>500</item>
-        <item>1000</item>
     </string-array>
 
     <string-array name="settings_wordcloud_number_values">
@@ -169,7 +188,6 @@
         <item>settings_wordcloud_number_50</item>
         <item>settings_wordcloud_number_100</item>
         <item>settings_wordcloud_number_500</item>
-        <item>settings_wordcloud_number_1000</item>
     </string-array>
 
 </resources>
