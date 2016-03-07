@@ -4,6 +4,9 @@ import android.content.Context;
 import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
 
+import com.cerebellio.noted.ApplicationNoted;
+import com.cerebellio.noted.R;
+
 /**
  * Commonly used colour functions
  */
@@ -12,6 +15,8 @@ public class ColourFunctions {
     private ColourFunctions() {}
 
     private static final String LOG_TAG = TextFunctions.makeLogTag(ColourFunctions.class);
+
+    public static final int MATERIAL_ALPHA_54_PER_CENT = 138;
 
     /**
      * Adjusts the alpha value of the given colour
@@ -44,6 +49,65 @@ public class ColourFunctions {
      */
     public static int getColourFromAttr(Context context, int attr) {
         return ContextCompat.getColor(context, UtilityFunctions.getResIdFromAttribute(attr, context));
+    }
+
+    public static int getAccentColour(Context context) {
+        return ContextCompat.getColor(
+                context, UtilityFunctions.getResIdFromAttribute(R.attr.colorAccent, context));
+    }
+
+    public static int getTertiaryTextColour(Context context) {
+        return ContextCompat.getColor(
+                context, UtilityFunctions.getResIdFromAttribute(R.attr.textColorTertiary, context));
+    }
+
+    public static int getPrimaryTextColour(Context context) {
+        return ContextCompat.getColor(
+                context, UtilityFunctions.getResIdFromAttribute(R.attr.textColorPrimary, context));
+    }
+
+    public static int getPrimaryColour(Context context) {
+        return ContextCompat.getColor(
+                context, UtilityFunctions.getResIdFromAttribute(R.attr.colorPrimary, context));
+    }
+
+    public static int getTransparent() {
+        return 0x00000000;
+    }
+
+    /**
+     * Get a truly random colour
+     *
+     * @return          colour
+     */
+    public static int getRandomColour() {
+        return Color.argb(255,
+                ApplicationNoted.random.nextInt(256),
+                ApplicationNoted.random.nextInt(256),
+                ApplicationNoted.random.nextInt(256));
+    }
+
+    /**
+     * Get a random colour mixed with a given colour.
+     *
+     * @param mixer         colour to mix in
+     * @return              random colour + mixer
+     */
+    public static int getRandomColour(int mixer) {
+        return Color.argb(255,
+                (ApplicationNoted.random.nextInt(256) + Color.red(mixer)) / 2,
+                (ApplicationNoted.random.nextInt(256) + Color.green(mixer)) / 2,
+                (ApplicationNoted.random.nextInt(256) + Color.blue(mixer)) / 2);
+    }
+
+    /**
+     * Generate random pastel colour
+     *
+     * @return          random pastel colour
+     */
+    public static int getRandomPastelColour() {
+        //Mix truly random colour with a light grey as mixer
+        return getRandomColour(0x00D3D3D3);
     }
 
     /**
