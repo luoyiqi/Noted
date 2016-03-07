@@ -7,6 +7,6 @@ import com.cerebellio.noted.models.Item;
  * needs to be edited
  */
 public interface IOnItemFocusNeedsUpdatingListener {
-    void onRemove(int position);
+    void onRemove(Item.Status prevStatus, Item.Status newStatus, Item item, int position);
     void onUpdateColour(int position, int newColour);
 }
