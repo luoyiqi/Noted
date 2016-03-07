@@ -1,8 +1,10 @@
 package com.cerebellio.noted.models;
 
-import com.cerebellio.noted.models.WordCloud.CloudShape;
+import android.graphics.PointF;
 
-import java.util.Random;
+import com.cerebellio.noted.ApplicationNoted;
+import com.cerebellio.noted.models.WordCloud.CloudShape;
+import com.cerebellio.noted.utils.StatisticalFunctions;
 
 /**
  * Represents a single word in a word cloud
@@ -26,43 +28,55 @@ public class Word {
     public Word(String word, int count, CloudShape cloudShape) {
         mWord = word;
         mCount = count;
-        mDesiredX = calculateDesiredX(cloudShape);
-        mDesiredY = calculateDesiredY(cloudShape);
+        PointF desiredPoint = calculateDesiredXY(cloudShape);
+        mDesiredX = desiredPoint.x;
+        mDesiredY = desiredPoint.y;
     }
 
     /**
-     * The relative x position this {@link Word} wants to take up in a frame
+     * The relative x and y position this {@link Word} wants to take up in a frame
      *
      * @param cloudShape        {@link CloudShape} of the word
-     * @return                  x position
+     * @return                  x and y position
      */
-    private float calculateDesiredX(CloudShape cloudShape) {
+    private PointF calculateDesiredXY(CloudShape cloudShape) {
         switch (cloudShape) {
             default:
-            case CIRCULAR:
-                return 0.5f;
+            case CIRCLE:
+                return new PointF(0.5f, 0.5f);
             case VERTICAL:
-                return 0.5f;
+                return new PointF(0.5f, ApplicationNoted.random.nextFloat());
             case HORIZONTAL:
-                return new Random().nextFloat();
-        }
-    }
+                return new PointF(ApplicationNoted.random.nextFloat(), 0.5f);
+            case CROSS:
+                //50/50 chance of being attached to x or y axis
+                //If on x axis, give y random value and vice versa
+                float crossX = StatisticalFunctions.coinToss() ? 0.5f : ApplicationNoted.random.nextFloat();
+                float crossY = crossX == 0.5f ? ApplicationNoted.random.nextFloat() : 0.5f;
+                return new PointF(crossX, crossY);
+            case DIAMOND:
+                //Do the same as making a cross, but for each float take
+                //the average of a few so the positions tend to centralise around 0.5
+                //Obviously the higher the repeat factor the closer we are to
+                //approximating a diamond
+                final int REPEAT_FACTOR = 5;
+                float diamondX = StatisticalFunctions.coinToss() ? 0.5f : StatisticalFunctions.randomAverageOfXFloats(REPEAT_FACTOR);
+                float diamondY = diamondX == 0.5f ? StatisticalFunctions.randomAverageOfXFloats(REPEAT_FACTOR) : 0.5f;
+                return new PointF(diamondX, diamondY);
+            case PICTURE_FRAME:
+                boolean stuckToSide = StatisticalFunctions.coinToss();
 
-    /**
-     * The relative y position this {@link Word} wants to take up in a frame
-     *
-     * @param cloudShape        {@link CloudShape} of the word
-     * @return                  y position
-     */
-    private float calculateDesiredY(CloudShape cloudShape) {
-        switch (cloudShape) {
-            default:
-            case CIRCULAR:
-                return 0.5f;
-            case VERTICAL:
-                return new Random().nextFloat();
-            case HORIZONTAL:
-                return 0.5f;
+                //If stuck to side, either return hard left or right.
+                //If not, we're stuck to top or bottom so need random x
+                float pictureFrameX = stuckToSide ? (StatisticalFunctions.coinToss() ? 0f : 1f) : ApplicationNoted.random.nextFloat();
+
+                //As above in reverse
+                float pictureFrameY = stuckToSide ?  ApplicationNoted.random.nextFloat() : (StatisticalFunctions.coinToss() ? 0f : 1f);
+
+                return new PointF(pictureFrameX, pictureFrameY);
+            case WAR_FORMATION:
+                //Words line up at top and bottom of the screen
+                return new PointF(ApplicationNoted.random.nextFloat(), StatisticalFunctions.coinToss() ? 0f : 1f);
         }
     }
 
