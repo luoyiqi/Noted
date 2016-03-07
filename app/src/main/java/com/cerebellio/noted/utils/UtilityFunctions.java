@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.TypedValue;
 
+import com.cerebellio.noted.R;
 import com.cerebellio.noted.views.WrapContentGridLayoutManager;
 
 import java.util.Random;
@@ -92,7 +93,7 @@ public class UtilityFunctions {
      *
      * @return randomly selected Integer
      */
-    public static Integer getRandomIntegerFromArray(Integer[] fullList) {
+    public static int getRandomIntegerFromArray(Integer[] fullList) {
         return fullList[new Random().nextInt(fullList.length)];
     }
 
@@ -106,6 +107,18 @@ public class UtilityFunctions {
     public static float convertPixelsToDp(Context context, int pixels) {
         return TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP, pixels, context.getResources().getDisplayMetrics());
+    }
+
+
+    /**
+     * Checks whether the current theme set in the given context is considered dark
+     *
+     * @param context       context of theme to check
+     * @return              true iff dark
+     */
+    public static boolean isConsideredDarkTheme(Context context) {
+        return context.getResources().getBoolean(
+                UtilityFunctions.getResIdFromAttribute(R.attr.is_dark_theme, context));
     }
 
 }
