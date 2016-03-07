@@ -13,10 +13,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:minHeight="@dimen/size_huge"
-        android:text="@string/dialog_permanently_delete_title"
+        android:text="@string/dialog_delete_title"
         android:gravity="center"
         android:textColor="?attr/textColorTertiary"
         style="@style/text.huge"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/dialog_delete_warning"
+        android:gravity="center"
+        android:textColor="?attr/textColorTertiary"
+        style="@style/text.medium"
         />
 
     <RelativeLayout
