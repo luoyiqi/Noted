@@ -3,6 +3,7 @@ package com.cerebellio.noted.utils;
 import android.content.Context;
 import android.preference.PreferenceManager;
 
+import com.cerebellio.noted.R;
 import com.cerebellio.noted.helpers.WordCloudBuilder;
 import com.cerebellio.noted.models.WordCloud;
 
@@ -25,15 +26,27 @@ public class PreferenceFunctions {
     public static final String SETTINGS_DISPLAY_DATE_FORMAT_PRETTY = "settings_display_date_format_pretty";
     public static final String SETTINGS_DISPLAY_DATE_FORMAT_LONG = "settings_display_date_format_long";
 
+    public static final String SETTINGS_DISPLAY_TRUNCATE_ITEM = "settings_display_truncate_item";
+    public static final String SETTINGS_DISPLAY_TRUNCATE_ITEM_NONE = "settings_display_truncate_item_none";
+    public static final String SETTINGS_DISPLAY_TRUNCATE_ITEM_SHORT = "settings_display_truncate_item_short";
+    public static final String SETTINGS_DISPLAY_TRUNCATE_ITEM_MEDIUM = "settings_display_truncate_item_medium";
+    public static final String SETTINGS_DISPLAY_TRUNCATE_ITEM_LONG = "settings_display_truncate_item_long";
+
     public static final String SETTINGS_WORDCLOUD_COLOUR = "settings_wordcloud_colour";
     public static final String SETTINGS_WORDCLOUD_COLOUR_MATERIAL = "settings_wordcloud_colour_material";
     public static final String SETTINGS_WORDCLOUD_COLOUR_CURRENT = "settings_wordcloud_colour_current";
     public static final String SETTINGS_WORDCLOUD_COLOUR_MONOTONE = "settings_wordcloud_colour_monotone";
+    public static final String SETTINGS_WORDCLOUD_COLOUR_RANDOM = "settings_wordcloud_colour_random";
+    public static final String SETTINGS_WORDCLOUD_COLOUR_PASTEL = "settings_wordcloud_colour_pastel";
 
     public static final String SETTINGS_WORDCLOUD_SHAPE = "settings_wordcloud_shape";
     public static final String SETTINGS_WORDCLOUD_SHAPE_CIRCLE = "settings_wordcloud_shape_circle";
     public static final String SETTINGS_WORDCLOUD_SHAPE_HORIZONTAL_LINE = "settings_wordcloud_shape_horizontal_line";
     public static final String SETTINGS_WORDCLOUD_SHAPE_VERTICAL_LINE = "settings_wordcloud_shape_vertical_line";
+    public static final String SETTINGS_WORDCLOUD_SHAPE_CROSS = "settings_wordcloud_shape_cross";
+    public static final String SETTINGS_WORDCLOUD_SHAPE_DIAMOND = "settings_wordcloud_shape_diamond";
+    public static final String SETTINGS_WORDCLOUD_SHAPE_PICTURE_FRAME = "settings_wordcloud_shape_picture_frame";
+    public static final String SETTINGS_WORDCLOUD_SHAPE_WAR_FORMATION = "settings_wordcloud_shape_war_formation";
 
     public static final String SETTINGS_WORDCLOUD_ANIMATION = "settings_wordcloud_animation";
 
@@ -49,7 +62,13 @@ public class PreferenceFunctions {
     public static final String SETTINGS_WORDCLOUD_NUMBER_50 = "settings_wordcloud_number_50";
     public static final String SETTINGS_WORDCLOUD_NUMBER_100 = "settings_wordcloud_number_100";
     public static final String SETTINGS_WORDCLOUD_NUMBER_500 = "settings_wordcloud_number_500";
-    public static final String SETTINGS_WORDCLOUD_NUMBER_1000 = "settings_wordcloud_number_1000";
+
+    public static final String SETTINGS_BEHAVIOUR_NOTIFY_STATUS_CHANGE = "settings_behaviour_notify_status_change";
+    public static final String SETTINGS_BEHAVIOUR_CONFIRM_DELETE = "settings_behaviour_confirm_delete";
+    public static final String SETTINGS_BEHAVIOUR_CHECKLIST_ITALICISE_CHECKED = "settings_behaviour_checklist_italicise_checked";
+    public static final String SETTINGS_BEHAVIOUR_CHECKLIST_STRIKETHROUGH_CHECKED = "settings_behaviour_checklist_strikethrough_checked";
+    public static final String SETTINGS_BEHAVIOUR_CHECKLIST_DELETE_CHECKED = "settings_behaviour_checklist_delete_checked";
+    public static final String SETTINGS_BEHAVIOUR_CHECKLIST_SWIPE_TO_DELETE = "settings_behaviour_checklist_swipe_to_delete";
 
     public static final String SETTINGS_FEEDBACK_VIBRATION = "settings_feedback_vibration";
 
@@ -67,9 +86,9 @@ public class PreferenceFunctions {
                 return 1;
             case SETTINGS_DISPLAY_COLUMNS_2:
                 return 2;
+            default:
             case SETTINGS_DISPLAY_COLUMNS_3:
                 return 3;
-            default:
             case SETTINGS_DISPLAY_COLUMNS_4:
                 return 4;
             case SETTINGS_DISPLAY_COLUMNS_5:
@@ -85,7 +104,38 @@ public class PreferenceFunctions {
      */
     public static String getPrefPinboardColumnsValue(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
-                .getString(SETTINGS_DISPLAY_COLUMNS, SETTINGS_DISPLAY_COLUMNS_4);
+                .getString(SETTINGS_DISPLAY_COLUMNS, SETTINGS_DISPLAY_COLUMNS_3);
+    }
+
+    /**
+     * Gets the item truncation length as set in SharedPreferences
+     *
+     * @param context       calling Context
+     * @return              number of columns
+     */
+    public static int getPrefTruncateItem(Context context) {
+        switch (getPrefTruncateItemValue(context)) {
+            case SETTINGS_DISPLAY_TRUNCATE_ITEM_NONE:
+                return Integer.MAX_VALUE;
+            case SETTINGS_DISPLAY_TRUNCATE_ITEM_SHORT:
+                return (int) context.getResources().getDimension(R.dimen.truncate_item_length_short);
+            case SETTINGS_DISPLAY_TRUNCATE_ITEM_MEDIUM:
+                return (int) context.getResources().getDimension(R.dimen.truncate_item_length_medium);
+            default:
+            case SETTINGS_DISPLAY_TRUNCATE_ITEM_LONG:
+                return (int) context.getResources().getDimension(R.dimen.truncate_item_length_long);
+        }
+    }
+
+    /**
+     * Get the value stored in the SharedPreferences
+     *
+     * @param context       calling Context
+     * @return              value retrieved
+     */
+    public static String getPrefTruncateItemValue(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(SETTINGS_DISPLAY_TRUNCATE_ITEM, SETTINGS_DISPLAY_TRUNCATE_ITEM_NONE);
     }
 
     /**
@@ -133,11 +183,19 @@ public class PreferenceFunctions {
         switch (PreferenceFunctions.getPrefWordCloudShapeValue(context)) {
             default:
             case PreferenceFunctions.SETTINGS_WORDCLOUD_SHAPE_CIRCLE:
-                return WordCloud.CloudShape.CIRCULAR;
+                return WordCloud.CloudShape.CIRCLE;
             case PreferenceFunctions.SETTINGS_WORDCLOUD_SHAPE_HORIZONTAL_LINE:
                 return WordCloud.CloudShape.HORIZONTAL;
             case PreferenceFunctions.SETTINGS_WORDCLOUD_SHAPE_VERTICAL_LINE:
                 return WordCloud.CloudShape.VERTICAL;
+            case PreferenceFunctions.SETTINGS_WORDCLOUD_SHAPE_CROSS:
+                return WordCloud.CloudShape.CROSS;
+            case PreferenceFunctions.SETTINGS_WORDCLOUD_SHAPE_DIAMOND:
+                return WordCloud.CloudShape.DIAMOND;
+            case PreferenceFunctions.SETTINGS_WORDCLOUD_SHAPE_PICTURE_FRAME:
+                return WordCloud.CloudShape.PICTURE_FRAME;
+            case PreferenceFunctions.SETTINGS_WORDCLOUD_SHAPE_WAR_FORMATION:
+                return WordCloud.CloudShape.WAR_FORMATION;
         }
     }
 
@@ -169,6 +227,10 @@ public class PreferenceFunctions {
                 return WordCloudBuilder.CloudColouringSystem.CUSTOM_PALETTE;
             case PreferenceFunctions.SETTINGS_WORDCLOUD_COLOUR_MONOTONE:
                 return WordCloudBuilder.CloudColouringSystem.MONOTONE;
+            case PreferenceFunctions.SETTINGS_WORDCLOUD_COLOUR_PASTEL:
+                return WordCloudBuilder.CloudColouringSystem.PASTEL;
+            case PreferenceFunctions.SETTINGS_WORDCLOUD_COLOUR_RANDOM:
+                return WordCloudBuilder.CloudColouringSystem.RANDOM;
         }
     }
 
@@ -232,8 +294,6 @@ public class PreferenceFunctions {
                 return 100;
             case SETTINGS_WORDCLOUD_NUMBER_500:
                 return 500;
-            case SETTINGS_WORDCLOUD_NUMBER_1000:
-                return 1000;
         }
     }
 
@@ -245,7 +305,7 @@ public class PreferenceFunctions {
      */
     public static boolean getPrefWordCloudAnimation(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(SETTINGS_WORDCLOUD_ANIMATION, false);
+                .getBoolean(SETTINGS_WORDCLOUD_ANIMATION, true);
     }
 
     /**
@@ -257,6 +317,72 @@ public class PreferenceFunctions {
     public static boolean getPrefWordCloudIncludeCommonWords(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(SETTINGS_WORDCLOUD_INCLUDE_COMMON_WORDS, false);
+    }
+
+    /**
+     * Get the value stored in the SharedPreferences
+     *
+     * @param context       calling Context
+     * @return              value retrieved
+     */
+    public static boolean getPrefBehaviourNotifyStatusChange(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(SETTINGS_BEHAVIOUR_NOTIFY_STATUS_CHANGE, true);
+    }
+
+    /**
+     * Get the value stored in the SharedPreferences
+     *
+     * @param context       calling Context
+     * @return              value retrieved
+     */
+    public static boolean getPrefBehaviourConfirmDelete(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(SETTINGS_BEHAVIOUR_CONFIRM_DELETE, true);
+    }
+
+    /**
+     * Get the value stored in the SharedPreferences
+     *
+     * @param context       calling Context
+     * @return              value retrieved
+     */
+    public static boolean getPrefBehaviourItaliciseChecked(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(SETTINGS_BEHAVIOUR_CHECKLIST_ITALICISE_CHECKED, true);
+    }
+
+    /**
+     * Get the value stored in the SharedPreferences
+     *
+     * @param context       calling Context
+     * @return              value retrieved
+     */
+    public static boolean getPrefBehaviourStrikethroughChecked(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(SETTINGS_BEHAVIOUR_CHECKLIST_STRIKETHROUGH_CHECKED, true);
+    }
+
+    /**
+     * Get the value stored in the SharedPreferences
+     *
+     * @param context       calling Context
+     * @return              value retrieved
+     */
+    public static boolean getPrefBehaviourDeleteChecked(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(SETTINGS_BEHAVIOUR_CHECKLIST_DELETE_CHECKED, false);
+    }
+
+    /**
+     * Get the value stored in the SharedPreferences
+     *
+     * @param context       calling Context
+     * @return              value retrieved
+     */
+    public static boolean getPrefBehaviourSwipeToDelete(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(SETTINGS_BEHAVIOUR_CHECKLIST_SWIPE_TO_DELETE, true);
     }
 
     /**
