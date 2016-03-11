@@ -1,36 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!--<color name="default_colorPrimary">@color/md_brown_500</color>-->
-    <!--<color name="default_colorPrimaryDark">@color/md_brown_700</color>-->
-    <!--<color name="default_colorAccent">@color/md_indigo_500</color>-->
-    <!--<color name="default_colorUrgent">@color/md_red_500</color>-->
-    <!--<color name="default_floatingActionMenuColorFirst">@color/md_yellow_500</color>-->
-    <!--<color name="default_floatingActionMenuColorSecond">@color/md_green_500</color>-->
-    <!--<color name="default_floatingActionMenuColorThird">@color/md_red_500</color>-->
-    <!--<color name="default_textColorSecondary">@color/md_white_1000</color>-->
-    <!--<color name="default_textColorTertiary">@color/md_white_1000</color>-->
-    <!--<color name="default_navigationBarColor">@color/md_black_1000</color>-->
-    <!--<color name="default_windowBackground">@color/md_brown_400</color>-->
-    <!--<color name="default_colorCardBackground">@color/md_brown_200</color>-->
+    <!--NATURE THEME-->
+    <color name="nature_colorPrimary">@color/md_green_500</color>
+    <color name="nature_colorPrimaryDark">@color/md_green_700</color>
+    <color name="nature_colorAccent">@color/md_teal_500</color>
+    <color name="nature_floatingActionMenuColorFirst">@color/md_teal_400</color>
+    <color name="nature_floatingActionMenuColorSecond">@color/md_teal_300</color>
+    <color name="nature_floatingActionMenuColorThird">@color/md_teal_200</color>
+    <color name="nature_textColorSecondary">@color/md_white_1000</color>
+    <color name="nature_textColorTertiary">@color/md_black_1000</color>
+    <color name="nature_navigationBarColor">@color/md_black_1000</color>
+    <color name="nature_windowBackground">@color/md_grey_100</color>
+    <color name="nature_colorCardBackground">@color/md_white_1000</color>
+    <color name="nature_colorFilter">@color/md_black_1000</color>
+    <color name="nature_colorDivider">#1A000000</color>
+    <color name="nature_colorTag">#8C4CAF50</color>
 
-    <!--DEFAULT THEME-->
-    <color name="default_colorPrimary">@color/md_cyan_500</color>
-    <color name="default_colorPrimaryDark">@color/md_cyan_700</color>
-    <color name="default_colorAccent">@color/md_deep_orange_500</color>
-    <color name="default_floatingActionMenuColorFirst">@color/md_deep_orange_400</color>
-    <color name="default_floatingActionMenuColorSecond">@color/md_deep_orange_300</color>
-    <color name="default_floatingActionMenuColorThird">@color/md_deep_orange_200</color>
-    <color name="default_textColorSecondary">@color/md_white_1000</color>
-    <color name="default_textColorTertiary">#D9000000</color>
-    <color name="default_navigationBarColor">@color/md_black_1000</color>
-    <color name="default_windowBackground">@color/md_grey_100</color>
-    <color name="default_colorCardBackground">@color/md_white_1000</color>
-    <color name="default_colorFilter">@color/md_black_1000</color>
-    <color name="default_colorDivider">#1A000000</color>
-    <color name="default_colorTag">#8C000000</color>
+    <bool name="nature_isDarkTheme">false</bool>
 
-    <bool name="default_isDarkTheme">false</bool>
+    <!--CHROME THEME-->
+    <color name="chrome_colorPrimary">@color/md_blue_grey_500</color>
+    <color name="chrome_colorPrimaryDark">@color/md_blue_grey_700</color>
+    <color name="chrome_colorAccent">@color/md_grey_500</color>
+    <color name="chrome_floatingActionMenuColorFirst">@color/md_grey_400</color>
+    <color name="chrome_floatingActionMenuColorSecond">@color/md_grey_300</color>
+    <color name="chrome_floatingActionMenuColorThird">@color/md_grey_200</color>
+    <color name="chrome_textColorSecondary">@color/md_white_1000</color>
+    <color name="chrome_textColorTertiary">@color/md_black_1000</color>
+    <color name="chrome_navigationBarColor">@color/md_black_1000</color>
+    <color name="chrome_windowBackground">@color/md_blue_grey_100</color>
+    <color name="chrome_colorCardBackground">@color/md_grey_200</color>
+    <color name="chrome_colorFilter">@color/md_black_1000</color>
+    <color name="chrome_colorDivider">#1A000000</color>
+    <color name="chrome_colorTag">#8C607D8B</color>
+
+    <bool name="chrome_isDarkTheme">true</bool>
+
+    <!--CLASSIC THEME-->
+    <color name="classic_colorPrimary">@color/md_brown_500</color>
+    <color name="classic_colorPrimaryDark">@color/md_brown_700</color>
+    <color name="classic_colorAccent">@color/md_orange_500</color>
+    <color name="classic_floatingActionMenuColorFirst">@color/md_orange_400</color>
+    <color name="classic_floatingActionMenuColorSecond">@color/md_orange_300</color>
+    <color name="classic_floatingActionMenuColorThird">@color/md_orange_200</color>
+    <color name="classic_textColorSecondary">@color/md_white_1000</color>
+    <color name="classic_textColorTertiary">@color/md_black_1000</color>
+    <color name="classic_navigationBarColor">@color/md_black_1000</color>
+    <color name="classic_windowBackground">@color/md_brown_100</color>
+    <color name="classic_colorCardBackground">@color/md_brown_200</color>
+    <color name="classic_colorFilter">@color/md_black_1000</color>
+    <color name="classic_colorDivider">#1A000000</color>
+    <color name="classic_colorTag">#8C795548</color>
+
+    <bool name="classic_isDarkTheme">false</bool>
+
+    <!--LIGHT THEME-->
+    <color name="light_colorPrimary">@color/md_blue_500</color>
+    <color name="light_colorPrimaryDark">@color/md_blue_700</color>
+    <color name="light_colorAccent">@color/md_deep_orange_500</color>
+    <color name="light_floatingActionMenuColorFirst">@color/md_deep_orange_400</color>
+    <color name="light_floatingActionMenuColorSecond">@color/md_deep_orange_300</color>
+    <color name="light_floatingActionMenuColorThird">@color/md_deep_orange_200</color>
+    <color name="light_textColorSecondary">@color/md_white_1000</color>
+    <color name="light_textColorTertiary">#D9000000</color>
+    <color name="light_navigationBarColor">@color/md_black_1000</color>
+    <color name="light_windowBackground">@color/md_grey_100</color>
+    <color name="light_colorCardBackground">@color/md_white_1000</color>
+    <color name="light_colorFilter">@color/md_black_1000</color>
+    <color name="light_colorDivider">#1A000000</color>
+    <color name="light_colorTag">#8C2196F3</color>
+
+    <bool name="light_isDarkTheme">false</bool>
 
     <!--DARK THEME-->
     <color name="dark_colorPrimary">@color/md_indigo_500</color>
@@ -46,7 +87,7 @@
     <color name="dark_colorCardBackground">@color/md_grey_800</color>
     <color name="dark_colorFilter">@color/md_white_1000</color>
     <color name="dark_colorDivider">#1AFFFFFF</color>
-    <color name="dark_colorTag">@color/md_grey_800</color>
+    <color name="dark_colorTag">#8C3F51B5</color>
 
     <bool name="dark_isDarkTheme">true</bool>
 
