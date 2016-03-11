@@ -2,6 +2,8 @@ package com.cerebellio.noted.utils;
 
 import android.content.Context;
 
+import com.cerebellio.noted.helpers.PreferenceHelper;
+
 import org.ocpsoft.prettytime.PrettyTime;
 
 import java.text.SimpleDateFormat;
@@ -26,9 +28,9 @@ public class DateFunctions {
      * @return              time as a String
      */
     public static String getTime(String prefix, long time, Context context) {
-        if (PreferenceFunctions.getPrefDateFormatValue(context).equals(PreferenceFunctions.SETTINGS_DISPLAY_DATE_FORMAT_PRETTY)) {
+        if (PreferenceHelper.getPrefDateFormatValue(context).equals(PreferenceHelper.SETTINGS_DISPLAY_DATE_FORMAT_PRETTY)) {
             return getPrettyTime(prefix, time, context);
-        } else if (PreferenceFunctions.getPrefDateFormatValue(context).equals(PreferenceFunctions.SETTINGS_DISPLAY_DATE_FORMAT_LONG)) {
+        } else if (PreferenceHelper.getPrefDateFormatValue(context).equals(PreferenceHelper.SETTINGS_DISPLAY_DATE_FORMAT_LONG)) {
             return getDateString(prefix, time, "EEE, d MMM yyyy HH:mm:ss");
         } else {
             return getDateString(prefix, time, "dd MMM HH:mm");
@@ -42,7 +44,7 @@ public class DateFunctions {
      * @param context
      * @return              {@link PrettyTime} String
      */
-    public static String getPrettyTime(String prefix, long time, Context context) {
+    private static String getPrettyTime(String prefix, long time, Context context) {
         return getPrettyTime(prefix, time, context.getResources().getConfiguration().locale);
     }
 
@@ -53,7 +55,7 @@ public class DateFunctions {
      * @param locale        Locale to set
      * @return              {@link PrettyTime} String
      */
-    public static String getPrettyTime(String prefix, long time, Locale locale) {
+    private static String getPrettyTime(String prefix, long time, Locale locale) {
         if (time == 0) {
             return "";
         }
@@ -75,7 +77,7 @@ public class DateFunctions {
      * @param pattern       pattern to follow, i.e. dd MMM HH:mm
      * @return              formatted String
      */
-    public static String getDateString(String prefix, long millis, String pattern) {
+    private static String getDateString(String prefix, long millis, String pattern) {
         return prefix
                 + " "
                 + (millis == 0 ? "": new SimpleDateFormat(pattern, Locale.getDefault())
