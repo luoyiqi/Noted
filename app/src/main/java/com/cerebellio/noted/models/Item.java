@@ -19,12 +19,14 @@ public abstract class Item {
 
     protected List<String> mTagList = new ArrayList<>();
     protected Status mStatus = Status.PINBOARD;
+    protected Reminder mReminder;
 
     protected long mId;
-    protected int mColour = UtilityFunctions.getRandomIntegerFromArray(Constants.COLOURS);
+    protected int mColour = UtilityFunctions.getRandomIntegerFromArray(Constants.MATERIAL_COLOURS);
     protected long mCreatedDate;
     protected long mEditedDate;
     protected boolean mIsImportant;
+    protected boolean mIsLocked;
 
     public enum Type {
         NOTE,
@@ -35,7 +37,6 @@ public abstract class Item {
 
     public enum Status {
         PINBOARD,
-        TRASHED,
         ARCHIVED,
         DELETED
     }
@@ -110,18 +111,10 @@ public abstract class Item {
 
     /**
      *
-     * @return          true if {@link Item} is possible to trash
-     */
-    public boolean canBeTrashed() {
-        return mStatus.equals(Status.PINBOARD) || mStatus.equals(Status.ARCHIVED);
-    }
-
-    /**
-     *
      * @return          true if {@link Item} is possible to delete
      */
     public boolean canBeDeleted() {
-        return mStatus.equals(Status.TRASHED);
+        return true;
     }
 
     /**
@@ -129,7 +122,7 @@ public abstract class Item {
      * @return          true if {@link Item} is possible to archive
      */
     public boolean canBeArchived() {
-        return mStatus.equals(Status.PINBOARD) || mStatus.equals(Status.TRASHED);
+        return mStatus.equals(Status.PINBOARD);
     }
 
     /**
@@ -137,7 +130,7 @@ public abstract class Item {
      * @return          true if {@link Item} is possible to pinboarded
      */
     public boolean canBePinboarded() {
-        return mStatus.equals(Status.ARCHIVED) || mStatus.equals(Status.TRASHED);
+        return mStatus.equals(Status.ARCHIVED);
     }
 
     /**
@@ -191,6 +184,14 @@ public abstract class Item {
         mIsImportant = isImportant;
     }
 
+    public boolean isLocked() {
+        return mIsLocked;
+    }
+
+    public void setIsLocked(boolean isLocked) {
+        mIsLocked = isLocked;
+    }
+
     public Status getStatus() {
         return mStatus;
     }
@@ -199,12 +200,24 @@ public abstract class Item {
         mStatus = status;
     }
 
+    public Reminder getReminder() {
+        return mReminder;
+    }
+
+    public void setReminder(Reminder reminder) {
+        mReminder = reminder;
+    }
+
     public String getRawTagString() {
-        return TextFunctions.listToSeparatedString(mTagList, TAG_STRING_SEPARATOR, false);
+        return TextFunctions.listToSeparatedString(mTagList, TAG_STRING_SEPARATOR, "", false);
     }
 
     public String getFormattedTagString() {
-        return TextFunctions.listToSeparatedString(mTagList, TAG_STRING_SEPARATOR, true);
+        return getFormattedTagString("");
+    }
+
+    public String getFormattedTagString(String precedeWith) {
+        return TextFunctions.listToSeparatedString(mTagList, TAG_STRING_SEPARATOR, precedeWith, true);
     }
 
     public void setTagString(String string) {
