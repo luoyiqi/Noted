@@ -3,6 +3,7 @@ package com.cerebellio.noted.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -12,6 +13,7 @@ import com.cerebellio.noted.models.Item;
 import com.cerebellio.noted.models.NavDrawerItem;
 import com.cerebellio.noted.models.NavDrawerItem.NavDrawerItemType;
 import com.cerebellio.noted.models.Note;
+import com.cerebellio.noted.models.Reminder;
 import com.cerebellio.noted.models.Sketch;
 import com.cerebellio.noted.utils.Constants;
 import com.cerebellio.noted.utils.TextFunctions;
@@ -42,8 +44,10 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_STATUS = "status";
     private static final String COLUMN_IMPORTANT = "important";
     private static final String COLUMN_TAGS = "tags";
+    private static final String COLUMN_LOCKED = "locked";
     private static final String COLUMN_CREATED_DATE = "created_date";
     private static final String COLUMN_EDITED_DATE = "edited_date";
+    private static final String COLUMN_REMINDER_ID = "reminder_id";
 
     /**
      * Table names
@@ -52,6 +56,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_CHECKLIST = "checklist";
     private static final String TABLE_CHECKLIST_ITEM = "checklist_item";
     private static final String TABLE_SKETCH = "sketch";
+    private static final String TABLE_REMINDER = "reminder";
 
     /**
      * Columns only for Note table
@@ -71,6 +76,8 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
      */
     private static final String COLUMN_SKETCH_IMAGE_PATH = "image_path";
 
+    private static final String COLUMN_REMINDER_DATE = "date";
+    private static final String COLUMN_REMINDER_RECURRENCE_RULE = "recurrence_rule";
 
     /**
      * Notes table creator
@@ -82,7 +89,9 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
             + COLUMN_NOTES_CONTENT + " TEXT,"
             + COLUMN_CREATED_DATE + " INTEGER,"
             + COLUMN_EDITED_DATE + " INTEGER,"
+            + COLUMN_REMINDER_ID + " INTEGER DEFAULT -1,"
             + COLUMN_IMPORTANT + " INTEGER DEFAULT 0,"
+            + COLUMN_LOCKED + " INTEGER DEFAULT 0,"
             + COLUMN_TAGS + " TEXT,"
             + COLUMN_STATUS + " TEXT DEFAULT '" + Item.Status.PINBOARD.toString() + "')";
 
@@ -95,7 +104,9 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
             + COLUMN_COLOUR + " INTEGER,"
             + COLUMN_CREATED_DATE + " INTEGER,"
             + COLUMN_EDITED_DATE + " INTEGER,"
+            + COLUMN_REMINDER_ID + " INTEGER DEFAULT -1,"
             + COLUMN_IMPORTANT + " INTEGER DEFAULT 0,"
+            + COLUMN_LOCKED + " INTEGER DEFAULT 0,"
             + COLUMN_TAGS + " TEXT,"
             + COLUMN_STATUS + " TEXT DEFAULT '" + Item.Status.PINBOARD.toString() + "')";
 
@@ -121,10 +132,21 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
             + COLUMN_SKETCH_IMAGE_PATH + " TEXT,"
             + COLUMN_CREATED_DATE + " INTEGER,"
             + COLUMN_EDITED_DATE + " INTEGER,"
+            + COLUMN_REMINDER_ID + " INTEGER DEFAULT -1,"
             + COLUMN_IMPORTANT + " INTEGER DEFAULT 0,"
+            + COLUMN_LOCKED + " INTEGER DEFAULT 0,"
             + COLUMN_TAGS + " TEXT,"
             + COLUMN_STATUS + " TEXT DEFAULT '" + Item.Status.PINBOARD.toString() + "')";
 
+    /**
+     * Reminder table creator
+     */
+    private static final String REMINDER_CREATION_STRING = "CREATE TABLE "
+            + TABLE_REMINDER + " ("
+            + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + COLUMN_REMINDER_DATE + " INTEGER,"
+            + COLUMN_REMINDER_RECURRENCE_RULE + " TEXT DEFAULT '"
+            + Reminder.RecurrenceRule.NEVER.toString() + "')";
 
     private Context mContext;
 
@@ -140,6 +162,7 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(CHECKLIST_CREATION_STRING);
         sqLiteDatabase.execSQL(CHECKLIST_ITEM_CREATION_STRING);
         sqLiteDatabase.execSQL(SKETCH_CREATION_STRING);
+        sqLiteDatabase.execSQL(REMINDER_CREATION_STRING);
     }
 
     @Override
@@ -172,6 +195,108 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
             case CHECKLIST_ITEM:
                 return getChecklistItems(where).get(0);
         }
+    }
+
+    /**
+     * Get count of rows in the database with the given {@link NavDrawerItemType}
+     *
+     * @param type      {@link NavDrawerItemType}
+     * @return          total count
+     */
+    public int getTypeCount(NavDrawerItemType type) {
+        SQLiteDatabase db = getReadableDatabase();
+        int total = 0;
+        total += DatabaseUtils.queryNumEntries(db, TABLE_NOTES, COLUMN_STATUS + " = ?",
+                new String[] {convertItemType(type)});
+        total += DatabaseUtils.queryNumEntries(db, TABLE_CHECKLIST, COLUMN_STATUS + " = ?",
+                new String[] {convertItemType(type)});
+        total += DatabaseUtils.queryNumEntries(db, TABLE_SKETCH, COLUMN_STATUS + " = ?",
+                new String[] {convertItemType(type)});
+
+        return total;
+    }
+
+    /**
+     * Retrieve a {@link Reminder} from the database
+     *
+     * @param id            {@link Reminder#mId} of the desired {@link Reminder}
+     * @return              retrieved {@link Reminder}
+     */
+    public Reminder getReminder(long id) {
+        SQLiteDatabase db = getReadableDatabase();
+        Reminder reminder = null;
+        String query = "SELECT * FROM " + TABLE_REMINDER
+                + " WHERE " + COLUMN_ID
+                + " = " + id;
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.getCount() > 0) {
+            cursor.moveToFirst();
+
+            reminder = new Reminder();
+
+            reminder.setId(cursor.getLong(cursor.getColumnIndex(COLUMN_ID)));
+            reminder.setTime(cursor.getLong(cursor.getColumnIndex(COLUMN_REMINDER_DATE)));
+            reminder.setRecurrenceRule(Reminder.RecurrenceRule.valueOf(
+                    cursor.getString(cursor.getColumnIndex(COLUMN_REMINDER_RECURRENCE_RULE))));
+        }
+
+        cursor.close();
+        return reminder;
+    }
+
+    /**
+     * Get an {@link Item} by its {@link Reminder} id
+     *
+     * @param id            id of the {@link Reminder} to search for
+     * @return              {@link Item} found
+     */
+    public Item getItemByReminderId(long id) {
+        Item item = null;
+        String where = " WHERE " + COLUMN_REMINDER_ID
+                + " = " + id;
+
+        List<Note> notes = getNotes(where);
+        List<CheckList> checklists = getCheckLists(where);
+        List<Sketch> sketches = getSketches(where);
+
+        if (notes.size() > 0) {
+            item = notes.get(0);
+        }
+        if (checklists.size() > 0) {
+            item = checklists.get(0);
+        }
+        if (sketches.size() > 0) {
+            item = sketches.get(0);
+        }
+
+        return item;
+    }
+
+    public List<Reminder> getAllUnfiredReminders() {
+        SQLiteDatabase database = getReadableDatabase();
+        List<Reminder> reminders = new ArrayList<>();
+        long time = System.currentTimeMillis();
+        String query = "SELECT * FROM " + TABLE_REMINDER
+                + " WHERE " + COLUMN_REMINDER_DATE
+                + " < " + time;
+        Cursor cursor = database.rawQuery(query, null);
+
+        if (cursor.getCount() > 0) {
+            cursor.moveToFirst();
+
+            do {
+                Reminder reminder = new Reminder();
+                reminder.setId(cursor.getLong(cursor.getColumnIndex(COLUMN_ID)));
+                reminder.setTime(cursor.getLong(cursor.getColumnIndex(COLUMN_REMINDER_DATE)));
+                reminder.setRecurrenceRule(Reminder.RecurrenceRule.valueOf(
+                        cursor.getString(cursor.getColumnIndex(COLUMN_REMINDER_RECURRENCE_RULE))));
+                reminders.add(reminder);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        return reminders;
     }
 
     /**
@@ -234,6 +359,44 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
+     * Retrieve all {@link Item} marked as locked
+     *
+     * @param type          {@link NavDrawerItemType#PINBOARD} etc
+     * @return              List of locked {@link Item}
+     */
+    public List<Item> getLockedItems(NavDrawerItem.NavDrawerItemType type) {
+        List<Item> items = new ArrayList<>();
+
+        //e.g. WHERE status = 'PINBOARD' AND locked = 1
+        String where = getItemTypeWhereString(type) + " AND " + COLUMN_LOCKED + " = 1";
+        items.addAll(getNotes(where));
+        items.addAll(getCheckLists(where));
+        items.addAll(getSketches(where));
+        return items;
+    }
+
+    /**
+     * Get all {@link Item} with active reminders
+     *
+     * @param type          (@link NavDrawerItemType}
+     * @return              List of {@link Item} with active reminders
+     */
+    public List<Item> getItemsWithActiveReminders(NavDrawerItemType type) {
+        List<Item> allItems = new ArrayList<>();
+        List<Item> withReminders=  new ArrayList<>();
+
+        allItems = getAllItems(type);
+
+        for (Item item : allItems) {
+            if (!item.getReminder().isEmpty()) {
+                withReminders.add(item);
+            }
+        }
+
+        return withReminders;
+    }
+
+    /**
      * Retrieves a List of {@link CheckList} from the database
      *
      * @param whereCondition        WHERE condition to supply to query
@@ -261,7 +424,9 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
                 checkList.setColour(cursor.getInt(cursor.getColumnIndex(COLUMN_COLOUR)));
                 checkList.setCreatedDate(cursor.getLong(cursor.getColumnIndex(COLUMN_CREATED_DATE)));
                 checkList.setEditedDate(cursor.getLong(cursor.getColumnIndex(COLUMN_EDITED_DATE)));
+                checkList.setReminder(getReminder(cursor.getLong(cursor.getColumnIndex(COLUMN_REMINDER_ID))));
                 checkList.setIsImportant(cursor.getInt(cursor.getColumnIndex(COLUMN_IMPORTANT)) == 1);
+                checkList.setIsLocked(cursor.getInt(cursor.getColumnIndex(COLUMN_LOCKED)) == 1);
                 checkList.setTagString(cursor.getString(cursor.getColumnIndex(COLUMN_TAGS)));
                 checkList.setStatus(Item.Status.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_STATUS))));
 
@@ -299,7 +464,6 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
      * @return                      List of retrieved {@link CheckListItem}
      */
     public List<CheckListItem> getChecklistItems(String whereCondition) {
-
         SQLiteDatabase db = getReadableDatabase();
         List<CheckListItem> checkListItems = new ArrayList<>();
         String query = "SELECT * FROM " + TABLE_CHECKLIST_ITEM
@@ -362,7 +526,9 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
                 sketch.setImagePath(cursor.getString(cursor.getColumnIndex(COLUMN_SKETCH_IMAGE_PATH)));
                 sketch.setCreatedDate(cursor.getLong(cursor.getColumnIndex(COLUMN_CREATED_DATE)));
                 sketch.setEditedDate(cursor.getLong(cursor.getColumnIndex(COLUMN_EDITED_DATE)));
+                sketch.setReminder(getReminder(cursor.getLong(cursor.getColumnIndex(COLUMN_REMINDER_ID))));
                 sketch.setIsImportant(cursor.getInt(cursor.getColumnIndex(COLUMN_IMPORTANT)) == 1);
+                sketch.setIsLocked(cursor.getInt(cursor.getColumnIndex(COLUMN_LOCKED)) == 1);
                 sketch.setTagString(cursor.getString(cursor.getColumnIndex(COLUMN_TAGS)));
                 sketch.setStatus(Item.Status.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_STATUS))));
 
@@ -406,7 +572,6 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
             cursor.moveToFirst();
 
             do {
-
                 Note note = new Note();
 
                 note.setId(cursor.getLong(cursor.getColumnIndex(COLUMN_ID)));
@@ -414,7 +579,9 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
                 note.setColour(cursor.getInt(cursor.getColumnIndex(COLUMN_COLOUR)));
                 note.setCreatedDate(cursor.getLong(cursor.getColumnIndex(COLUMN_CREATED_DATE)));
                 note.setEditedDate(cursor.getLong(cursor.getColumnIndex(COLUMN_EDITED_DATE)));
+                note.setReminder(getReminder(cursor.getLong(cursor.getColumnIndex(COLUMN_REMINDER_ID))));
                 note.setIsImportant(cursor.getInt(cursor.getColumnIndex(COLUMN_IMPORTANT)) == 1);
+                note.setIsLocked(cursor.getInt(cursor.getColumnIndex(COLUMN_LOCKED)) == 1);
                 note.setTagString(cursor.getString(cursor.getColumnIndex(COLUMN_TAGS)));
                 note.setStatus(Item.Status.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_STATUS))));
 
@@ -462,9 +629,30 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
                 return Item.Status.PINBOARD.toString();
             case ARCHIVE:
                 return Item.Status.ARCHIVED.toString();
-            case TRASH:
-                return Item.Status.TRASHED.toString();
         }
+    }
+
+    /**
+     * Add a blank new {@link Note} to the database
+     *
+     * @return          ID of new {@link Note}
+     */
+    public long addBlankNote() {
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_COLOUR,
+                UtilityFunctions.getRandomIntegerFromArray(Constants.MATERIAL_COLOURS));
+        contentValues.put(COLUMN_NOTES_CONTENT, "");
+        contentValues.put(COLUMN_CREATED_DATE, new Date().getTime());
+        contentValues.put(COLUMN_EDITED_DATE, 0);
+        contentValues.put(COLUMN_REMINDER_ID, addBlankReminder());
+        contentValues.put(COLUMN_IMPORTANT, 0);
+        contentValues.put(COLUMN_LOCKED, 0);
+        contentValues.put(COLUMN_TAGS, "");
+        contentValues.put(COLUMN_STATUS, Item.Status.PINBOARD.toString());
+
+        return db.insert(TABLE_NOTES, null, contentValues);
     }
 
     /**
@@ -477,10 +665,12 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_COLOUR,
-                UtilityFunctions.getRandomIntegerFromArray(Constants.COLOURS));
+                UtilityFunctions.getRandomIntegerFromArray(Constants.MATERIAL_COLOURS));
         contentValues.put(COLUMN_IMPORTANT, 0);
+        contentValues.put(COLUMN_LOCKED, 0);
         contentValues.put(COLUMN_CREATED_DATE, new Date().getTime());
         contentValues.put(COLUMN_EDITED_DATE, 0);
+        contentValues.put(COLUMN_REMINDER_ID, addBlankReminder());
         contentValues.put(COLUMN_TAGS, "");
         contentValues.put(COLUMN_STATUS, Item.Status.PINBOARD.toString());
 
@@ -510,27 +700,6 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Add a blank new {@link Note} to the database
-     *
-     * @return          ID of new {@link Note}
-     */
-    public long addBlankNote() {
-        SQLiteDatabase db = getWritableDatabase();
-
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(COLUMN_COLOUR,
-                UtilityFunctions.getRandomIntegerFromArray(Constants.COLOURS));
-        contentValues.put(COLUMN_NOTES_CONTENT, "");
-        contentValues.put(COLUMN_CREATED_DATE, new Date().getTime());
-        contentValues.put(COLUMN_EDITED_DATE, 0);
-        contentValues.put(COLUMN_IMPORTANT, 0);
-        contentValues.put(COLUMN_TAGS, "");
-        contentValues.put(COLUMN_STATUS, Item.Status.PINBOARD.toString());
-
-        return db.insert(TABLE_NOTES, null, contentValues);
-    }
-
-    /**
      * Add a blank new {@link Sketch} to the database
      *
      * @return          ID of new {@link Sketch}
@@ -541,14 +710,31 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_SKETCH_IMAGE_PATH, "");
         contentValues.put(COLUMN_COLOUR,
-                UtilityFunctions.getRandomIntegerFromArray(Constants.COLOURS));
+                UtilityFunctions.getRandomIntegerFromArray(Constants.MATERIAL_COLOURS));
         contentValues.put(COLUMN_CREATED_DATE, new Date().getTime());
         contentValues.put(COLUMN_EDITED_DATE, 0);
+        contentValues.put(COLUMN_REMINDER_ID, addBlankReminder());
         contentValues.put(COLUMN_IMPORTANT, 0);
+        contentValues.put(COLUMN_LOCKED, 0);
         contentValues.put(COLUMN_TAGS, "");
         contentValues.put(COLUMN_STATUS, Item.Status.PINBOARD.toString());
 
         return db.insert(TABLE_SKETCH, null, contentValues);
+    }
+
+    /**
+     * Add a blank new {@link Sketch} to the database
+     *
+     * @return          ID of new {@link Sketch}
+     */
+    public long addBlankReminder() {
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_REMINDER_DATE, -1);
+        contentValues.put(COLUMN_REMINDER_RECURRENCE_RULE, Reminder.RecurrenceRule.NEVER.toString());
+
+        return db.insert(TABLE_REMINDER, null, contentValues);
     }
 
     /**
@@ -566,9 +752,13 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_COLOUR, note.getColour());
         contentValues.put(COLUMN_CREATED_DATE, note.getCreatedDate());
         contentValues.put(COLUMN_EDITED_DATE, note.getEditedDate());
+        contentValues.put(COLUMN_REMINDER_ID, note.getReminder().getId());
         contentValues.put(COLUMN_IMPORTANT, note.isImportant());
+        contentValues.put(COLUMN_LOCKED, note.isLocked());
         contentValues.put(COLUMN_TAGS, note.getRawTagString());
         contentValues.put(COLUMN_STATUS, note.getStatus().toString());
+
+        addOrEditReminder(note.getReminder());
 
         //check to see if this note is already in db
         //if so edit, if not insert
@@ -596,9 +786,13 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_COLOUR, checkList.getColour());
         contentValues.put(COLUMN_CREATED_DATE, checkList.getCreatedDate());
         contentValues.put(COLUMN_EDITED_DATE, checkList.getEditedDate());
+        contentValues.put(COLUMN_REMINDER_ID, checkList.getReminder().getId());
         contentValues.put(COLUMN_IMPORTANT, checkList.isImportant());
+        contentValues.put(COLUMN_LOCKED, checkList.isLocked());
         contentValues.put(COLUMN_TAGS, checkList.getRawTagString());
         contentValues.put(COLUMN_STATUS, checkList.getStatus().toString());
+
+        addOrEditReminder(checkList.getReminder());
 
         //Have to add each individual ChecklistItem in this Checklist
         for (CheckListItem item : checkList.getItems()) {
@@ -657,9 +851,13 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_SKETCH_IMAGE_PATH, sketch.getImagePath());
         contentValues.put(COLUMN_CREATED_DATE, sketch.getCreatedDate());
         contentValues.put(COLUMN_EDITED_DATE, sketch.getEditedDate());
+        contentValues.put(COLUMN_REMINDER_ID, sketch.getReminder().getId());
         contentValues.put(COLUMN_IMPORTANT, sketch.isImportant());
+        contentValues.put(COLUMN_LOCKED, sketch.isLocked());
         contentValues.put(COLUMN_TAGS, sketch.getRawTagString());
         contentValues.put(COLUMN_STATUS, sketch.getStatus().toString());
+
+        addOrEditReminder(sketch.getReminder());
 
         //check to see if this sketch is already in db
         //if so edit, if not insert
@@ -668,6 +866,30 @@ public class SqlDatabaseHelper extends SQLiteOpenHelper {
         } else {
             db.update(TABLE_SKETCH, contentValues, COLUMN_ID + " = ?",
                     new String[] {String.valueOf(sketch.getId())});
+        }
+    }
+
+    /**
+     * Check if {@link Reminder} exists.
+     * If not, insert into database.
+     * If so, update  database.
+     *
+      * @param reminder             {@link Reminder} to insert/update
+     */
+    public void addOrEditReminder(Reminder reminder) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_REMINDER_DATE, reminder.getTime());
+        contentValues.put(COLUMN_REMINDER_RECURRENCE_RULE, reminder.getRecurrenceRule().toString());
+
+        //check to see if this sketch is already in db
+        //if so edit, if not insert
+        if (getReminder(reminder.getId()) == null) {
+            db.insert(TABLE_REMINDER, null, contentValues);
+        } else {
+            db.update(TABLE_REMINDER, contentValues, COLUMN_ID + " = ?",
+                    new String[] {String.valueOf(reminder.getId())});
         }
     }
 
