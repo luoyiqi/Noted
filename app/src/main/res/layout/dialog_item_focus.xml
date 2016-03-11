@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialog_item_focus_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minWidth="@dimen/popup_width"
@@ -18,14 +19,23 @@
         >
 
         <!--This FrameLayout prevents TextView being invisible
-            when it happens to be the same colour as the backround-->
+            when it happens to be the same colour as the background-->
+
+        <ImageView
+            android:id="@+id/dialog_item_focus_locked"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/size_medium"
+            android:layout_alignParentLeft="true"
+            android:src="@drawable/ic_lock_closed"
+            />
 
         <ImageView
             android:id="@+id/dialog_item_focus_important"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/dialog_item_focus_locked"
             android:layout_marginRight="@dimen/size_medium"
-            android:layout_alignParentLeft="true"
             android:src="@drawable/ic_important"
             />
 
@@ -55,20 +65,11 @@
             />
 
         <ImageView
-            android:id="@+id/dialog_item_focus_trash"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/dialog_item_focus_delete"
-            android:layout_alignParentRight="true"
-            android:src="@drawable/ic_toolbar_trash"
-            />
-
-        <ImageView
             android:id="@+id/dialog_item_focus_archive"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="@dimen/size_medium"
-            android:layout_toLeftOf="@id/dialog_item_focus_trash"
+            android:layout_toLeftOf="@id/dialog_item_focus_delete"
             android:src="@drawable/ic_toolbar_archive"
             />
 
@@ -81,7 +82,190 @@
             android:src="@drawable/ic_toolbar_pinboard"
             />
 
+
     </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/dialog_item_focus_edit_item_frame"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/size_very_large"
+        android:layout_marginTop="@dimen/size_medium"
+        android:orientation="horizontal"
+        android:gravity="left|center"
+        >
+
+        <com.cerebellio.noted.views.FilteredIconView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/size_medium"
+            android:layout_marginRight="@dimen/size_medium"
+            android:src="@drawable/ic_edit"
+            />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/dialog_item_focus_edit_content"
+            android:textColor="?attr/textColorTertiary"
+            style="@style/text.small"
+            />
+
+        <com.cerebellio.noted.views.FilteredIconView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/size_medium"
+            android:layout_marginRight="@dimen/size_medium"
+            android:src="@drawable/ic_go"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/dialog_item_focus_reminder_frame"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/size_very_large"
+        android:layout_marginTop="@dimen/size_medium"
+        android:orientation="horizontal"
+        android:gravity="left|center"
+        >
+
+        <com.cerebellio.noted.views.FilteredIconView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/size_medium"
+            android:layout_marginRight="@dimen/size_medium"
+            android:src="@drawable/ic_reminder"
+            />
+
+        <TextView
+            android:id="@+id/dialog_item_focus_reminder"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/dialog_item_focus_add_reminder"
+            android:textColor="?attr/textColorTertiary"
+            style="@style/text.small"
+            />
+
+        <com.cerebellio.noted.views.FilteredIconView
+            android:id="@+id/dialog_item_focus_reminder_add_remove"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/size_medium"
+            android:layout_marginRight="@dimen/size_medium"
+            android:src="@drawable/ic_remove"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/dialog_item_focus_reminder_recurrence_frame"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/size_very_large"
+        android:layout_marginTop="@dimen/size_medium"
+        android:orientation="horizontal"
+        android:gravity="left|center"
+        >
+
+        <com.cerebellio.noted.views.FilteredIconView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/size_medium"
+            android:layout_marginRight="@dimen/size_medium"
+            android:src="@drawable/ic_repeat"
+            />
+
+        <TextView
+            android:id="@+id/dialog_item_focus_reminder_recurrence"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/dialog_item_focus_reminder_recurrence_never_title"
+            android:textColor="?attr/textColorTertiary"
+            style="@style/text.small"
+            />
+
+        <com.cerebellio.noted.views.FilteredIconView
+            android:id="@+id/dialog_item_focus_reminder_recurrence_add_expand_collapse"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/size_medium"
+            android:layout_marginRight="@dimen/size_medium"
+            android:src="@drawable/ic_expand"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/dialog_item_focus_reminder_recurrence_selection_frame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/size_medium"
+        android:layout_marginLeft="@dimen/size_medium"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:visibility="gone"
+        >
+
+        <TextView
+            android:id="@+id/dialog_item_focus_reminder_recurrence_never"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/dialog_item_focus_reminder_recurrence_never"
+            style="@style/reminder_recurrence"
+            />
+
+        <View style="@style/divider_up"
+            />
+
+        <TextView
+            android:id="@+id/dialog_item_focus_reminder_recurrence_daily"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/dialog_item_focus_reminder_recurrence_daily"
+            style="@style/reminder_recurrence"
+            />
+
+        <View style="@style/divider_up"
+            />
+
+        <TextView
+            android:id="@+id/dialog_item_focus_reminder_recurrence_weekly"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/dialog_item_focus_reminder_recurrence_weekly"
+            style="@style/reminder_recurrence"
+            />
+
+        <View style="@style/divider_up"
+            />
+
+        <TextView
+            android:id="@+id/dialog_item_focus_reminder_recurrence_monthly"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/dialog_item_focus_reminder_recurrence_monthly"
+            style="@style/reminder_recurrence"
+            />
+
+        <View style="@style/divider_up"
+            />
+
+        <TextView
+            android:id="@+id/dialog_item_focus_reminder_recurrence_annually"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/dialog_item_focus_reminder_recurrence_annually"
+            style="@style/reminder_recurrence"
+            />
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/dialog_item_focus_add_tag_frame"
@@ -128,37 +312,8 @@
         android:layout_marginTop="@dimen/size_small"
         android:layout_marginLeft="@dimen/size_medium"
         android:layout_marginRight="@dimen/size_medium"
-        android:scrollbars="vertical"
         android:visibility="gone"
         />
-
-    <LinearLayout
-        android:id="@+id/dialog_item_focus_edit_item_frame"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/size_very_large"
-        android:layout_marginTop="@dimen/size_medium"
-        android:orientation="horizontal"
-        android:gravity="left|center"
-        >
-
-        <com.cerebellio.noted.views.FilteredIconView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/size_medium"
-            android:layout_marginRight="@dimen/size_medium"
-            android:src="@drawable/ic_edit"
-            />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/size_medium"
-            android:text="@string/dialog_item_focus_edit_content"
-            android:textColor="?attr/textColorTertiary"
-            style="@style/text.small"
-            />
-
-    </LinearLayout>
 
     <View style="@style/divider_across"
           android:layout_marginTop="@dimen/size_medium"
