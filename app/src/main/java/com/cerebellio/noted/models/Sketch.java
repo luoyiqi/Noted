@@ -36,4 +36,5 @@ public class Sketch extends Item {
     public void setImagePath(String imagePath) {
         mImagePath = imagePath;
     }
+
 }

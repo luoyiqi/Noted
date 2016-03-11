@@ -68,7 +68,6 @@ public class CheckList extends Item {
 
 
     public List<CheckListItem> getItems() {
-
         return mItems;
     }
 

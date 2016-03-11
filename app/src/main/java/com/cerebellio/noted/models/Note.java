@@ -38,5 +38,4 @@ public class Note extends Item {
         mContent = content;
     }
 
-
 }
