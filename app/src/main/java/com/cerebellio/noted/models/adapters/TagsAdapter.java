@@ -50,7 +50,8 @@ public class TagsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             UtilityFunctions.getResIdFromAttribute(R.attr.colorAccent, mContext)));
         } else {
             String tag = mTags.get(position);
-            viewHolder.mTextTag.setText(TextFunctions.truncateWithEllipse(tag, MAX_TAG_LENGTH, true));
+
+            viewHolder.mTextTag.setText(TextFunctions.truncateWithEllipseLowerCase(tag, MAX_TAG_LENGTH));
 
             ((GradientDrawable) viewHolder.mTextTag.getBackground()).setColor(
                     ContextCompat.getColor(mContext,
