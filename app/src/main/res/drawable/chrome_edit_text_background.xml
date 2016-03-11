@@ -4,10 +4,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     >
 
-    <solid android:color="@color/default_colorPrimary"
+    <solid android:color="@color/chrome_colorCardBackground"
         />
 
-    <corners android:radius="@dimen/size_small"
+    <corners
+        android:radius="@dimen/corner_radius"
         />
 
 </shape>

@@ -3,11 +3,11 @@
     >
 
     <solid
-        android:color="#8C000000"
+        android:color="@color/light_colorTag"
         />
 
     <corners
-        android:radius="@dimen/size_large"
+        android:radius="@dimen/size_medium"
         />
 
 </shape>
