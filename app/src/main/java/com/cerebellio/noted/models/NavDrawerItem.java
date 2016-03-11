@@ -18,12 +18,11 @@ public class NavDrawerItem {
     public enum NavDrawerItemType {
         PINBOARD,
         ARCHIVE,
-        TRASH,
         WORDCLOUD,
         SETTINGS;
 
         public static boolean isSelectable(NavDrawerItemType type) {
-            return type == PINBOARD || type == ARCHIVE || type == TRASH;
+            return type == PINBOARD || type == ARCHIVE;
         }
     }
 
