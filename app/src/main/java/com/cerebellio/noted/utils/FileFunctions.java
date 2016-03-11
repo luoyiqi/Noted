@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.os.Environment;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -126,6 +128,14 @@ public class FileFunctions {
         }
 
         return text;
+    }
+
+    public static Bitmap colourBitmapBackgroundWhite(Bitmap bitmap) {
+        Bitmap newBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), bitmap.getConfig());
+        Canvas canvas = new Canvas(newBitmap);
+        canvas.drawColor(Color.WHITE);
+        canvas.drawBitmap(bitmap, 0, 0, null);
+        return newBitmap;
     }
 
     public static Bitmap takeScreenshot(View view) {
