@@ -18,6 +18,7 @@ import com.cerebellio.noted.models.events.TitleChangedEvent;
 import com.cerebellio.noted.models.listeners.IOnColourSelectedListener;
 import com.cerebellio.noted.models.listeners.IOnStartDragListener;
 import com.cerebellio.noted.utils.Constants;
+import com.cerebellio.noted.helpers.PreferenceHelper;
 import com.cerebellio.noted.utils.TextFunctions;
 import com.cerebellio.noted.utils.UtilityFunctions;
 
@@ -42,9 +43,9 @@ public class FragmentAddEditChecklist extends FragmentBase
     private SqlDatabaseHelper mSqlDatabaseHelper;
     private ChecklistItemsAdapter mAdapter;
     private List<CheckListItem> mOriginalItems = new ArrayList<>();
+    private ItemTouchHelper mItemTouchHelper;
 
     private boolean mIsInEditMode;
-    private ItemTouchHelper mItemTouchHelper;
 
     @Nullable
     @Override
@@ -155,7 +156,8 @@ public class FragmentAddEditChecklist extends FragmentBase
 
         mItemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(
                 ItemTouchHelper.UP | ItemTouchHelper.DOWN,
-                ItemTouchHelper.START | ItemTouchHelper.END) {
+                PreferenceHelper.getPrefBehaviourSwipeToDelete(getActivity()) ?
+                        ItemTouchHelper.START | ItemTouchHelper.END : 0) {
 
             @Override
             public boolean isLongPressDragEnabled() {
@@ -174,6 +176,7 @@ public class FragmentAddEditChecklist extends FragmentBase
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 mAdapter.remove(viewHolder.getAdapterPosition());
                 mAdapter.notifyItemChanged(viewHolder.getAdapterPosition());
+                mAdapter.notifyDataSetChanged();
             }
         });
 
