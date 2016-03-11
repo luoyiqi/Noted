@@ -20,6 +20,24 @@
     </com.cerebellio.noted.views.NotedPreferenceCategory>
 
     <com.cerebellio.noted.views.NotedPreferenceCategory
+        android:title="@string/settings_category_notifications"
+        >
+
+        <com.cerebellio.noted.views.NotedCheckBoxPreference
+            android:key="settings_behaviour_notification_sound"
+            android:title="@string/settings_behaviour_notifications_sound"
+            android:defaultValue="true"
+            />
+
+        <com.cerebellio.noted.views.NotedCheckBoxPreference
+            android:key="settings_behaviour_notification_vibration"
+            android:title="@string/settings_behaviour_notifications_vibrate"
+            android:defaultValue="true"
+            />
+
+    </com.cerebellio.noted.views.NotedPreferenceCategory>
+
+    <com.cerebellio.noted.views.NotedPreferenceCategory
         android:title="@string/settings_category_checklist"
         >
 
