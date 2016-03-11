@@ -23,6 +23,12 @@
             android:defaultValue="settings_display_columns_3"
             />
 
+        <com.cerebellio.noted.views.NotedCheckBoxPreference
+            android:key="settings_display_type_counts"
+            android:title="@string/settings_display_type_counts_title"
+            android:defaultValue="false"
+            />
+
     </com.cerebellio.noted.views.NotedPreferenceCategory>
 
     <com.cerebellio.noted.views.NotedPreferenceCategory
