@@ -11,6 +11,8 @@ import android.widget.TextView;
 
 import com.cerebellio.noted.ApplicationNoted;
 import com.cerebellio.noted.R;
+import com.cerebellio.noted.database.SqlDatabaseHelper;
+import com.cerebellio.noted.helpers.PreferenceHelper;
 import com.cerebellio.noted.models.NavDrawerItem;
 import com.cerebellio.noted.models.events.NavDrawerItemTypeSelectedEvent;
 import com.cerebellio.noted.utils.TextFunctions;
@@ -38,7 +40,6 @@ public class NavDrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private static final NavDrawerItem.NavDrawerItemType[] HIGHLIGHTABLE_TYPES = {
             NavDrawerItem.NavDrawerItemType.PINBOARD,
             NavDrawerItem.NavDrawerItemType.ARCHIVE,
-            NavDrawerItem.NavDrawerItemType.TRASH
     };
 
     public NavDrawerAdapter(List<NavDrawerItem> items, Context context) {
@@ -55,13 +56,27 @@ public class NavDrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 //Static layout for header so no code needed
                 break;
             case TYPE_ITEM:
-
                 //Account for header
                 NavDrawerItem item = mItems.get(position - 1);
 
                 ((NavDrawerAdapterViewHolder) holder).mTextTitle.setText(item.getTitle());
-                ((NavDrawerAdapterViewHolder) holder).mImageIcon.setImageResource(item.getIconId());
 
+                //Display counts next to nav drawer types?
+                //i.e. Pinboard (5)
+                if (PreferenceHelper.getPrefDisplayTypeCounts(mContext)) {
+                    int count = 0;
+
+                    if (NavDrawerItem.NavDrawerItemType.isSelectable(item.getType())) {
+                        SqlDatabaseHelper sqlDatabaseHelper = new SqlDatabaseHelper(mContext);
+                        count += sqlDatabaseHelper.getTypeCount(item.getType());
+                        sqlDatabaseHelper.closeDB();
+                    }
+
+                    String countText = count == 0 ? "" : (" (" + Integer.toString(count) + ")");
+                    ((NavDrawerAdapterViewHolder) holder).mTextTitle.append(countText);
+                }
+
+                ((NavDrawerAdapterViewHolder) holder).mImageIcon.setImageResource(item.getIconId());
                 ((NavDrawerAdapterViewHolder) holder).mDivider.setVisibility(item.isDividerNeeded() ? View.VISIBLE : View.GONE);
 
                 if (item.getType().equals(mCurrentlyHighlighted)) {
