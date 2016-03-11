@@ -26,7 +26,7 @@ public class Constants {
     public static final Integer[] COLOURS = new Integer[]{
             0xFFE57373,
             0xFFF44336,
-            0xFFD32F2F,
+            0xFFC62828,
 
             0xFFF06292,
             0xFFE91E63,
@@ -40,39 +40,27 @@ public class Constants {
             0xFF3F51B5,
             0xFF303F9F,
 
-            0xFF4fC3F7,
+            0xFF64B5F6,
             0xFF2196F3,
             0xFF1976D2,
 
             0xFF4DD0E1,
-            0xFF03A9F4,
-            0xFF0288D1,
-
-            0xFF4DB6AC,
             0xFF00BCD4,
             0xFF0097A7,
 
-            0xFF81C784,
+            0xFF4DB6AC,
             0xFF009688,
             0xFF00796B,
 
-            0xFFAED581,
-            0xFF8BC34A,
-            0xFF689F38,
+            0xFF81C784,
+            0xFF4CAF50,
+            0xFF388E3C,
 
-            0xFFDCE775,
-            0xFFCDDC39,
-            0xFFA4B42B,
-
-            0xFFFFD54F,
+            0xFFFFF176,
             0xFFCDDC39,
             0xFFFBC02D,
 
             0xFFFFB74D,
-            0xFFFFC107,
-            0xFFFFA000,
-
-            0xFFFF8A65,
             0xFFFF9800,
             0xFFF57C00,
 
@@ -83,6 +71,10 @@ public class Constants {
             0xFFA1887F,
             0xFF795548,
             0xFF5D4037,
+
+            0xFFE0E0E0,
+            0xFF9E9E9E,
+            0xFF616161,
 
             0xFF607D8B,
             0xFF455A64,
