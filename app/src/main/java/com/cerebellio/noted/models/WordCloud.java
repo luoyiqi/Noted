@@ -99,19 +99,11 @@ public class WordCloud {
     private void applyWordFractions() {
         //Set each Word fraction proportional to the highest count
         float highestCount = mWords.get(0).getCount();
-        float[] fractions = new float[mWords.size()];
 
         for (int i = 0; i < mWords.size(); i++) {
             Word word = mWords.get(i);
             word.setFraction((float) word.getCount() / highestCount);
-            fractions[i] = word.getFraction();
         }
-
-//        float mean = StatisticalFunctions.getMean(fractions);
-//
-//        for (Word word : mWords) {
-//            word.setFraction(word.getFraction() * (1 - mean));
-//        }
     }
 
     /**
