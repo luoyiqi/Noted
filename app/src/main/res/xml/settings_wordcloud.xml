@@ -34,7 +34,7 @@
             android:title="@string/settings_wordcloud_number_title"
             android:entries="@array/settings_wordcloud_number_entries"
             android:entryValues="@array/settings_wordcloud_number_values"
-            android:defaultValue="settings_wordcloud_number_100"
+            android:defaultValue="settings_wordcloud_number_500"
             />
 
     </com.cerebellio.noted.views.NotedPreferenceCategory>
@@ -52,7 +52,7 @@
         <com.cerebellio.noted.views.NotedCheckBoxPreference
             android:key="settings_wordcloud_include_common_words"
             android:title="@string/settings_wordcloud_include_common_words_title"
-            android:defaultValue="false"
+            android:defaultValue="true"
             />
 
     </com.cerebellio.noted.views.NotedPreferenceCategory>
