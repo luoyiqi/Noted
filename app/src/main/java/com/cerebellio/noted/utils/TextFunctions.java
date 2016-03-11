@@ -89,7 +89,7 @@ public class TextFunctions {
      * @return                  formatted String
      */
     public static String listToSeparatedString(
-            List<String> list, String separator, boolean isSpaceNeeded) {
+            List<String> list, String separator, String precedeWith, boolean isSpaceNeeded) {
 
         if (list.isEmpty()) {
             return "";
@@ -98,13 +98,12 @@ public class TextFunctions {
         String tagString = "";
 
         for (String string : list) {
-
             //Don't add separator before first String
             if (!tagString.equals("")) {
                 tagString += isSpaceNeeded ? separator + " " : separator;
             }
 
-            tagString += string;
+            tagString += precedeWith + string;
         }
 
         return tagString;
@@ -141,11 +140,37 @@ public class TextFunctions {
      *
      * @param string        String to modify
      * @param maxLength     if string is greater than this length, it is truncated with an ellipse
-     * @param makeLowerCase true if string should be converted to lower case
      * @return              given String as tag
      */
-    public static String truncateWithEllipse(String string, int maxLength, boolean makeLowerCase) {
+    public static String truncateWithEllipseLowerCase(String string, int maxLength) {
         return truncateWithEllipse(string, maxLength).toLowerCase(Locale.getDefault());
+    }
+
+    /**
+     * Get a substring of the given String at the given length,
+     * starting from the given index
+     *
+     * @param string            String to parse
+     * @param start             starting index
+     * @param length            length of returned String
+     * @return                  substring created
+     */
+    public static String getSubstringWithEllipse(String string, int start, int length) {
+        return string.equals("")
+                ? ""
+                : string.substring(start, Math.min(string.length(), length)).trim()  + "\u2026";
+    }
+
+    /**
+     * Get a substring of the given String at the given length,
+     * starting from the beginning of the String
+     *
+     * @param string            String to parse
+     * @param length            length of returned String
+     * @return                  substring created
+     */
+    public static String getStartSubstringWithEllipse(String string, int length) {
+        return getSubstringWithEllipse(string, 0, length);
     }
 
     /**
