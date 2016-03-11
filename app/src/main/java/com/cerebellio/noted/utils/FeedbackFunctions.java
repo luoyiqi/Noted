@@ -3,6 +3,8 @@ package com.cerebellio.noted.utils;
 import android.view.HapticFeedbackConstants;
 import android.view.View;
 
+import com.cerebellio.noted.helpers.PreferenceHelper;
+
 /**
  * Commonly used feedback functions
  */
@@ -22,7 +24,7 @@ public class FeedbackFunctions {
             return;
         }
 
-        if (PreferenceFunctions.getPrefVibration(view.getContext())) {
+        if (PreferenceHelper.getPrefVibration(view.getContext())) {
             view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
         }
     }
