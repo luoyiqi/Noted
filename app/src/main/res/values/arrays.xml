@@ -79,11 +79,17 @@
     <string-array name="settings_display_theme_entries">
         <item>@string/settings_display_theme_light</item>
         <item>@string/settings_display_theme_dark</item>
+        <item>@string/settings_display_theme_classic</item>
+        <item>@string/settings_display_theme_chrome</item>
+        <item>@string/settings_display_theme_nature</item>
     </string-array>
 
     <string-array name="settings_display_theme_values">
         <item>settings_display_theme_light</item>
         <item>settings_display_theme_dark</item>
+        <item>settings_display_theme_classic</item>
+        <item>settings_display_theme_chrome</item>
+        <item>settings_display_theme_nature</item>
     </string-array>
 
     <string-array name="settings_display_columns_entries">
