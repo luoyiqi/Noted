@@ -18,7 +18,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
 
 import com.cerebellio.noted.database.SqlDatabaseHelper;
 import com.cerebellio.noted.models.Item;
@@ -60,6 +59,7 @@ public class ActivityMain extends ActivityBase
     private FragmentManager mFragmentManager;
     private ActionBarDrawerToggle mDrawerToggle;
     private NavDrawerItem.NavDrawerItemType mCurrentNavDrawerType = NavDrawerItem.NavDrawerItemType.PINBOARD;
+    private NavDrawerAdapter mNavDrawerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +109,7 @@ public class ActivityMain extends ActivityBase
         mDrawerToggle = new ActionBarDrawerToggle(this, mNavDrawer, mToolbar, 0, 0) {
             @Override
             public void onDrawerOpened(View drawerView) {
+                mNavDrawerAdapter.notifyDataSetChanged();
                 super.onDrawerOpened(drawerView);
                 supportInvalidateOptionsMenu();
                 syncState();
@@ -241,9 +242,6 @@ public class ActivityMain extends ActivityBase
             case ARCHIVE:
                 setItemType(NavDrawerItem.NavDrawerItemType.ARCHIVE);
                 break;
-            case TRASH:
-                setItemType(NavDrawerItem.NavDrawerItemType.TRASH);
-                break;
             case WORDCLOUD:
                 startActivity(new Intent(this, ActivityWordCloud.class));
                 mNavDrawer.closeDrawers();
@@ -266,29 +264,24 @@ public class ActivityMain extends ActivityBase
      * @param intent        Intent to check
      */
     public void handleIntent(Intent intent) {
-
         if (intent.getAction() == null) {
+            if (intent.getExtras() != null) {
+                if (intent.getBooleanExtra(Constants.INTENT_FROM_NOTIFICATION, false)) {
+                    //Come from notification
+                    try {
+                        SqlDatabaseHelper sqlDatabaseHelper = new SqlDatabaseHelper(this);
 
-            //Come from notification
-            try {
+                        Item item = sqlDatabaseHelper.getItemByReminderId(
+                                intent.getLongExtra(Constants.INTENT_REMINDER_ID, -1));
+                        displayAddEditItemFragment(item, item.getItemType());
 
-                SqlDatabaseHelper sqlDatabaseHelper = new SqlDatabaseHelper(this);
-
-                Item.Type type =
-                        Item.Type.valueOf(intent.getStringExtra(Constants.INTENT_ITEM_TYPE));
-                Item item = sqlDatabaseHelper.getItemById(
-                        intent.getLongExtra(Constants.INTENT_ITEM_ID, -1), type);
-
-                displayAddEditItemFragment(item, type);
-
-                sqlDatabaseHelper.closeDB();
-
-            } catch (NullPointerException e) {
-                Toast.makeText(ActivityMain.this, "Error retrieving item", Toast.LENGTH_SHORT).show();
+                        sqlDatabaseHelper.closeDB();
+                    } catch (NullPointerException e) {
+                        Log.e(LOG_TAG, "Error retrieving item");
+                    }
+                }
             }
-
         } else if (intent.getAction().equals(Intent.ACTION_SEARCH)) {
-
             //Search has been performed
             Log.d(LOG_TAG, intent.getStringExtra(SearchManager.QUERY));
 
@@ -315,6 +308,8 @@ public class ActivityMain extends ActivityBase
         if (isCurrentFragment(fragmentShowItems)) {
             fragmentShowItems.setItemType(type);
         }
+
+        mNavDrawerAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -346,12 +341,12 @@ public class ActivityMain extends ActivityBase
 
         items.add(new NavDrawerItem(getString(R.string.nav_drawer_pinboard), R.drawable.ic_pinboard, false, NavDrawerItem.NavDrawerItemType.PINBOARD));
         items.add(new NavDrawerItem(getString(R.string.nav_drawer_archive), R.drawable.ic_archive, false, NavDrawerItem.NavDrawerItemType.ARCHIVE));
-        items.add(new NavDrawerItem(getString(R.string.nav_drawer_trash), R.drawable.ic_trash, false, NavDrawerItem.NavDrawerItemType.TRASH));
         items.add(new NavDrawerItem(getString(R.string.nav_drawer_wordcloud), R.drawable.ic_wordcloud, true, NavDrawerItem.NavDrawerItemType.WORDCLOUD));
         items.add(new NavDrawerItem(getString(R.string.nav_drawer_settings), R.drawable.ic_settings, false, NavDrawerItem.NavDrawerItemType.SETTINGS));
 
+        mNavDrawerAdapter = new NavDrawerAdapter(items, this);
         UtilityFunctions.setUpLinearRecycler(this, mNavDrawerRecycler,
-                new NavDrawerAdapter(items, this), LinearLayoutManager.VERTICAL);
+                mNavDrawerAdapter, LinearLayoutManager.VERTICAL);
     }
 
     /**
