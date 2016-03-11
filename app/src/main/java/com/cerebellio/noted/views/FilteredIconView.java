@@ -28,8 +28,7 @@ public class FilteredIconView extends ImageView {
                 UtilityFunctions.getResIdFromAttribute(R.attr.colorFilter, context));
 
         //Is this considered a dark theme?
-        mIsDark = getResources().getBoolean(
-                UtilityFunctions.getResIdFromAttribute(R.attr.is_dark_theme, context));
+        mIsDark = UtilityFunctions.isConsideredDarkTheme(context);
 
         setFilterToDefault();
     }
