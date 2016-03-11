@@ -15,7 +15,7 @@ import com.cerebellio.noted.helpers.WordCloudBuilder.CloudDensity;
 import com.cerebellio.noted.models.WordCloud;
 import com.cerebellio.noted.models.WordCloud.CloudShape;
 import com.cerebellio.noted.utils.ColourFunctions;
-import com.cerebellio.noted.utils.PreferenceFunctions;
+import com.cerebellio.noted.helpers.PreferenceHelper;
 import com.cerebellio.noted.utils.TextFunctions;
 
 import butterknife.ButterKnife;
@@ -67,7 +67,7 @@ public class ActivityWordCloud extends ActivityBase {
                 ColourFunctions.getColourFromAttr(this, R.attr.colorCardBackground),
         };
 
-        if (PreferenceFunctions.getPrefWordCloudIncludeCommonWords(this)) {
+        if (PreferenceHelper.getPrefWordCloudIncludeCommonWords(this)) {
             new WordCloudCreatorAsync(this, getCloudShapeFromPrefs()).execute();
         } else {
             new WordCloudCreatorAsync(this, getIgnoredWords(), getCloudShapeFromPrefs()).execute();
@@ -85,7 +85,7 @@ public class ActivityWordCloud extends ActivityBase {
      * @return          {@link CloudColouringSystem}
      */
     private CloudColouringSystem getColouringSystemFromPrefs() {
-        return PreferenceFunctions.getPrefWordCloudColour(this);
+        return PreferenceHelper.getPrefWordCloudColour(this);
     }
 
     /**
@@ -93,7 +93,7 @@ public class ActivityWordCloud extends ActivityBase {
      * @return          {@link CloudDensity}
      */
     private CloudDensity getCloudDensityFromPrefs() {
-        return PreferenceFunctions.getPrefWordCloudDensity(this);
+        return PreferenceHelper.getPrefWordCloudDensity(this);
     }
 
     /**
@@ -101,7 +101,7 @@ public class ActivityWordCloud extends ActivityBase {
      * @return          true if animations are needed
      */
     private boolean getCloudAnimationFromPrefs() {
-        return PreferenceFunctions.getPrefWordCloudAnimation(this);
+        return PreferenceHelper.getPrefWordCloudAnimation(this);
     }
 
     /**
@@ -109,7 +109,7 @@ public class ActivityWordCloud extends ActivityBase {
      * @return          {@link CloudShape}
      */
     private WordCloud.CloudShape getCloudShapeFromPrefs() {
-        return PreferenceFunctions.getPrefWordCloudShape(this);
+        return PreferenceHelper.getPrefWordCloudShape(this);
     }
 
     /**
@@ -117,7 +117,7 @@ public class ActivityWordCloud extends ActivityBase {
      * @return          number of words to display
      */
     private int getWordCloudNumber() {
-        return PreferenceFunctions.getPrefWordCloudNumber(this);
+        return PreferenceHelper.getPrefWordCloudNumber(this);
     }
 
     /**
