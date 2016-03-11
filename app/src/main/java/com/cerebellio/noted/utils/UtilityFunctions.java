@@ -4,11 +4,16 @@ import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.View;
+import android.view.ViewGroup;
 
 import com.cerebellio.noted.R;
 import com.cerebellio.noted.views.WrapContentGridLayoutManager;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -104,11 +109,22 @@ public class UtilityFunctions {
      * @param pixels        number to convert
      * @return              DiP equivalent
      */
-    public static float convertPixelsToDp(Context context, int pixels) {
-        return TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, pixels, context.getResources().getDisplayMetrics());
+    public static float convertPixelsToDp(Context context, float pixels) {
+        return pixels /
+                (context.getResources().getDisplayMetrics().density / DisplayMetrics.DENSITY_DEFAULT);
     }
 
+    /**
+     * Convert a given number of dp to pixels
+     *
+     * @param context
+     * @param dp        number to convert
+     * @return              pixels equivalent
+     */
+    public static float convertDpToPixels(Context context, int dp) {
+        return TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
+    }
 
     /**
      * Checks whether the current theme set in the given context is considered dark
@@ -119,6 +135,28 @@ public class UtilityFunctions {
     public static boolean isConsideredDarkTheme(Context context) {
         return context.getResources().getBoolean(
                 UtilityFunctions.getResIdFromAttribute(R.attr.is_dark_theme, context));
+    }
+
+    /**
+     * Get all Views in a given ViewGroup
+     *
+     * @param rootView          parent ViewGroup
+     * @return                  List of Views
+     */
+    public static List<View> getAllViewsInFrame(ViewGroup rootView) {
+        List<View> views = new ArrayList<>();
+
+        for (int i = 0; i < rootView.getChildCount(); i++) {
+            View currentView = rootView.getChildAt(i);
+
+            if (currentView instanceof ViewGroup) {
+                views.addAll(getAllViewsInFrame((ViewGroup) currentView));
+            }
+
+            views.add(currentView);
+        }
+
+        return views;
     }
 
 }
