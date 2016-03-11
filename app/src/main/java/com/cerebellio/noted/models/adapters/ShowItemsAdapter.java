@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.cerebellio.noted.ApplicationNoted;
 import com.cerebellio.noted.R;
 import com.cerebellio.noted.database.SqlDatabaseHelper;
+import com.cerebellio.noted.helpers.PreferenceHelper;
 import com.cerebellio.noted.models.CheckList;
 import com.cerebellio.noted.models.CheckListItem;
 import com.cerebellio.noted.models.Item;
@@ -23,7 +24,6 @@ import com.cerebellio.noted.models.Sketch;
 import com.cerebellio.noted.models.events.ItemWithListPositionEvent;
 import com.cerebellio.noted.utils.ColourFunctions;
 import com.cerebellio.noted.utils.FeedbackFunctions;
-import com.cerebellio.noted.utils.PreferenceFunctions;
 import com.cerebellio.noted.utils.TextFunctions;
 import com.cerebellio.noted.utils.UtilityFunctions;
 import com.squareup.picasso.Picasso;
@@ -62,7 +62,9 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         NOTE,
         CHECKLIST,
         SKETCH,
-        IMPORTANT
+        IMPORTANT,
+        LOCKED,
+        REMINDER
     }
 
     public enum SortType {
@@ -70,6 +72,8 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         EDITED_DESC,
         CREATED_ASC,
         CREATED_DESC,
+        REMINDER_ASC,
+        REMINDER_DESC,
         TYPE_N_C_S,
         TYPE_S_C_N
     }
@@ -91,7 +95,7 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 notesHolder.mTextContent.setBackgroundColor(note.getColour());
                 notesHolder.mTextContent.setText(note.getContent());
 
-                notesHolder.mTextContent.setMaxHeight(PreferenceFunctions.getPrefTruncateItem(mContext));
+                notesHolder.mTextContent.setMaxHeight(PreferenceHelper.getPrefTruncateItem(mContext));
                 break;
             case TYPE_CHECKLIST:
                 CheckList checkList = (CheckList) mItems.get(position);
@@ -132,12 +136,12 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                                 SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
 
                         //Should we strike through completed items?
-                        if (PreferenceFunctions.getPrefBehaviourStrikethroughChecked(mContext)) {
+                        if (PreferenceHelper.getPrefBehaviourStrikethroughChecked(mContext)) {
                             TextFunctions.strikeThrough(content);
                         }
 
                         //Should we italicise completed items?
-                        if (PreferenceFunctions.getPrefBehaviourItaliciseChecked(mContext)) {
+                        if (PreferenceHelper.getPrefBehaviourItaliciseChecked(mContext)) {
                             TextFunctions.italicise(content);
                         }
                     }
@@ -145,7 +149,7 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     checklistHolder.mTextContent.append(content);
                 }
 
-                checklistHolder.mTextContent.setMaxHeight(PreferenceFunctions.getPrefTruncateItem(mContext));
+                checklistHolder.mTextContent.setMaxHeight(PreferenceHelper.getPrefTruncateItem(mContext));
                 break;
             case TYPE_SKETCH:
                 Sketch sketch = (Sketch) mItems.get(position);
@@ -238,6 +242,13 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 break;
             case IMPORTANT:
                 allItems.addAll(sqlDatabaseHelper.getImportantItems(mNavType));
+                break;
+            case LOCKED:
+                allItems.addAll(sqlDatabaseHelper.getLockedItems(mNavType));
+                break;
+            case REMINDER:
+                allItems.addAll(sqlDatabaseHelper.getItemsWithActiveReminders(mNavType));
+                break;
         }
 
         sqlDatabaseHelper.closeDB();
@@ -269,6 +280,10 @@ public class ShowItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                         return (int) (item2.getCreatedDate() - item.getCreatedDate());
                     case CREATED_ASC:
                         return (int) (item.getCreatedDate() - item2.getCreatedDate());
+                    case REMINDER_DESC:
+                        return (int) (item2.getReminder().getTime() - item.getReminder().getTime());
+                    case REMINDER_ASC:
+                        return (int) (item.getReminder().getTime() - item2.getReminder().getTime());
                 }
             }
         });
