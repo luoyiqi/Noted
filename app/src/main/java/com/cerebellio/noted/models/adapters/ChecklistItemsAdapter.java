@@ -21,7 +21,7 @@ import com.cerebellio.noted.models.CheckList;
 import com.cerebellio.noted.models.CheckListItem;
 import com.cerebellio.noted.models.Item;
 import com.cerebellio.noted.models.listeners.IOnStartDragListener;
-import com.cerebellio.noted.utils.PreferenceFunctions;
+import com.cerebellio.noted.helpers.PreferenceHelper;
 import com.cerebellio.noted.utils.TextFunctions;
 import com.cerebellio.noted.views.FilteredIconView;
 
@@ -118,14 +118,13 @@ public class ChecklistItemsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             mEditContent = (EditText) v.findViewById(R.id.recycler_item_checklist_items_content);
             mCheckCompleted = (CheckBox) v.findViewById(R.id.recycler_item_checklist_items_completed);
 
-
             mCheckCompleted.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                     mItems.get(getAdapterPosition()).setIsCompleted(isChecked);
 
                     if (isChecked) {
-                        if (PreferenceFunctions.getPrefBehaviourDeleteChecked(mContext)) {
+                        if (PreferenceHelper.getPrefBehaviourDeleteChecked(mContext)) {
                             remove(getAdapterPosition());
                         }
                     }
