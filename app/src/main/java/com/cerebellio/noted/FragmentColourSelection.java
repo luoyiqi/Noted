@@ -33,7 +33,7 @@ public class FragmentColourSelection extends Fragment {
 
     private static final String LOG_TAG = TextFunctions.makeLogTag(FragmentColourSelection.class);
 
-    private static final int NUM_COLUMNS = 8;
+    private static final int NUM_COLUMNS = 7;
 
     private IOnColourSelectedListener mIOnColourSelectedListener;
 
