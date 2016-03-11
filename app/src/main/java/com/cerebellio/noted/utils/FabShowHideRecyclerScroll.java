@@ -9,7 +9,7 @@ public abstract class FabShowHideRecyclerScroll extends RecyclerView.OnScrollLis
 
     private static final String LOG_TAG = TextFunctions.makeLogTag(FabShowHideRecyclerScroll.class);
 
-    private static final float MINIMUM = 25f;
+    private static final float MINIMUM = 1f;
 
     private int mScrollDistance = 0;
     private boolean mIsVisible = true;
