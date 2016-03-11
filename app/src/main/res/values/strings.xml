@@ -1,42 +1,49 @@
 <resources>
     <string name="app_name">Noted</string>
 
+    <string name="activity_wordcloud_empty">:( \n\n Nothing on your pinboard, create some items to see them here!</string>
+
+    <string name="nav_drawer_pinboard">Pinboard</string>
+    <string name="nav_drawer_archive">Archive</string>
+    <string name="nav_drawer_wordcloud">Word cloud</string>
+    <string name="nav_drawer_settings">Settings</string>
+
+    <string name="notification_sketch_title">Wakey wakey!</string>
+    <string name="notification_text_sketch">Time to look at this great sketch you drew</string>
+    <string name="notification_text_note">Take a look at the note you\'ve written</string>
+    <string name="notification_text_checklist">Take a look at the checklist you made</string>
+    <string name="notification_ticker">An alarm you set in Noted has been triggered!</string>
+    <string name="notification_dismiss">Dismiss</string>
+    <string name="notification_snooze">Snooze 1m</string>
+
     <string name="menu_action_settings">Settings</string>
     <string name="menu_action_filter">Filter</string>
     <string name="menu_action_search">Search</string>
     <string name="menu_action_sort">Sort</string>
     <string name="menu_action_screenshot">Screenshot</string>
-
-    <string name="nav_drawer_pinboard">Pinboard</string>
-    <string name="nav_drawer_archive">Archive</string>
-    <string name="nav_drawer_trash">Trash</string>
-    <string name="nav_drawer_wordcloud">Word cloud</string>
-    <string name="nav_drawer_settings">Settings</string>
-
     <string name="menu_filter_none">#nofilter</string>
     <string name="menu_filter_note">Note</string>
     <string name="menu_filter_checklist">Checklist</string>
     <string name="menu_filter_sketch">Sketch</string>
     <string name="menu_filter_important">Important</string>
+    <string name="menu_filter_locked">Locked</string>
+    <string name="menu_filter_reminder">Reminder set</string>
     <string name="menu_sort_edited">Last edited</string>
     <string name="menu_sort_created">Created</string>
     <string name="menu_sort_type">Type</string>
+    <string name="menu_sort_reminder">Reminder date</string>
 
     <string name="title_filter_none">#nofilter</string>
     <string name="title_filter_note">Notes</string>
     <string name="title_filter_checklist">Checklists</string>
     <string name="title_filter_sketch">Sketches</string>
     <string name="title_filter_important">Important items</string>
+    <string name="title_filter_locked">Locked items</string>
+    <string name="title_filter_reminder">Items with reminders</string>
     <string name="title_sort_edited_desc">Sort by Edited</string>
     <string name="title_sort_edited_asc">Sort by Edited</string>
     <string name="title_sort_created_desc">Sort by Created</string>
     <string name="title_sort_created_asc">Sort by Created</string>
-
-    <string name="context_menu_archive">Archive</string>1
-    <string name="context_menu_unarchive">Unarchive</string>
-    <string name="context_menu_delete">Delete</string>
-    <string name="context_menu_remove_trash">Remove from trash</string>
-    <string name="context_menu_trash">Send to trash</string>
 
     <string name="edit_text_title_hint">Title</string>
     <string name="edit_text_content_hint">Content</string>
@@ -55,13 +62,7 @@
     <string name="date_created">Created:</string>
     <string name="date_last_modified">Edited:</string>
 
-    <string name="empty_recycler">:( \n\n Nothing to show</string>
-
-    <string name="settings_title_theme">Theme</string>
-    <string name="settings_theme_summary_light">Light</string>
-    <string name="settings_theme_summary_dark">Dark</string>
-
-    <string name="search_hint">Search items</string>
+    <string name="search_hint">Search content, tags etc.</string>
 
     <string name="dialog_save">Save</string>
     <string name="dialog_cancel">Cancel</string>
@@ -71,7 +72,22 @@
     <string name="dialog_item_focus_add_tags">Add tags</string>
     <string name="dialog_item_focus_edit_content">Edit content</string>
     <string name="dialog_item_focus_add_reminder">Add reminder</string>
+    <string name="dialog_item_focus_reminder_recurrence_never_title">Never repeat</string>
+    <string name="dialog_item_focus_reminder_recurrence_daily_title">Every day</string>
+    <string name="dialog_item_focus_reminder_recurrence_weekly_title">Every week</string>
+    <string name="dialog_item_focus_reminder_recurrence_monthly_title">Every month</string>
+    <string name="dialog_item_focus_reminder_recurrence_annually_title">Every year</string>
+    <string name="dialog_item_focus_reminder_recurrence_never">Never</string>
+    <string name="dialog_item_focus_reminder_recurrence_daily">Daily</string>
+    <string name="dialog_item_focus_reminder_recurrence_weekly">Weekly</string>
+    <string name="dialog_item_focus_reminder_recurrence_monthly">Monthly</string>
+    <string name="dialog_item_focus_reminder_recurrence_annually">Yearly</string>
     <string name="dialog_delete">Delete</string>
+    <string name="dialog_restart_app_title">Restart now?</string>
+
+    <string name="settings_title_theme">Theme</string>
+    <string name="settings_theme_summary_light">Light</string>
+    <string name="settings_theme_summary_dark">Dark</string>
 
     <string name="settings_category_settings">Settings</string>
     <string name="settings_category_about">About</string>
@@ -79,9 +95,11 @@
     <string name="settings_category_items">Items</string>
     <string name="settings_category_appearance">Appearance</string>
     <string name="settings_category_other">Other</string>
+    <string name="settings_category_notifications">Notifications</string>
     <string name="settings_category_checklist">Checklist</string>
 
     <string name="settings_settings">Settings</string>
+
     <string name="settings_header_display">Display</string>
     <string name="settings_header_wordcloud">Word cloud</string>
     <string name="settings_header_behaviour">Behaviour</string>
@@ -91,8 +109,12 @@
     <string name="settings_display_theme_title">Theme</string>
     <string name="settings_display_theme_light">Light</string>
     <string name="settings_display_theme_dark">Dark</string>
+    <string name="settings_display_theme_classic">Classic</string>
+    <string name="settings_display_theme_chrome">Chrome</string>
+    <string name="settings_display_theme_nature">Nature</string>
 
     <string name="settings_display_columns_title">Pinboard columns</string>
+    <string name="settings_display_type_counts_title">Show counts in navigation drawer</string>
 
     <string name="settings_display_date_format_title">Date format</string>
     <string name="settings_display_date_format_short">Short date (9 Sep 15:00)</string>
@@ -132,7 +154,9 @@
 
     <string name="settings_wordcloud_number_title">Max. words to show</string>
 
-    <string name="settings_behaviour_notify_status_change">Notify after sending to archive, trash etc.</string>
+    <string name="settings_behaviour_notify_status_change">Notify after archiving, deleting etc.</string>
+    <string name="settings_behaviour_notifications_sound">Play notification sound</string>
+    <string name="settings_behaviour_notifications_vibrate">Vibrate on notification</string>
     <string name="settings_behaviour_confirm_delete">Confirm before delete</string>
     <string name="settings_behaviour_checklist_italicise_checked_title">Italicise checked items</string>
     <string name="settings_behaviour_checklist_strikethrough_checked_title">Strike out checked items</string>
@@ -147,17 +171,12 @@
     <string name="title_sketch_edit">Edit sketch</string>
     <string name="title_nav_drawer_pinboard">Pinboard</string>
     <string name="title_nav_drawer_archive">Archive</string>
-    <string name="title_nav_drawer_trash">Trash</string>
     <string name="title_nav_drawer_wordcloud">Word cloud</string>
     <string name="title_loading_wordcloud">Loading cloud</string>
 
     <string name="snackbar_archived">Archived</string>
-    <string name="snackbar_trashed">Trashed</string>
     <string name="snackbar_restored">Restored</string>
     <string name="snackbar_deleted">Deleted</string>
     <string name="snackbar_undo">Undo</string>
-
-    <string name="dialog_restart_app_title">Restart now?</string>
-    <string name="activity_wordcloud_empty">:( \n Nothing on your pinboard, create some items to see them here!</string>
 
 </resources>
