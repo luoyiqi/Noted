@@ -4,7 +4,7 @@
     >
 
     <item android:id="@+id/menu_action_search"
-          android:title="Search"
+          android:title="@string/menu_action_search"
           android:icon="@drawable/ic_toolbar_search"
           app:showAsAction="collapseActionView|ifRoom"
           app:actionViewClass="android.support.v7.widget.SearchView"
@@ -50,6 +50,16 @@
                     android:title="@string/menu_filter_important"
                     />
 
+                <item
+                    android:id="@+id/menu_action_item_filter_submenu_locked"
+                    android:title="@string/menu_filter_locked"
+                    />
+
+                <item
+                    android:id="@+id/menu_action_item_filter_submenu_reminder"
+                    android:title="@string/menu_filter_reminder"
+                    />
+
             </group>
 
         </menu>
@@ -84,6 +94,11 @@
                 <item
                     android:id="@+id/menu_action_item_sort_submenu_type"
                     android:title="@string/menu_sort_type"
+                    />
+
+                <item
+                    android:id="@+id/menu_action_item_sort_submenu_reminder"
+                    android:title="@string/menu_sort_reminder"
                     />
 
             </group>
