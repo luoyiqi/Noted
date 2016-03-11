@@ -21,7 +21,7 @@ public class ZoomFrame extends FrameLayout implements ScaleGestureDetector.OnSca
 
     private static final String TAG = "ZoomLayout";
     private static final float MIN_ZOOM = 1.0f;
-    private static final float MAX_ZOOM = 7.0f;
+    private static final float MAX_ZOOM = 4.0f;
 
     private Mode mode = Mode.NONE;
     private float scale = 1.0f;
