@@ -1,18 +1,11 @@
 package com.cerebellio.noted.utils;
 
-import com.cerebellio.noted.R;
-
 /**
  * Commonly used constant values
  */
 public class Constants {
 
     private static final String LOG_TAG = TextFunctions.makeLogTag(Constants.class);
-
-    public static final String SHARED_PREFS_THEME_ID = "theme_id";
-
-    public static final int DEFAULT_THEME_ID = R.style.NotedTheme_Default;
-    public static final int DARK_THEME_ID = R.style.NotedTheme_Dark;
 
     public static final String BUNDLE_IS_IN_EDIT_MODE = "is_in_edit_mode";
     public static final String BUNDLE_ITEM_ID = "item_id";
@@ -25,7 +18,9 @@ public class Constants {
     public static final String BUNDLE_SETTINGS_TITLE = "settings_title";
 
     public static final String INTENT_ITEM_ID = "item_id";
+    public static final String INTENT_REMINDER_ID = "reminder_id";
     public static final String INTENT_ITEM_TYPE = "type";
+    public static final String INTENT_FROM_NOTIFICATION = "from_notification";
 
     //region Colours
     public static final Integer[] COLOURS = new Integer[]{
@@ -106,7 +101,6 @@ public class Constants {
             0xFF00BCD4,
             0xFF009688,
             0xFF8BC34A,
-            0xFFCDDC39,
             0xFFCDDC39,
             0xFFFFC107,
             0xFFFF9800,
