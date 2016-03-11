@@ -44,7 +44,7 @@ public class NotedListPreference extends ListPreference implements AdapterView.O
         if(mDialogTitle == null) mDialogTitle = getTitle();
 //        ((TextView) view.findViewById(R.id.dialog_title)).setText(mDialogTitle);
 
-        ListView list = (ListView) view.findViewById(android.R.id.list);
+        ListView list = (ListView) view.findViewById(R.id.dialog_list_preference_list);
         ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(
                 getContext(), R.layout.dialog_list_item,
                 getEntries());
@@ -73,7 +73,7 @@ public class NotedListPreference extends ListPreference implements AdapterView.O
                 UtilityFunctions.getResIdFromAttribute(R.attr.textColorTertiary, getContext()));
         ((TextView) view.findViewById(android.R.id.title)).setTextColor(textColor);
         ((TextView) view.findViewById(android.R.id.summary))
-                .setTextColor(ColourFunctions.adjustAlpha(textColor, 138));
+                .setTextColor(ColourFunctions.adjustAlpha(textColor, ColourFunctions.MATERIAL_ALPHA_54_PER_CENT));
     }
 
     @Override
