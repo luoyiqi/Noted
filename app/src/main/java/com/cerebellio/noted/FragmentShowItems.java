@@ -19,13 +19,16 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.widget.FrameLayout;
-import android.widget.TextView;
+import android.widget.LinearLayout;
 
 import com.cerebellio.noted.database.SqlDatabaseHelper;
 import com.cerebellio.noted.helpers.AnimationsHelper;
+import com.cerebellio.noted.helpers.PreferenceHelper;
 import com.cerebellio.noted.models.Item;
 import com.cerebellio.noted.models.NavDrawerItem;
 import com.cerebellio.noted.models.adapters.ShowItemsAdapter;
@@ -34,11 +37,9 @@ import com.cerebellio.noted.models.events.TitleChangedEvent;
 import com.cerebellio.noted.models.listeners.IOnFloatingActionMenuOptionClickedListener;
 import com.cerebellio.noted.models.listeners.IOnItemFocusNeedsUpdatingListener;
 import com.cerebellio.noted.models.listeners.IOnItemSelectedToEditListener;
-import com.cerebellio.noted.utils.ColourFunctions;
 import com.cerebellio.noted.utils.Constants;
 import com.cerebellio.noted.utils.FabShowHideRecyclerScroll;
 import com.cerebellio.noted.utils.FeedbackFunctions;
-import com.cerebellio.noted.utils.PreferenceFunctions;
 import com.cerebellio.noted.utils.TextFunctions;
 import com.cerebellio.noted.utils.UtilityFunctions;
 import com.getbase.floatingactionbutton.FloatingActionButton;
@@ -67,7 +68,7 @@ public class FragmentShowItems extends FragmentBase
     @InjectView(R.id.fragnent_show_items_floating_actions_menu_create_sketch)
     FloatingActionButton mCreateSketch;
     @InjectView(R.id.fragment_show_items_empty)
-    TextView mTextEmpty;
+    LinearLayout mEmpty;
     @InjectView(R.id.fragment_show_items_overlay)
     View mOverlay;
 
@@ -82,6 +83,7 @@ public class FragmentShowItems extends FragmentBase
     private boolean mIsFabMenuVisible = true;
     private boolean mIsEditedDescending = true;
     private boolean mIsCreatedDescending = true;
+    private boolean mIsReminderDateDescending = true;
     private boolean mIsSortNCS = true;
 
     @Nullable
@@ -195,14 +197,6 @@ public class FragmentShowItems extends FragmentBase
 
         setItemType(NavDrawerItem.NavDrawerItemType.PINBOARD);
 
-        //Check if we're in a dark theme,
-        //if not then apply the 54% opacity Material Design rule to the TextView
-        if (!UtilityFunctions.isConsideredDarkTheme(getActivity())) {
-            mTextEmpty.setTextColor(ColourFunctions.adjustAlpha(
-                    ColourFunctions.getTertiaryTextColour(getActivity()),
-                    ColourFunctions.MATERIAL_ALPHA_54_PER_CENT));
-        }
-
         return rootView;
     }
 
@@ -272,6 +266,10 @@ public class FragmentShowItems extends FragmentBase
             case TYPE_S_C_N:
                 menu.findItem(R.id.menu_action_item_sort_submenu_type).setChecked(true);
                 break;
+            case REMINDER_ASC:
+            case REMINDER_DESC:
+                menu.findItem(R.id.menu_action_item_sort_submenu_reminder).setChecked(true);
+                break;
         }
 
         //Ensure correct options are selected when menu refreshes
@@ -290,6 +288,12 @@ public class FragmentShowItems extends FragmentBase
                 break;
             case IMPORTANT:
                 menu.findItem(R.id.menu_action_item_filter_submenu_important).setChecked(true);
+                break;
+            case LOCKED:
+                menu.findItem(R.id.menu_action_item_filter_submenu_locked).setChecked(true);
+                break;
+            case REMINDER:
+                menu.findItem(R.id.menu_action_item_filter_submenu_reminder).setChecked(true);
                 break;
         }
     }
@@ -312,6 +316,12 @@ public class FragmentShowItems extends FragmentBase
         } else if (item.getItemId() == R.id.menu_action_item_filter_submenu_important) {
             mAdapter.setFilterType(ShowItemsAdapter.FilterType.IMPORTANT);
             ApplicationNoted.bus.post(new TitleChangedEvent(getString(R.string.title_filter_important)));
+        }  else if (item.getItemId() == R.id.menu_action_item_filter_submenu_locked) {
+            mAdapter.setFilterType(ShowItemsAdapter.FilterType.LOCKED);
+            ApplicationNoted.bus.post(new TitleChangedEvent(getString(R.string.title_filter_important)));
+        } else if (item.getItemId() == R.id.menu_action_item_filter_submenu_reminder) {
+            mAdapter.setFilterType(ShowItemsAdapter.FilterType.REMINDER);
+            ApplicationNoted.bus.post(new TitleChangedEvent(getString(R.string.title_filter_reminder)));
         } else if (item.getItemId() == R.id.menu_action_item_sort_submenu_edited) {
             mIsEditedDescending = !mIsEditedDescending;
             mAdapter.setSortType(mIsEditedDescending
@@ -327,6 +337,11 @@ public class FragmentShowItems extends FragmentBase
             mAdapter.setSortType(mIsSortNCS
                     ? ShowItemsAdapter.SortType.TYPE_N_C_S
                     : ShowItemsAdapter.SortType.TYPE_S_C_N);
+        } else if (item.getItemId() == R.id.menu_action_item_sort_submenu_reminder) {
+            mIsReminderDateDescending = !mIsReminderDateDescending;
+            mAdapter.setSortType(mIsReminderDateDescending
+                    ? ShowItemsAdapter.SortType.REMINDER_DESC
+                    : ShowItemsAdapter.SortType.REMINDER_ASC);
         }
 
         item.setChecked(true);
@@ -344,7 +359,7 @@ public class FragmentShowItems extends FragmentBase
         super.onResume();
         ApplicationNoted.bus.register(this);
         UtilityFunctions.setUpStaggeredGridRecycler(mItemsRecycler, mAdapter,
-                PreferenceFunctions.getPrefPinboardColumns(getActivity()), LinearLayoutManager.VERTICAL);
+                PreferenceHelper.getPrefPinboardColumns(getActivity()), LinearLayoutManager.VERTICAL);
         toggleEmptyText();
         mSqlDatabaseHelper = new SqlDatabaseHelper(getActivity());
         mFloatingActionsMenu.collapse();
@@ -382,9 +397,10 @@ public class FragmentShowItems extends FragmentBase
                          final Item item, final int position) {
         mAdapter.removeItem(position);
         mSqlDatabaseHelper.addOrEditItem(item);
+        ((ActivityMain) getActivity()).onResume();
 
         //Don't show SnackBar if user has asked not to be notified on status changes
-        if (!PreferenceFunctions.getPrefBehaviourNotifyStatusChange(getActivity())) {
+        if (!PreferenceHelper.getPrefBehaviourNotifyStatusChange(getActivity())) {
             return;
         }
 
@@ -397,9 +413,6 @@ public class FragmentShowItems extends FragmentBase
             case ARCHIVED:
                 message = getString(R.string.snackbar_archived);
                 break;
-            case TRASHED:
-                message = getString(R.string.snackbar_trashed);
-                break;
             case DELETED:
                 message = getString(R.string.snackbar_deleted);
                 break;
@@ -408,6 +421,28 @@ public class FragmentShowItems extends FragmentBase
         Snackbar snackbar = Snackbar.make(mContainer, message, Snackbar.LENGTH_LONG);
         customiseSnackbar(getActivity(), snackbar);
 
+        snackbar.setCallback(new Snackbar.Callback() {
+            @Override
+            public void onDismissed(Snackbar snackbar, int event) {
+                super.onDismissed(snackbar, event);
+                if (!mIsFabMenuVisible) {
+                    return;
+                }
+                AnimationsHelper.translateFloatingActionsMenu(mFloatingActionsMenu, new DecelerateInterpolator(2),
+                        0, AnimationsHelper.AnimationDirection.DOWN);
+            }
+
+            @Override
+            public void onShown(Snackbar snackbar) {
+                super.onShown(snackbar);
+                if (!mIsFabMenuVisible) {
+                    return;
+                }
+                AnimationsHelper.translateFloatingActionsMenu(mFloatingActionsMenu, new AccelerateInterpolator(2),
+                        snackbar.getView().getHeight(), AnimationsHelper.AnimationDirection.UP);
+            }
+        });
+
         if (!newStatus.equals(Item.Status.DELETED)) {
             snackbar.setAction(getString(R.string.snackbar_undo), new View.OnClickListener() {
                 @Override
@@ -415,6 +450,7 @@ public class FragmentShowItems extends FragmentBase
                     item.setStatus(prevStatus);
                     mAdapter.addItem(item, position);
                     mSqlDatabaseHelper.addOrEditItem(item);
+                    mItemsRecycler.scrollToPosition(position);
                 }
             });
         }
@@ -445,10 +481,10 @@ public class FragmentShowItems extends FragmentBase
     @UiThread
     private void toggleEmptyText() {
         if (mAdapter.getItemCount() == 0) {
-            mTextEmpty.setVisibility(View.VISIBLE);
+            mEmpty.setVisibility(View.VISIBLE);
             mItemsRecycler.setVisibility(View.GONE);
         } else {
-            mTextEmpty.setVisibility(View.GONE);
+            mEmpty.setVisibility(View.GONE);
             mItemsRecycler.setVisibility(View.VISIBLE);
         }
     }
@@ -499,9 +535,6 @@ public class FragmentShowItems extends FragmentBase
                 break;
             case ARCHIVE:
                 ApplicationNoted.bus.post(new TitleChangedEvent(getString(R.string.title_nav_drawer_archive)));
-                break;
-            case TRASH:
-                ApplicationNoted.bus.post(new TitleChangedEvent(getString(R.string.title_nav_drawer_trash)));
                 break;
         }
     }
