@@ -51,30 +51,6 @@ public class ColourFunctions {
         return ContextCompat.getColor(context, UtilityFunctions.getResIdFromAttribute(attr, context));
     }
 
-    public static int getAccentColour(Context context) {
-        return ContextCompat.getColor(
-                context, UtilityFunctions.getResIdFromAttribute(R.attr.colorAccent, context));
-    }
-
-    public static int getTertiaryTextColour(Context context) {
-        return ContextCompat.getColor(
-                context, UtilityFunctions.getResIdFromAttribute(R.attr.textColorTertiary, context));
-    }
-
-    public static int getPrimaryTextColour(Context context) {
-        return ContextCompat.getColor(
-                context, UtilityFunctions.getResIdFromAttribute(R.attr.textColorPrimary, context));
-    }
-
-    public static int getPrimaryColour(Context context) {
-        return ContextCompat.getColor(
-                context, UtilityFunctions.getResIdFromAttribute(R.attr.colorPrimary, context));
-    }
-
-    public static int getTransparent() {
-        return 0x00000000;
-    }
-
     /**
      * Get a truly random colour
      *
@@ -116,5 +92,45 @@ public class ColourFunctions {
      */
     public static int getRandomMaterialColour() {
         return UtilityFunctions.getRandomIntegerFromArray(Constants.MATERIAL_COLOURS);
+    }
+
+    /**
+     *
+     * @param context       calling Context
+     * @return              accent colour for current theme
+     */
+    public static int getAccentColour(Context context) {
+        return ContextCompat.getColor(
+                context, UtilityFunctions.getResIdFromAttribute(R.attr.colorAccent, context));
+    }
+
+    /**
+     *
+     * @param context       calling Context
+     * @return              tertiary text colour for current theme
+     */
+    public static int getTertiaryTextColour(Context context) {
+        return ContextCompat.getColor(
+                context, UtilityFunctions.getResIdFromAttribute(R.attr.textColorTertiary, context));
+    }
+
+    /**
+     *
+     * @param context       calling Context
+     * @return              primary text colour for current theme
+     */
+    public static int getPrimaryTextColour(Context context) {
+        return ContextCompat.getColor(
+                context, UtilityFunctions.getResIdFromAttribute(R.attr.textColorPrimary, context));
+    }
+
+    /**
+     *
+     * @param context       calling Context
+     * @return              background colour for current theme
+     */
+    public static int getBackgroundColour(Context context) {
+        return ContextCompat.getColor(
+                context, UtilityFunctions.getResIdFromAttribute(R.attr.windowBackground, context));
     }
 }
