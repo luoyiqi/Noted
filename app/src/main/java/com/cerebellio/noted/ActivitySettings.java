@@ -16,8 +16,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.cerebellio.noted.helpers.PreferenceHelper;
 import com.cerebellio.noted.utils.Constants;
-import com.cerebellio.noted.utils.PreferenceFunctions;
 import com.cerebellio.noted.utils.UtilityFunctions;
 
 import java.util.ArrayList;
@@ -62,6 +62,7 @@ public class ActivitySettings extends ActivityBase {
         getFragmentManager().beginTransaction()
                 .replace(R.id.activity_settings_frame, new FragmentSettings())
                 .commit();
+
     }
 
     @Override
@@ -150,8 +151,6 @@ public class ActivitySettings extends ActivityBase {
                 listView.setOverscrollFooter(new ColorDrawable(0x00000000));
 
                 listView.setDivider(null);
-//                listView.setDivider(new ColorDrawable(ContextCompat.getColor(getActivity(), UtilityFunctions.getResIdFromAttribute(R.attr.colorDivider, getActivity()))));
-//                listView.setDividerHeight(1);
             }
 
             return view;
@@ -181,126 +180,126 @@ public class ActivitySettings extends ActivityBase {
         public void onResume() {
             super.onResume();
 
-            final ListPreference theme = (ListPreference) findPreference(PreferenceFunctions.SETTINGS_DISPLAY_THEME);
+            final ListPreference theme = (ListPreference) findPreference(PreferenceHelper.SETTINGS_DISPLAY_THEME);
             if (theme != null) {
-                int index = theme.findIndexOfValue(PreferenceFunctions.getPrefThemeValue(getActivity()));
+                int index = theme.findIndexOfValue(PreferenceHelper.getPrefThemeValue(getActivity()));
                 theme.setSummary(getResources().getStringArray(R.array.settings_display_theme_entries)[index]);
                 theme.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object o) {
-                        mPrefs.edit().putString(PreferenceFunctions.SETTINGS_DISPLAY_THEME, (String) o).commit();
+                        mPrefs.edit().putString(PreferenceHelper.SETTINGS_DISPLAY_THEME, (String) o).commit();
                         System.exit(0);
                         return false;
                     }
                 });
             }
 
-            final ListPreference columns = (ListPreference) findPreference(PreferenceFunctions.SETTINGS_DISPLAY_COLUMNS);
+            final ListPreference columns = (ListPreference) findPreference(PreferenceHelper.SETTINGS_DISPLAY_COLUMNS);
             if (columns != null) {
-                int columnIndex = columns.findIndexOfValue(PreferenceFunctions.getPrefPinboardColumnsValue(getActivity()));
+                int columnIndex = columns.findIndexOfValue(PreferenceHelper.getPrefPinboardColumnsValue(getActivity()));
                 columns.setSummary(getResources().getStringArray(R.array.settings_display_columns_entries)[columnIndex]);
                 columns.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object o) {
                         int index =  columns.findIndexOfValue((String) o);
                         columns.setSummary(getResources().getStringArray(R.array.settings_display_columns_entries)[index]);
-                        mPrefs.edit().putString(PreferenceFunctions.SETTINGS_DISPLAY_COLUMNS, o.toString()).commit();
+                        mPrefs.edit().putString(PreferenceHelper.SETTINGS_DISPLAY_COLUMNS, o.toString()).commit();
                         columns.setValueIndex(index);
                         return false;
                     }
                 });
             }
 
-            final ListPreference dateFormat = (ListPreference) findPreference(PreferenceFunctions.SETTINGS_DISPLAY_DATE_FORMAT);
+            final ListPreference dateFormat = (ListPreference) findPreference(PreferenceHelper.SETTINGS_DISPLAY_DATE_FORMAT);
             if (dateFormat != null) {
-                int columnIndex = dateFormat.findIndexOfValue(PreferenceFunctions.getPrefDateFormatValue(getActivity()));
+                int columnIndex = dateFormat.findIndexOfValue(PreferenceHelper.getPrefDateFormatValue(getActivity()));
                 dateFormat.setSummary(getResources().getStringArray(R.array.settings_display_date_format_entries)[columnIndex]);
                 dateFormat.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object o) {
                         int index = dateFormat.findIndexOfValue((String) o);
                         dateFormat.setSummary(getResources().getStringArray(R.array.settings_display_date_format_entries)[index]);
-                        mPrefs.edit().putString(PreferenceFunctions.SETTINGS_DISPLAY_DATE_FORMAT, o.toString()).commit();
+                        mPrefs.edit().putString(PreferenceHelper.SETTINGS_DISPLAY_DATE_FORMAT, o.toString()).commit();
                         dateFormat.setValueIndex(index);
                         return false;
                     }
                 });
             }
 
-            final ListPreference itemLength = (ListPreference) findPreference(PreferenceFunctions.SETTINGS_DISPLAY_TRUNCATE_ITEM);
+            final ListPreference itemLength = (ListPreference) findPreference(PreferenceHelper.SETTINGS_DISPLAY_TRUNCATE_ITEM);
             if (itemLength != null) {
-                int columnIndex = itemLength.findIndexOfValue(PreferenceFunctions.getPrefTruncateItemValue(getActivity()));
+                int columnIndex = itemLength.findIndexOfValue(PreferenceHelper.getPrefTruncateItemValue(getActivity()));
                 itemLength.setSummary(getResources().getStringArray(R.array.settings_display_truncate_item_entries)[columnIndex]);
                 itemLength.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object o) {
                         int index = itemLength.findIndexOfValue((String) o);
                         itemLength.setSummary(getResources().getStringArray(R.array.settings_display_truncate_item_entries)[index]);
-                        mPrefs.edit().putString(PreferenceFunctions.SETTINGS_DISPLAY_TRUNCATE_ITEM, o.toString()).commit();
+                        mPrefs.edit().putString(PreferenceHelper.SETTINGS_DISPLAY_TRUNCATE_ITEM, o.toString()).commit();
                         itemLength.setValueIndex(index);
                         return false;
                     }
                 });
             }
 
-            final ListPreference wordCloudColour = (ListPreference) findPreference(PreferenceFunctions.SETTINGS_WORDCLOUD_COLOUR);
+            final ListPreference wordCloudColour = (ListPreference) findPreference(PreferenceHelper.SETTINGS_WORDCLOUD_COLOUR);
             if (wordCloudColour != null) {
-                int columnIndex = wordCloudColour.findIndexOfValue(PreferenceFunctions.getPrefWordCloudColourValue(getActivity()));
+                int columnIndex = wordCloudColour.findIndexOfValue(PreferenceHelper.getPrefWordCloudColourValue(getActivity()));
                 wordCloudColour.setSummary(getResources().getStringArray(R.array.settings_wordcloud_colour_entries)[columnIndex]);
                 wordCloudColour.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object o) {
                         int index = wordCloudColour.findIndexOfValue((String) o);
                         wordCloudColour.setSummary(getResources().getStringArray(R.array.settings_wordcloud_colour_entries)[index]);
-                        mPrefs.edit().putString(PreferenceFunctions.SETTINGS_WORDCLOUD_COLOUR, o.toString()).commit();
+                        mPrefs.edit().putString(PreferenceHelper.SETTINGS_WORDCLOUD_COLOUR, o.toString()).commit();
                         wordCloudColour.setValueIndex(index);
                         return false;
                     }
                 });
             }
 
-            final ListPreference wordCloudShape = (ListPreference) findPreference(PreferenceFunctions.SETTINGS_WORDCLOUD_SHAPE);
+            final ListPreference wordCloudShape = (ListPreference) findPreference(PreferenceHelper.SETTINGS_WORDCLOUD_SHAPE);
             if (wordCloudShape != null) {
-                int columnIndex = wordCloudShape.findIndexOfValue(PreferenceFunctions.getPrefWordCloudShapeValue(getActivity()));
+                int columnIndex = wordCloudShape.findIndexOfValue(PreferenceHelper.getPrefWordCloudShapeValue(getActivity()));
                 wordCloudShape.setSummary(getResources().getStringArray(R.array.settings_wordcloud_shape_entries)[columnIndex]);
                 wordCloudShape.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object o) {
                         int index = wordCloudShape.findIndexOfValue((String) o);
                         wordCloudShape.setSummary(getResources().getStringArray(R.array.settings_wordcloud_shape_entries)[index]);
-                        mPrefs.edit().putString(PreferenceFunctions.SETTINGS_WORDCLOUD_SHAPE, o.toString()).commit();
+                        mPrefs.edit().putString(PreferenceHelper.SETTINGS_WORDCLOUD_SHAPE, o.toString()).commit();
                         wordCloudShape.setValueIndex(index);
                         return false;
                     }
                 });
             }
 
-            final ListPreference wordCloudDensity = (ListPreference) findPreference(PreferenceFunctions.SETTINGS_WORDCLOUD_DENSITY);
+            final ListPreference wordCloudDensity = (ListPreference) findPreference(PreferenceHelper.SETTINGS_WORDCLOUD_DENSITY);
             if (wordCloudDensity != null) {
-                int columnIndex = wordCloudDensity.findIndexOfValue(PreferenceFunctions.getPrefWordCloudDensityValue(getActivity()));
+                int columnIndex = wordCloudDensity.findIndexOfValue(PreferenceHelper.getPrefWordCloudDensityValue(getActivity()));
                 wordCloudDensity.setSummary(getResources().getStringArray(R.array.settings_wordcloud_density_entries)[columnIndex]);
                 wordCloudDensity.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object o) {
                         int index = wordCloudDensity.findIndexOfValue((String) o);
                         wordCloudDensity.setSummary(getResources().getStringArray(R.array.settings_wordcloud_density_entries)[index]);
-                        mPrefs.edit().putString(PreferenceFunctions.SETTINGS_WORDCLOUD_DENSITY, o.toString()).commit();
+                        mPrefs.edit().putString(PreferenceHelper.SETTINGS_WORDCLOUD_DENSITY, o.toString()).commit();
                         wordCloudDensity.setValueIndex(index);
                         return false;
                     }
                 });
             }
 
-            final ListPreference wordCloudNumber = (ListPreference) findPreference(PreferenceFunctions.SETTINGS_WORDCLOUD_NUMBER);
+            final ListPreference wordCloudNumber = (ListPreference) findPreference(PreferenceHelper.SETTINGS_WORDCLOUD_NUMBER);
             if (wordCloudNumber != null) {
-                int columnIndex = wordCloudNumber.findIndexOfValue(PreferenceFunctions.getPrefWordCloudNumberValue(getActivity()));
+                int columnIndex = wordCloudNumber.findIndexOfValue(PreferenceHelper.getPrefWordCloudNumberValue(getActivity()));
                 wordCloudNumber.setSummary(getResources().getStringArray(R.array.settings_wordcloud_number_entries)[columnIndex]);
                 wordCloudNumber.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object o) {
                         int index = wordCloudNumber.findIndexOfValue((String) o);
                         wordCloudNumber.setSummary(getResources().getStringArray(R.array.settings_wordcloud_number_entries)[index]);
-                        mPrefs.edit().putString(PreferenceFunctions.SETTINGS_WORDCLOUD_NUMBER, o.toString()).commit();
+                        mPrefs.edit().putString(PreferenceHelper.SETTINGS_WORDCLOUD_NUMBER, o.toString()).commit();
                         wordCloudNumber.setValueIndex(index);
                         return false;
                     }
