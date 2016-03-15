@@ -1,5 +1,7 @@
 # Noted
 
+Available at [https://play.google.com/store/apps/details?id=com.cerebellio.noted](https://play.google.com/store/apps/details?id=com.cerebellio.noted)
+
 Noted is an open source note-taking application, designed to replicate a *pinboard* upon which *notes*, *checklists* and *sketches* can be attached.
 ## Features
 - Write notes, checklists or draw sketches
