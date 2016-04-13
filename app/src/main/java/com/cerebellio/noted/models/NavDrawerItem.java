@@ -19,7 +19,9 @@ public class NavDrawerItem {
         PINBOARD,
         ARCHIVE,
         WORDCLOUD,
-        SETTINGS;
+        SETTINGS,
+        BURSTLE,
+        GRIDDITION;
 
         public static boolean isSelectable(NavDrawerItemType type) {
             return type == PINBOARD || type == ARCHIVE;

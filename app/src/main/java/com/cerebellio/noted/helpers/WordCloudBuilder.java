@@ -351,7 +351,7 @@ public class WordCloudBuilder {
 
             PositionValidity validity = isValidPosition(rect);
 
-            while (!validity.equals(PositionValidity.VALID)) {
+            while (!isValidPosition(rect).equals(PositionValidity.VALID)) {
 
                 if (validity.equals(PositionValidity.OUTSIDE_BOUNDS)) {
                     //Set back to initial values because we know these were on the screen

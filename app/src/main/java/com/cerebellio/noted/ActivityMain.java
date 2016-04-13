@@ -4,6 +4,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -251,6 +252,14 @@ public class ActivityMain extends ActivityBase
                 startActivity(new Intent(this, ActivitySettings.class));
                 mNavDrawer.closeDrawers();
                 break;
+            case BURSTLE:
+                startActivity(new Intent(Intent.ACTION_VIEW,
+                        Uri.parse("market://details?id=com.cerebellio.burstle")));
+                break;
+            case GRIDDITION:
+                startActivity(new Intent(Intent.ACTION_VIEW,
+                        Uri.parse("market://details?id=com.cerebellio.griddition")));
+                break;
         }
     }
 
@@ -343,6 +352,8 @@ public class ActivityMain extends ActivityBase
         items.add(new NavDrawerItem(getString(R.string.nav_drawer_archive), R.drawable.ic_archive, false, NavDrawerItem.NavDrawerItemType.ARCHIVE));
         items.add(new NavDrawerItem(getString(R.string.nav_drawer_wordcloud), R.drawable.ic_wordcloud, true, NavDrawerItem.NavDrawerItemType.WORDCLOUD));
         items.add(new NavDrawerItem(getString(R.string.nav_drawer_settings), R.drawable.ic_settings, false, NavDrawerItem.NavDrawerItemType.SETTINGS));
+        items.add(new NavDrawerItem(getString(R.string.nav_drawer_burstle), R.drawable.ic_game, true, NavDrawerItem.NavDrawerItemType.BURSTLE));
+        items.add(new NavDrawerItem(getString(R.string.nav_drawer_griddition), R.drawable.ic_game, false, NavDrawerItem.NavDrawerItemType.GRIDDITION));
 
         mNavDrawerAdapter = new NavDrawerAdapter(items, this);
         UtilityFunctions.setUpLinearRecycler(this, mNavDrawerRecycler,
